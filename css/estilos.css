@@ -109,3 +109,237 @@ button:hover {
 
     color: #c62828;
 }
+/* =========================================================
+   PANEL ADMINISTRADOR
+   ========================================================= */
+
+.admin-header {
+
+    width: 100%;
+
+    padding: 20px 35px;
+
+    background: #1f2937;
+
+    color: white;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+}
+
+.admin-header h1 {
+
+    font-size: 28px;
+
+    margin-bottom: 4px;
+
+}
+
+.admin-header p {
+
+    opacity: 0.8;
+
+}
+
+
+.admin-container {
+
+    width: 100%;
+
+    max-width: 1400px;
+
+    margin: auto;
+
+    padding: 30px;
+
+}
+
+
+.admin-welcome {
+
+    background: white;
+
+    padding: 25px;
+
+    border-radius: 10px;
+
+    margin-bottom: 25px;
+
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+
+}
+
+
+.admin-section {
+
+    background: white;
+
+    padding: 25px;
+
+    border-radius: 10px;
+
+    margin-bottom: 30px;
+
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+
+}
+
+
+.section-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 20px;
+
+}
+
+
+.section-header h2 {
+
+    margin-bottom: 5px;
+
+}
+
+
+.section-header p {
+
+    color: #666;
+
+}
+
+
+.table-container {
+
+    overflow-x: auto;
+
+}
+
+
+table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+}
+
+
+th,
+td {
+
+    padding: 12px;
+
+    border-bottom: 1px solid #ddd;
+
+    text-align: left;
+
+}
+
+
+th {
+
+    background: #f3f4f6;
+
+}
+
+
+.modal {
+
+    display: none;
+
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(0,0,0,0.5);
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+}
+
+
+.modal.active {
+
+    display: flex;
+
+}
+
+
+.modal-content {
+
+    width: 100%;
+
+    max-width: 500px;
+
+    background: white;
+
+    padding: 30px;
+
+    border-radius: 10px;
+
+}
+
+
+.modal-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 20px;
+
+}
+
+
+.btnCerrarModal {
+
+    width: auto;
+
+    padding: 5px 12px;
+
+    background: transparent;
+
+    color: #333;
+
+    font-size: 25px;
+
+}
+
+
+.modal-content label {
+
+    margin-top: 12px;
+
+}
+
+
+.modal-content textarea,
+.modal-content select {
+
+    width: 100%;
+
+    padding: 12px;
+
+    margin-bottom: 15px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 6px;
+
+    font-size: 16px;
+
+}
