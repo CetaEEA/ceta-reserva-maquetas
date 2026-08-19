@@ -32,8 +32,7 @@ loginForm.addEventListener("submit", async (event) => {
      * para probar la conexión con Supabase.
      */
 
-    const emailInterno = `${usuario}@ceta.local`;
-
+    const emailInterno = usuario;
     const { data, error } =
         await supabaseClient.auth.signInWithPassword({
             email: emailInterno,
