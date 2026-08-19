@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Administración - CETA</title>
+
+    <link rel="stylesheet" href="css/estilos.css">
+
+</head>
+
+<body>
+
+    <header class="admin-header">
+
+        <div>
+            <h1>CETA</h1>
+            <p>Administración de Reserva de Maquetas</p>
+        </div>
+
+        <button id="btnCerrarSesion">
+            Cerrar sesión
+        </button>
+
+    </header>
+
+
+    <main class="admin-container">
+
+
+        <!-- ================================================= -->
+        <!-- USUARIO ADMINISTRADOR -->
+        <!-- ================================================= -->
+
+        <section class="admin-welcome">
+
+            <h2>
+                Panel de administración
+            </h2>
+
+            <p id="nombreAdministrador">
+                Cargando...
+            </p>
+
+        </section>
+
+
+
+        <!-- ================================================= -->
+        <!-- USUARIOS -->
+        <!-- ================================================= -->
+
+        <section class="admin-section">
+
+            <div class="section-header">
+
+                <div>
+
+                    <h2>
+                        👤 Usuarios
+                    </h2>
+
+                    <p>
+                        Administración de docentes y usuarios.
+                    </p>
+
+                </div>
+
+                <button id="btnNuevoUsuario">
+                    + Nuevo usuario
+                </button>
+
+            </div>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Usuario
+                            </th>
+
+                            <th>
+                                Nombre
+                            </th>
+
+                            <th>
+                                Rol
+                            </th>
+
+                            <th>
+                                Estado
+                            </th>
+
+                            <th>
+                                Acciones
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="tablaUsuarios">
+
+                        <tr>
+
+                            <td colspan="5">
+                                Cargando usuarios...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ================================================= -->
+        <!-- MAQUETAS -->
+        <!-- ================================================= -->
+
+        <section class="admin-section">
+
+            <div class="section-header">
+
+                <div>
+
+                    <h2>
+                        🔧 Maquetas
+                    </h2>
+
+                    <p>
+                        Administración de las maquetas disponibles.
+                    </p>
+
+                </div>
+
+                <button id="btnNuevaMaqueta">
+                    + Nueva maqueta
+                </button>
+
+            </div>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Código
+                            </th>
+
+                            <th>
+                                Nombre
+                            </th>
+
+                            <th>
+                                Descripción
+                            </th>
+
+                            <th>
+                                Estado
+                            </th>
+
+                            <th>
+                                Acciones
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="tablaMaquetas">
+
+                        <tr>
+
+                            <td colspan="5">
+                                Cargando maquetas...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ================================================= -->
+        <!-- RESERVAS -->
+        <!-- ================================================= -->
+
+        <section class="admin-section">
+
+            <div class="section-header">
+
+                <div>
+
+                    <h2>
+                        📅 Reservas
+                    </h2>
+
+                    <p>
+                        Todas las reservas registradas.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Fecha
+                            </th>
+
+                            <th>
+                                Horario
+                            </th>
+
+                            <th>
+                                Maqueta
+                            </th>
+
+                            <th>
+                                Docente
+                            </th>
+
+                            <th>
+                                Grupo
+                            </th>
+
+                            <th>
+                                Estado
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="tablaReservas">
+
+                        <tr>
+
+                            <td colspan="6">
+                                Cargando reservas...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- ================================================= -->
+    <!-- MODAL NUEVO USUARIO -->
+    <!-- ================================================= -->
+
+    <div id="modalUsuario" class="modal">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h2>
+                    Crear usuario
+                </h2>
+
+                <button class="btnCerrarModal" data-modal="modalUsuario">
+                    ×
+                </button>
+
+            </div>
+
+
+            <form id="formUsuario">
+
+                <label>
+                    Nombre completo
+                </label>
+
+                <input
+                    type="text"
+                    id="nuevoNombre"
+                    required
+                >
+
+
+                <label>
+                    Usuario
+                </label>
+
+                <input
+                    type="text"
+                    id="nuevoUsuario"
+                    required
+                >
+
+
+                <label>
+                    Contraseña
+                </label>
+
+                <input
+                    type="password"
+                    id="nuevaPassword"
+                    required
+                >
+
+
+                <label>
+                    Rol
+                </label>
+
+                <select id="nuevoRol">
+
+                    <option value="docente">
+                        Docente
+                    </option>
+
+                    <option value="administrador">
+                        Administrador
+                    </option>
+
+                </select>
+
+
+                <button type="submit">
+                    Crear usuario
+                </button>
+
+
+                <p id="mensajeUsuario"></p>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ================================================= -->
+    <!-- MODAL NUEVA MAQUETA -->
+    <!-- ================================================= -->
+
+    <div id="modalMaqueta" class="modal">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h2>
+                    Nueva maqueta
+                </h2>
+
+                <button class="btnCerrarModal" data-modal="modalMaqueta">
+                    ×
+                </button>
+
+            </div>
+
+
+            <form id="formMaqueta">
+
+                <label>
+                    Código
+                </label>
+
+                <input
+                    type="text"
+                    id="codigoMaqueta"
+                    placeholder="Ej: M-001"
+                >
+
+
+                <label>
+                    Nombre
+                </label>
+
+                <input
+                    type="text"
+                    id="nombreMaqueta"
+                    required
+                >
+
+
+                <label>
+                    Descripción
+                </label>
+
+                <textarea
+                    id="descripcionMaqueta"
+                    rows="4"
+                ></textarea>
+
+
+                <button type="submit">
+                    Agregar maqueta
+                </button>
+
+
+                <p id="mensajeMaqueta"></p>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="js/config.js"></script>
+
+    <script src="js/admin.js"></script>
+
+</body>
+
+</html>
