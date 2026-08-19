@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CETA - Reserva de Maquetas</title>
+
+    <link rel="stylesheet" href="css/estilos.css">
+</head>
+
+<body>
+
+    <main class="login-container">
+
+        <section class="login-card">
+
+            <div class="logo">
+                CETA
+            </div>
+
+            <h1>Reserva de Maquetas</h1>
+
+            <p class="subtitle">
+                Electricidad y Electrónica Automotriz
+            </p>
+
+            <form id="loginForm">
+
+                <label for="usuario">
+                    Usuario
+                </label>
+
+                <input
+                    type="text"
+                    id="usuario"
+                    placeholder="Ingrese su usuario"
+                    autocomplete="username"
+                    required
+                >
+
+                <label for="password">
+                    Contraseña
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Ingrese su contraseña"
+                    autocomplete="current-password"
+                    required
+                >
+
+                <button type="submit">
+                    INICIAR SESIÓN
+                </button>
+
+                <p id="mensaje" class="mensaje"></p>
+
+            </form>
+
+        </section>
+
+    </main>
+
+    <script src="js/config.js"></script>
+    <script src="js/login.js"></script>
+
+</body>
+</html>
