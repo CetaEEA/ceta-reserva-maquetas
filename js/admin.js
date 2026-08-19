@@ -5,7 +5,7 @@ const supabaseClient = supabase.createClient(
 
 
 /* =========================================================
-   COMPROBAR SESIÓN
+   COMPROBAR SESIÓN Y ADMINISTRADOR
    ========================================================= */
 
 async function comprobarAdministrador() {
@@ -15,7 +15,6 @@ async function comprobarAdministrador() {
         error
     } = await supabaseClient.auth.getUser();
 
-
     if (error || !user) {
 
         window.location.href = "index.html";
@@ -24,7 +23,10 @@ async function comprobarAdministrador() {
     }
 
 
-    const { data: perfil, error: errorPerfil } =
+    const {
+        data: perfil,
+        error: errorPerfil
+    } =
         await supabaseClient
             .from("perfiles")
             .select("*")
@@ -58,12 +60,107 @@ async function comprobarAdministrador() {
 
 
 /* =========================================================
+   CARGAR USUARIOS
+   ========================================================= */
+
+async function cargarUsuarios() {
+
+    const tabla =
+        document.getElementById("tablaUsuarios");
+
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("perfiles")
+            .select(
+                "id, usuario, nombre, rol, activo"
+            )
+            .order("nombre");
+
+
+    if (error) {
+
+        console.error(error);
+
+        tabla.innerHTML = `
+            <tr>
+                <td colspan="5">
+                    Error al cargar los usuarios.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    if (!data || !data.length) {
+
+        tabla.innerHTML = `
+            <tr>
+                <td colspan="5">
+                    No existen usuarios registrados.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    tabla.innerHTML = data.map(usuario => {
+
+        const estado =
+            usuario.activo
+                ? "Activo"
+                : "Desactivado";
+
+
+        return `
+
+            <tr>
+
+                <td>
+                    ${usuario.usuario}
+                </td>
+
+                <td>
+                    ${usuario.nombre}
+                </td>
+
+                <td>
+                    ${usuario.rol}
+                </td>
+
+                <td>
+                    ${estado}
+                </td>
+
+                <td>
+                    Próximamente
+                </td>
+
+            </tr>
+
+        `;
+
+    }).join("");
+}
+
+
+/* =========================================================
    CARGAR MAQUETAS
    ========================================================= */
 
 async function cargarMaquetas() {
 
-    const { data, error } =
+    const {
+        data,
+        error
+    } =
         await supabaseClient
             .from("maquetas")
             .select("*")
@@ -71,10 +168,14 @@ async function cargarMaquetas() {
 
 
     const tabla =
-        document.getElementById("tablaMaquetas");
+        document.getElementById(
+            "tablaMaquetas"
+        );
 
 
     if (error) {
+
+        console.error(error);
 
         tabla.innerHTML = `
             <tr>
@@ -84,13 +185,11 @@ async function cargarMaquetas() {
             </tr>
         `;
 
-        console.error(error);
-
         return;
     }
 
 
-    if (!data.length) {
+    if (!data || !data.length) {
 
         tabla.innerHTML = `
             <tr>
@@ -142,7 +241,10 @@ async function cargarMaquetas() {
 
 async function cargarReservas() {
 
-    const { data, error } =
+    const {
+        data,
+        error
+    } =
         await supabaseClient
             .from("reservas")
             .select(`
@@ -160,14 +262,20 @@ async function cargarReservas() {
                     usuario
                 )
             `)
-            .order("fecha", { ascending: true });
+            .order("fecha", {
+                ascending: true
+            });
 
 
     const tabla =
-        document.getElementById("tablaReservas");
+        document.getElementById(
+            "tablaReservas"
+        );
 
 
     if (error) {
+
+        console.error(error);
 
         tabla.innerHTML = `
             <tr>
@@ -177,13 +285,11 @@ async function cargarReservas() {
             </tr>
         `;
 
-        console.error(error);
-
         return;
     }
 
 
-    if (!data.length) {
+    if (!data || !data.length) {
 
         tabla.innerHTML = `
             <tr>
@@ -232,22 +338,184 @@ async function cargarReservas() {
 
 
 /* =========================================================
-   CERRAR SESIÓN
+   CREAR USUARIO
    ========================================================= */
 
 document
-    .getElementById("btnCerrarSesion")
-    .addEventListener("click", async () => {
+    .getElementById("formUsuario")
+    .addEventListener("submit", async (event) => {
 
-        await supabaseClient.auth.signOut();
+        event.preventDefault();
 
-        window.location.href = "index.html";
+
+        const nombre =
+            document
+                .getElementById("nuevoNombre")
+                .value
+                .trim();
+
+
+        const usuario =
+            document
+                .getElementById("nuevoUsuario")
+                .value
+                .trim()
+                .toLowerCase();
+
+
+        const password =
+            document
+                .getElementById("nuevaPassword")
+                .value;
+
+
+        const rol =
+            document
+                .getElementById("nuevoRol")
+                .value;
+
+
+        const mensaje =
+            document
+                .getElementById("mensajeUsuario");
+
+
+        mensaje.textContent =
+            "Creando usuario...";
+
+
+        try {
+
+            /*
+             * Obtener sesión actual
+             */
+
+            const {
+                data: {
+                    session
+                }
+            } =
+                await supabaseClient
+                    .auth
+                    .getSession();
+
+
+            if (!session) {
+
+                mensaje.textContent =
+                    "La sesión ha expirado.";
+
+                return;
+            }
+
+
+            /*
+             * Llamar a Edge Function
+             */
+
+            const respuesta =
+                await fetch(
+                    `${SUPABASE_URL}/functions/v1/crear-usuario`,
+                    {
+                        method: "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json",
+
+                            "Authorization":
+                                `Bearer ${session.access_token}`
+
+                        },
+
+                        body: JSON.stringify({
+
+                            nombre: nombre,
+
+                            usuario: usuario,
+
+                            password: password,
+
+                            rol: rol
+
+                        })
+
+                    }
+                );
+
+
+            const resultado =
+                await respuesta.json();
+
+
+            if (!respuesta.ok) {
+
+                console.error(resultado);
+
+                mensaje.textContent =
+                    resultado.error ||
+                    "No se pudo crear el usuario.";
+
+                return;
+            }
+
+
+            /*
+             * Usuario creado
+             */
+
+            mensaje.textContent =
+                "Usuario creado correctamente.";
+
+
+            /*
+             * Limpiar formulario
+             */
+
+            document
+                .getElementById("formUsuario")
+                .reset();
+
+
+            /*
+             * Actualizar tabla
+             */
+
+            await cargarUsuarios();
+
+
+            /*
+             * Cerrar ventana después
+             * de un momento
+             */
+
+            setTimeout(() => {
+
+                document
+                    .getElementById("modalUsuario")
+                    .classList
+                    .remove("active");
+
+                mensaje.textContent = "";
+
+            }, 1200);
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            mensaje.textContent =
+                "Error de conexión con el servidor.";
+
+        }
 
     });
 
 
 /* =========================================================
-   MODALES
+   NUEVO USUARIO
    ========================================================= */
 
 document
@@ -256,10 +524,15 @@ document
 
         document
             .getElementById("modalUsuario")
-            .classList.add("active");
+            .classList
+            .add("active");
 
     });
 
+
+/* =========================================================
+   NUEVA MAQUETA
+   ========================================================= */
 
 document
     .getElementById("btnNuevaMaqueta")
@@ -267,27 +540,57 @@ document
 
         document
             .getElementById("modalMaqueta")
-            .classList.add("active");
+            .classList
+            .add("active");
 
     });
 
+
+/* =========================================================
+   CERRAR MODALES
+   ========================================================= */
 
 document
     .querySelectorAll(".btnCerrarModal")
     .forEach(button => {
 
-        button.addEventListener("click", () => {
+        button.addEventListener(
+            "click",
+            () => {
 
-            const modal =
-                document.getElementById(
-                    button.dataset.modal
-                );
+                const modal =
+                    document.getElementById(
+                        button.dataset.modal
+                    );
 
-            modal.classList.remove("active");
+                modal.classList
+                    .remove("active");
 
-        });
+            }
+        );
 
     });
+
+
+/* =========================================================
+   CERRAR SESIÓN
+   ========================================================= */
+
+document
+    .getElementById("btnCerrarSesion")
+    .addEventListener(
+        "click",
+        async () => {
+
+            await supabaseClient
+                .auth
+                .signOut();
+
+            window.location.href =
+                "index.html";
+
+        }
+    );
 
 
 /* =========================================================
@@ -300,8 +603,12 @@ document
         await comprobarAdministrador();
 
 
-    if (!perfil) return;
+    if (!perfil) {
+        return;
+    }
 
+
+    await cargarUsuarios();
 
     await cargarMaquetas();
 
