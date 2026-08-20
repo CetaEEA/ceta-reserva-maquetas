@@ -15,14 +15,12 @@ async function comprobarAdministrador() {
         error
     } = await supabaseClient.auth.getUser();
 
-
     if (error || !user) {
 
         window.location.href = "index.html";
 
         return null;
     }
-
 
     const {
         data: perfil,
@@ -33,7 +31,6 @@ async function comprobarAdministrador() {
             .select("*")
             .eq("id", user.id)
             .single();
-
 
     if (
         errorPerfil ||
@@ -49,12 +46,10 @@ async function comprobarAdministrador() {
         return null;
     }
 
-
     const nombreAdministrador =
         document.getElementById(
             "nombreAdministrador"
         );
-
 
     if (nombreAdministrador) {
 
@@ -62,7 +57,6 @@ async function comprobarAdministrador() {
             `Bienvenido, ${perfil.nombre}`;
 
     }
-
 
     return perfil;
 }
@@ -79,12 +73,7 @@ async function cargarUsuarios() {
             "tablaUsuarios"
         );
 
-
-    if (!tabla) {
-
-        return;
-
-    }
+    if (!tabla) return;
 
 
     const {
@@ -105,7 +94,6 @@ async function cargarUsuarios() {
             "Error cargando usuarios:",
             error
         );
-
 
         tabla.innerHTML = `
             <tr>
@@ -185,12 +173,7 @@ async function cargarMaquetas() {
             "tablaMaquetas"
         );
 
-
-    if (!tabla) {
-
-        return;
-
-    }
+    if (!tabla) return;
 
 
     const {
@@ -209,7 +192,6 @@ async function cargarMaquetas() {
             "Error cargando maquetas:",
             error
         );
-
 
         tabla.innerHTML = `
             <tr>
@@ -238,153 +220,283 @@ async function cargarMaquetas() {
 
 
     tabla.innerHTML =
-        data.map(maqueta => `
+        data.map(maqueta => {
 
-            <tr>
+            const estado =
+                maqueta.disponible
+                    ? `
+                        <span class="estado-disponible">
+                            🟢 Disponible
+                        </span>
+                    `
+                    : `
+                        <span class="estado-no-disponible">
+                            🔴 No disponible
+                        </span>
+                    `;
 
-                <td>
-                    ${maqueta.codigo || "-"}
-                </td>
 
-                <td>
-                    ${maqueta.nombre}
-                </td>
+            const botonEstado =
+                maqueta.disponible
 
-                <td>
-                    ${maqueta.descripcion || "-"}
-                </td>
+                    ? `
+                        <button
+                            class="btn-desactivar-maqueta"
+                            data-id="${maqueta.id}"
+                            data-nombre="${maqueta.nombre}"
+                        >
+                            🔴 No disponible
+                        </button>
+                    `
 
-                <td>
+                    : `
+                        <button
+                            class="btn-activar-maqueta"
+                            data-id="${maqueta.id}"
+                            data-nombre="${maqueta.nombre}"
+                        >
+                            🟢 Activar
+                        </button>
+                    `;
 
-                    ${
-                        maqueta.disponible
-                            ? "Disponible"
-                            : "No disponible"
-                    }
 
-                </td>
+            return `
 
-                <td>
-                    Próximamente
-                </td>
+                <tr>
 
-            </tr>
+                    <td>
+                        ${maqueta.codigo || "-"}
+                    </td>
 
-        `).join("");
+                    <td>
+                        ${maqueta.nombre}
+                    </td>
+
+                    <td>
+                        ${maqueta.descripcion || "-"}
+                    </td>
+
+                    <td>
+                        ${estado}
+                    </td>
+
+                    <td>
+
+                        ${botonEstado}
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }).join("");
+
+
+    /* =====================================================
+       BOTONES DESACTIVAR
+       ===================================================== */
+
+    document
+        .querySelectorAll(
+            ".btn-desactivar-maqueta"
+        )
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    cambiarEstadoMaqueta(
+                        button.dataset.id,
+                        false,
+                        button.dataset.nombre
+                    );
+
+                }
+            );
+
+        });
+
+
+    /* =====================================================
+       BOTONES ACTIVAR
+       ===================================================== */
+
+    document
+        .querySelectorAll(
+            ".btn-activar-maqueta"
+        )
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    cambiarEstadoMaqueta(
+                        button.dataset.id,
+                        true,
+                        button.dataset.nombre
+                    );
+
+                }
+            );
+
+        });
+
 }
 
 
 /* =========================================================
-   CARGAR RESERVAS
+   CAMBIAR ESTADO DE MAQUETA
    ========================================================= */
 
-async function cargarReservas() {
+async function cambiarEstadoMaqueta(
+    id,
+    disponible,
+    nombre
+) {
 
-    const tabla =
-        document.getElementById(
-            "tablaReservas"
+    const accion =
+        disponible
+            ? "habilitar"
+            : "marcar como no disponible";
+
+
+    const confirmar =
+        confirm(
+            `¿Deseas ${accion} la maqueta "${nombre}"?`
         );
 
 
-    if (!tabla) {
+    if (!confirmar) {
 
         return;
 
     }
 
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from("reservas")
-            .select(`
-                id,
-                grupo,
-                fecha,
-                horario,
-                estado,
-                maquetas (
-                    codigo,
-                    nombre
-                ),
-                perfiles (
-                    nombre,
-                    usuario
-                )
-            `)
-            .order("fecha", {
-                ascending: true
-            });
+    try {
+
+        /* =============================================
+           OBTENER SESIÓN
+           ============================================= */
+
+        const {
+            data: {
+                session
+            }
+        } =
+            await supabaseClient
+                .auth
+                .getSession();
 
 
-    if (error) {
+        if (!session) {
+
+            alert(
+                "La sesión ha expirado."
+            );
+
+            window.location.href =
+                "index.html";
+
+            return;
+
+        }
+
+
+        /* =============================================
+           LLAMAR EDGE FUNCTION
+           ============================================= */
+
+        const respuesta =
+            await fetch(
+
+                `${SUPABASE_URL}/functions/v1/cambiar-estado-maqueta`,
+
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json",
+
+                        "Authorization":
+                            `Bearer ${session.access_token}`
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            id:
+                                Number(id),
+
+                            disponible:
+                                disponible
+
+                        })
+
+                }
+
+            );
+
+
+        const resultado =
+            await respuesta.json();
+
+
+        /* =============================================
+           ERROR
+           ============================================= */
+
+        if (!respuesta.ok) {
+
+            console.error(
+                resultado
+            );
+
+
+            alert(
+                resultado.error ||
+                "No se pudo cambiar el estado."
+            );
+
+            return;
+
+        }
+
+
+        /* =============================================
+           ÉXITO
+           ============================================= */
+
+        alert(
+            resultado.message ||
+            "Estado actualizado correctamente."
+        );
+
+
+        await cargarMaquetas();
+
+
+    } catch (error) {
 
         console.error(
-            "Error cargando reservas:",
+            "Error cambiando estado:",
             error
         );
 
 
-        tabla.innerHTML = `
-            <tr>
-                <td colspan="6">
-                    Error al cargar las reservas.
-                </td>
-            </tr>
-        `;
+        alert(
+            "Error de conexión con el servidor."
+        );
 
-        return;
     }
 
-
-    if (!data || !data.length) {
-
-        tabla.innerHTML = `
-            <tr>
-                <td colspan="6">
-                    No existen reservas registradas.
-                </td>
-            </tr>
-        `;
-
-        return;
-    }
-
-
-    tabla.innerHTML =
-        data.map(reserva => `
-
-            <tr>
-
-                <td>
-                    ${reserva.fecha}
-                </td>
-
-                <td>
-                    ${reserva.horario}
-                </td>
-
-                <td>
-                    ${reserva.maquetas?.nombre || "-"}
-                </td>
-
-                <td>
-                    ${reserva.perfiles?.nombre || "-"}
-                </td>
-
-                <td>
-                    ${reserva.grupo || "-"}
-                </td>
-
-                <td>
-                    ${reserva.estado || "-"}
-                </td>
-
-            </tr>
-
-        `).join("");
 }
 
 
@@ -571,7 +683,6 @@ if (formUsuario) {
             } catch (error) {
 
                 console.error(
-                    "Error creando usuario:",
                     error
                 );
 
@@ -645,10 +756,6 @@ if (formMaqueta) {
 
             try {
 
-                /* =========================================
-                   OBTENER SESIÓN
-                   ========================================= */
-
                 const {
                     data: {
                         session
@@ -668,10 +775,6 @@ if (formMaqueta) {
 
                 }
 
-
-                /* =========================================
-                   LLAMAR EDGE FUNCTION
-                   ========================================= */
 
                 const respuesta =
                     await fetch(
@@ -715,10 +818,6 @@ if (formMaqueta) {
                     await respuesta.json();
 
 
-                /* =========================================
-                   COMPROBAR RESPUESTA
-                   ========================================= */
-
                 if (!respuesta.ok) {
 
                     console.error(
@@ -735,10 +834,6 @@ if (formMaqueta) {
                 }
 
 
-                /* =========================================
-                   ÉXITO
-                   ========================================= */
-
                 mensaje.textContent =
                     "Maqueta creada correctamente.";
 
@@ -746,16 +841,8 @@ if (formMaqueta) {
                 formMaqueta.reset();
 
 
-                /* =========================================
-                   ACTUALIZAR TABLA
-                   ========================================= */
-
                 await cargarMaquetas();
 
-
-                /* =========================================
-                   CERRAR MODAL
-                   ========================================= */
 
                 setTimeout(() => {
 
@@ -783,7 +870,6 @@ if (formMaqueta) {
             } catch (error) {
 
                 console.error(
-                    "Error creando maqueta:",
                     error
                 );
 
