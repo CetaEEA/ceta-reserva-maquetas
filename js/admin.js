@@ -5,7 +5,7 @@ const supabaseClient = supabase.createClient(
 
 
 /* =========================================================
-   COMPROBAR SESIÓN Y ADMINISTRADOR
+   COMPROBAR ADMINISTRADOR
    ========================================================= */
 
 async function comprobarAdministrador() {
@@ -18,7 +18,6 @@ async function comprobarAdministrador() {
     if (error || !user) {
 
         window.location.href = "index.html";
-
         return null;
     }
 
@@ -75,7 +74,6 @@ async function cargarUsuarios() {
 
     if (!tabla) return;
 
-
     const {
         data,
         error
@@ -86,7 +84,6 @@ async function cargarUsuarios() {
                 "id, usuario, nombre, rol, activo"
             )
             .order("nombre");
-
 
     if (error) {
 
@@ -106,7 +103,6 @@ async function cargarUsuarios() {
         return;
     }
 
-
     if (!data || !data.length) {
 
         tabla.innerHTML = `
@@ -120,18 +116,10 @@ async function cargarUsuarios() {
         return;
     }
 
-
     tabla.innerHTML =
         data.map(usuario => {
 
-            const estado =
-                usuario.activo
-                    ? "Activo"
-                    : "Desactivado";
-
-
             return `
-
                 <tr>
 
                     <td>
@@ -147,7 +135,11 @@ async function cargarUsuarios() {
                     </td>
 
                     <td>
-                        ${estado}
+                        ${
+                            usuario.activo
+                                ? "Activo"
+                                : "Desactivado"
+                        }
                     </td>
 
                     <td>
@@ -155,7 +147,6 @@ async function cargarUsuarios() {
                     </td>
 
                 </tr>
-
             `;
 
         }).join("");
@@ -175,7 +166,6 @@ async function cargarMaquetas() {
 
     if (!tabla) return;
 
-
     const {
         data,
         error
@@ -184,7 +174,6 @@ async function cargarMaquetas() {
             .from("maquetas")
             .select("*")
             .order("id");
-
 
     if (error) {
 
@@ -204,7 +193,6 @@ async function cargarMaquetas() {
         return;
     }
 
-
     if (!data || !data.length) {
 
         tabla.innerHTML = `
@@ -217,7 +205,6 @@ async function cargarMaquetas() {
 
         return;
     }
-
 
     tabla.innerHTML =
         data.map(maqueta => {
@@ -235,45 +222,42 @@ async function cargarMaquetas() {
                         </span>
                     `;
 
-
             const botonEstado =
                 maqueta.disponible
-
                     ? `
                         <button
                             class="btn-desactivar-maqueta"
                             data-id="${maqueta.id}"
-                            data-nombre="${maqueta.nombre}"
+                            data-nombre="${escapeHTML(maqueta.nombre)}"
                         >
                             🔴 No disponible
                         </button>
                     `
-
                     : `
                         <button
                             class="btn-activar-maqueta"
                             data-id="${maqueta.id}"
-                            data-nombre="${maqueta.nombre}"
+                            data-nombre="${escapeHTML(maqueta.nombre)}"
                         >
                             🟢 Activar
                         </button>
                     `;
 
-
             return `
-
                 <tr>
 
                     <td>
-                        ${maqueta.codigo || "-"}
+                        ${escapeHTML(maqueta.codigo || "-")}
                     </td>
 
                     <td>
-                        ${maqueta.nombre}
+                        ${escapeHTML(maqueta.nombre)}
                     </td>
 
                     <td>
-                        ${maqueta.descripcion || "-"}
+                        ${escapeHTML(
+                            maqueta.descripcion || "-"
+                        )}
                     </td>
 
                     <td>
@@ -282,19 +266,55 @@ async function cargarMaquetas() {
 
                     <td>
 
+                        <button
+                            class="btn-editar-maqueta"
+                            data-id="${maqueta.id}"
+                            data-codigo="${escapeHTML(maqueta.codigo || "")}"
+                            data-nombre="${escapeHTML(maqueta.nombre)}"
+                            data-descripcion="${escapeHTML(maqueta.descripcion || "")}"
+                        >
+                            ✏️ Editar
+                        </button>
+
                         ${botonEstado}
 
                     </td>
 
                 </tr>
-
             `;
 
         }).join("");
 
 
     /* =====================================================
-       BOTONES DESACTIVAR
+       EDITAR
+       ===================================================== */
+
+    document
+        .querySelectorAll(
+            ".btn-editar-maqueta"
+        )
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    abrirEditarMaqueta(
+                        button.dataset.id,
+                        button.dataset.codigo,
+                        button.dataset.nombre,
+                        button.dataset.descripcion
+                    );
+
+                }
+            );
+
+        });
+
+
+    /* =====================================================
+       DESACTIVAR
        ===================================================== */
 
     document
@@ -320,7 +340,7 @@ async function cargarMaquetas() {
 
 
     /* =====================================================
-       BOTONES ACTIVAR
+       ACTIVAR
        ===================================================== */
 
     document
@@ -348,7 +368,127 @@ async function cargarMaquetas() {
 
 
 /* =========================================================
-   CAMBIAR ESTADO DE MAQUETA
+   ESCAPAR HTML
+   ========================================================= */
+
+function escapeHTML(text) {
+
+    return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+/* =========================================================
+   ABRIR EDICIÓN
+   ========================================================= */
+
+function abrirEditarMaqueta(
+    id,
+    codigo,
+    nombre,
+    descripcion
+) {
+
+    const modal =
+        document.getElementById(
+            "modalMaqueta"
+        );
+
+    const titulo =
+        modal?.querySelector(
+            ".modal-header h2"
+        );
+
+    const form =
+        document.getElementById(
+            "formMaqueta"
+        );
+
+    const inputCodigo =
+        document.getElementById(
+            "codigoMaqueta"
+        );
+
+    const inputNombre =
+        document.getElementById(
+            "nombreMaqueta"
+        );
+
+    const inputDescripcion =
+        document.getElementById(
+            "descripcionMaqueta"
+        );
+
+    const mensaje =
+        document.getElementById(
+            "mensajeMaqueta"
+        );
+
+
+    if (!modal || !form) return;
+
+
+    /* Guardamos el ID que vamos a editar */
+
+    form.dataset.editandoId =
+        id;
+
+
+    /* Cambiar título */
+
+    if (titulo) {
+
+        titulo.textContent =
+            "Editar maqueta";
+
+    }
+
+
+    /* Cargar datos */
+
+    inputCodigo.value =
+        codigo || "";
+
+    inputNombre.value =
+        nombre || "";
+
+    inputDescripcion.value =
+        descripcion || "";
+
+
+    /* Cambiar botón */
+
+    const boton =
+        form.querySelector(
+            'button[type="submit"]'
+        );
+
+    if (boton) {
+
+        boton.textContent =
+            "Guardar cambios";
+
+    }
+
+
+    mensaje.textContent =
+        "";
+
+
+    modal.classList.add(
+        "active"
+    );
+
+}
+
+
+/* =========================================================
+   CAMBIAR ESTADO
    ========================================================= */
 
 async function cambiarEstadoMaqueta(
@@ -363,13 +503,11 @@ async function cambiarEstadoMaqueta(
             : "marcar como no disponible";
 
 
-    const confirmar =
-        confirm(
+    if (
+        !confirm(
             `¿Deseas ${accion} la maqueta "${nombre}"?`
-        );
-
-
-    if (!confirmar) {
+        )
+    ) {
 
         return;
 
@@ -377,10 +515,6 @@ async function cambiarEstadoMaqueta(
 
 
     try {
-
-        /* =============================================
-           OBTENER SESIÓN
-           ============================================= */
 
         const {
             data: {
@@ -405,10 +539,6 @@ async function cambiarEstadoMaqueta(
 
         }
 
-
-        /* =============================================
-           LLAMAR EDGE FUNCTION
-           ============================================= */
 
         const respuesta =
             await fetch(
@@ -449,16 +579,7 @@ async function cambiarEstadoMaqueta(
             await respuesta.json();
 
 
-        /* =============================================
-           ERROR
-           ============================================= */
-
         if (!respuesta.ok) {
-
-            console.error(
-                resultado
-            );
-
 
             alert(
                 resultado.error ||
@@ -469,10 +590,6 @@ async function cambiarEstadoMaqueta(
 
         }
 
-
-        /* =============================================
-           ÉXITO
-           ============================================= */
 
         alert(
             resultado.message ||
@@ -485,17 +602,264 @@ async function cambiarEstadoMaqueta(
 
     } catch (error) {
 
-        console.error(
-            "Error cambiando estado:",
-            error
-        );
-
+        console.error(error);
 
         alert(
             "Error de conexión con el servidor."
         );
 
     }
+
+}
+
+
+/* =========================================================
+   CREAR / EDITAR MAQUETA
+   ========================================================= */
+
+const formMaqueta =
+    document.getElementById(
+        "formMaqueta"
+    );
+
+
+if (formMaqueta) {
+
+    formMaqueta.addEventListener(
+        "submit",
+        async (event) => {
+
+            event.preventDefault();
+
+
+            const idEditando =
+                formMaqueta.dataset.editandoId;
+
+
+            const codigo =
+                document
+                    .getElementById(
+                        "codigoMaqueta"
+                    )
+                    .value
+                    .trim();
+
+
+            const nombre =
+                document
+                    .getElementById(
+                        "nombreMaqueta"
+                    )
+                    .value
+                    .trim();
+
+
+            const descripcion =
+                document
+                    .getElementById(
+                        "descripcionMaqueta"
+                    )
+                    .value
+                    .trim();
+
+
+            const mensaje =
+                document.getElementById(
+                    "mensajeMaqueta"
+                );
+
+
+            mensaje.textContent =
+                idEditando
+                    ? "Guardando cambios..."
+                    : "Creando maqueta...";
+
+
+            try {
+
+                const {
+                    data: {
+                        session
+                    }
+                } =
+                    await supabaseClient
+                        .auth
+                        .getSession();
+
+
+                if (!session) {
+
+                    mensaje.textContent =
+                        "La sesión ha expirado.";
+
+                    return;
+
+                }
+
+
+                const funcion =
+                    idEditando
+                        ? "editar-maqueta"
+                        : "crear-maqueta";
+
+
+                const datos =
+                    idEditando
+
+                        ? {
+
+                            id:
+                                Number(
+                                    idEditando
+                                ),
+
+                            codigo:
+                                codigo,
+
+                            nombre:
+                                nombre,
+
+                            descripcion:
+                                descripcion
+
+                        }
+
+                        : {
+
+                            codigo:
+                                codigo,
+
+                            nombre:
+                                nombre,
+
+                            descripcion:
+                                descripcion
+
+                        };
+
+
+                const respuesta =
+                    await fetch(
+
+                        `${SUPABASE_URL}/functions/v1/${funcion}`,
+
+                        {
+
+                            method: "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json",
+
+                                "Authorization":
+                                    `Bearer ${session.access_token}`
+
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    datos
+                                )
+
+                        }
+
+                    );
+
+
+                const resultado =
+                    await respuesta.json();
+
+
+                if (!respuesta.ok) {
+
+                    console.error(
+                        resultado
+                    );
+
+
+                    mensaje.textContent =
+                        resultado.error ||
+                        "No se pudo guardar la maqueta.";
+
+                    return;
+
+                }
+
+
+                mensaje.textContent =
+                    idEditando
+                        ? "Maqueta actualizada correctamente."
+                        : "Maqueta creada correctamente.";
+
+
+                formMaqueta.reset();
+
+                delete formMaqueta.dataset.editandoId;
+
+
+                const boton =
+                    formMaqueta.querySelector(
+                        'button[type="submit"]'
+                    );
+
+                if (boton) {
+
+                    boton.textContent =
+                        "Agregar maqueta";
+
+                }
+
+
+                const titulo =
+                    document
+                        .querySelector(
+                            "#modalMaqueta .modal-header h2"
+                        );
+
+                if (titulo) {
+
+                    titulo.textContent =
+                        "Nueva maqueta";
+
+                }
+
+
+                await cargarMaquetas();
+
+
+                setTimeout(() => {
+
+                    const modal =
+                        document.getElementById(
+                            "modalMaqueta"
+                        );
+
+                    if (modal) {
+
+                        modal.classList.remove(
+                            "active"
+                        );
+
+                    }
+
+                    mensaje.textContent =
+                        "";
+
+                }, 1200);
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                mensaje.textContent =
+                    "Error de conexión con el servidor.";
+
+            }
+
+        }
+    );
 
 }
 
@@ -633,11 +997,6 @@ if (formUsuario) {
 
                 if (!respuesta.ok) {
 
-                    console.error(
-                        resultado
-                    );
-
-
                     mensaje.textContent =
                         resultado.error ||
                         "No se pudo crear el usuario.";
@@ -664,7 +1023,6 @@ if (formUsuario) {
                             "modalUsuario"
                         );
 
-
                     if (modal) {
 
                         modal.classList.remove(
@@ -672,7 +1030,6 @@ if (formUsuario) {
                         );
 
                     }
-
 
                     mensaje.textContent =
                         "";
@@ -682,10 +1039,7 @@ if (formUsuario) {
 
             } catch (error) {
 
-                console.error(
-                    error
-                );
-
+                console.error(error);
 
                 mensaje.textContent =
                     "Error de conexión con el servidor.";
@@ -699,194 +1053,7 @@ if (formUsuario) {
 
 
 /* =========================================================
-   CREAR MAQUETA
-   ========================================================= */
-
-const formMaqueta =
-    document.getElementById(
-        "formMaqueta"
-    );
-
-
-if (formMaqueta) {
-
-    formMaqueta.addEventListener(
-        "submit",
-        async (event) => {
-
-            event.preventDefault();
-
-
-            const codigo =
-                document
-                    .getElementById(
-                        "codigoMaqueta"
-                    )
-                    .value
-                    .trim();
-
-
-            const nombre =
-                document
-                    .getElementById(
-                        "nombreMaqueta"
-                    )
-                    .value
-                    .trim();
-
-
-            const descripcion =
-                document
-                    .getElementById(
-                        "descripcionMaqueta"
-                    )
-                    .value
-                    .trim();
-
-
-            const mensaje =
-                document.getElementById(
-                    "mensajeMaqueta"
-                );
-
-
-            mensaje.textContent =
-                "Creando maqueta...";
-
-
-            try {
-
-                const {
-                    data: {
-                        session
-                    }
-                } =
-                    await supabaseClient
-                        .auth
-                        .getSession();
-
-
-                if (!session) {
-
-                    mensaje.textContent =
-                        "La sesión ha expirado.";
-
-                    return;
-
-                }
-
-
-                const respuesta =
-                    await fetch(
-
-                        `${SUPABASE_URL}/functions/v1/crear-maqueta`,
-
-                        {
-
-                            method: "POST",
-
-                            headers: {
-
-                                "Content-Type":
-                                    "application/json",
-
-                                "Authorization":
-                                    `Bearer ${session.access_token}`
-
-                            },
-
-                            body:
-                                JSON.stringify({
-
-                                    codigo:
-                                        codigo,
-
-                                    nombre:
-                                        nombre,
-
-                                    descripcion:
-                                        descripcion
-
-                                })
-
-                        }
-
-                    );
-
-
-                const resultado =
-                    await respuesta.json();
-
-
-                if (!respuesta.ok) {
-
-                    console.error(
-                        resultado
-                    );
-
-
-                    mensaje.textContent =
-                        resultado.error ||
-                        "No se pudo crear la maqueta.";
-
-                    return;
-
-                }
-
-
-                mensaje.textContent =
-                    "Maqueta creada correctamente.";
-
-
-                formMaqueta.reset();
-
-
-                await cargarMaquetas();
-
-
-                setTimeout(() => {
-
-                    const modal =
-                        document.getElementById(
-                            "modalMaqueta"
-                        );
-
-
-                    if (modal) {
-
-                        modal.classList.remove(
-                            "active"
-                        );
-
-                    }
-
-
-                    mensaje.textContent =
-                        "";
-
-                }, 1200);
-
-
-            } catch (error) {
-
-                console.error(
-                    error
-                );
-
-
-                mensaje.textContent =
-                    "Error de conexión con el servidor.";
-
-            }
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   BOTÓN NUEVO USUARIO
+   NUEVO USUARIO
    ========================================================= */
 
 const btnNuevoUsuario =
@@ -906,7 +1073,6 @@ if (btnNuevoUsuario) {
                     "modalUsuario"
                 );
 
-
             if (modal) {
 
                 modal.classList.add(
@@ -922,7 +1088,7 @@ if (btnNuevoUsuario) {
 
 
 /* =========================================================
-   BOTÓN NUEVA MAQUETA
+   NUEVA MAQUETA
    ========================================================= */
 
 const btnNuevaMaqueta =
@@ -937,10 +1103,49 @@ if (btnNuevaMaqueta) {
         "click",
         () => {
 
+            const form =
+                document.getElementById(
+                    "formMaqueta"
+                );
+
             const modal =
                 document.getElementById(
                     "modalMaqueta"
                 );
+
+
+            if (form) {
+
+                form.reset();
+
+                delete form.dataset.editandoId;
+
+                const boton =
+                    form.querySelector(
+                        'button[type="submit"]'
+                    );
+
+                if (boton) {
+
+                    boton.textContent =
+                        "Agregar maqueta";
+
+                }
+
+            }
+
+
+            const titulo =
+                document.querySelector(
+                    "#modalMaqueta .modal-header h2"
+                );
+
+            if (titulo) {
+
+                titulo.textContent =
+                    "Nueva maqueta";
+
+            }
 
 
             if (modal) {
@@ -976,7 +1181,6 @@ document
                         button.dataset.modal
                     );
 
-
                 if (modal) {
 
                     modal.classList.remove(
@@ -1011,7 +1215,6 @@ if (btnCerrarSesion) {
                 .auth
                 .signOut();
 
-
             window.location.href =
                 "index.html";
 
@@ -1022,7 +1225,106 @@ if (btnCerrarSesion) {
 
 
 /* =========================================================
-   INICIALIZAR PANEL
+   RESERVAS
+   ========================================================= */
+
+async function cargarReservas() {
+
+    const tabla =
+        document.getElementById(
+            "tablaReservas"
+        );
+
+    if (!tabla) return;
+
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("reservas")
+            .select("*")
+            .order(
+                "fecha",
+                {
+                    ascending: true
+                }
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Error cargando reservas:",
+            error
+        );
+
+        tabla.innerHTML = `
+            <tr>
+                <td colspan="6">
+                    Error al cargar las reservas.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    if (!data || !data.length) {
+
+        tabla.innerHTML = `
+            <tr>
+                <td colspan="6">
+                    No existen reservas registradas.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    tabla.innerHTML =
+        data.map(reserva => {
+
+            return `
+                <tr>
+
+                    <td>
+                        ${reserva.fecha || "-"}
+                    </td>
+
+                    <td>
+                        ${reserva.horario || "-"}
+                    </td>
+
+                    <td>
+                        ${reserva.maqueta || "-"}
+                    </td>
+
+                    <td>
+                        ${reserva.docente || "-"}
+                    </td>
+
+                    <td>
+                        ${reserva.grupo || "-"}
+                    </td>
+
+                    <td>
+                        ${reserva.estado || "-"}
+                    </td>
+
+                </tr>
+            `;
+
+        }).join("");
+}
+
+
+/* =========================================================
+   INICIAR PANEL
    ========================================================= */
 
 (async () => {
@@ -1031,11 +1333,7 @@ if (btnCerrarSesion) {
         await comprobarAdministrador();
 
 
-    if (!perfil) {
-
-        return;
-
-    }
+    if (!perfil) return;
 
 
     await cargarUsuarios();
