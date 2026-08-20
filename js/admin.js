@@ -6,20 +6,23 @@ const supabaseClient = supabase.createClient(
 
 /* =========================================================
    COMPROBAR ADMINISTRADOR
-   ========================================================= */
+========================================================= */
 
 async function comprobarAdministrador() {
 
     const {
         data: { user },
         error
-    } = await supabaseClient.auth.getUser();
+    } =
+        await supabaseClient.auth.getUser();
 
     if (error || !user) {
 
         window.location.href = "index.html";
+
         return null;
     }
+
 
     const {
         data: perfil,
@@ -30,6 +33,7 @@ async function comprobarAdministrador() {
             .select("*")
             .eq("id", user.id)
             .single();
+
 
     if (
         errorPerfil ||
@@ -45,10 +49,12 @@ async function comprobarAdministrador() {
         return null;
     }
 
+
     const nombreAdministrador =
         document.getElementById(
             "nombreAdministrador"
         );
+
 
     if (nombreAdministrador) {
 
@@ -57,13 +63,14 @@ async function comprobarAdministrador() {
 
     }
 
+
     return perfil;
 }
 
 
 /* =========================================================
    CARGAR USUARIOS
-   ========================================================= */
+========================================================= */
 
 async function cargarUsuarios() {
 
@@ -72,7 +79,9 @@ async function cargarUsuarios() {
             "tablaUsuarios"
         );
 
+
     if (!tabla) return;
+
 
     const {
         data,
@@ -85,12 +94,14 @@ async function cargarUsuarios() {
             )
             .order("nombre");
 
+
     if (error) {
 
         console.error(
             "Error cargando usuarios:",
             error
         );
+
 
         tabla.innerHTML = `
             <tr>
@@ -102,6 +113,7 @@ async function cargarUsuarios() {
 
         return;
     }
+
 
     if (!data || !data.length) {
 
@@ -116,6 +128,7 @@ async function cargarUsuarios() {
         return;
     }
 
+
     tabla.innerHTML =
         data.map(usuario => {
 
@@ -123,15 +136,15 @@ async function cargarUsuarios() {
                 <tr>
 
                     <td>
-                        ${usuario.usuario}
+                        ${escapeHTML(usuario.usuario)}
                     </td>
 
                     <td>
-                        ${usuario.nombre}
+                        ${escapeHTML(usuario.nombre)}
                     </td>
 
                     <td>
-                        ${usuario.rol}
+                        ${escapeHTML(usuario.rol)}
                     </td>
 
                     <td>
@@ -155,16 +168,18 @@ async function cargarUsuarios() {
 
 /* =========================================================
    CARGAR MAQUETAS
-   ========================================================= */
+========================================================= */
 
 async function cargarMaquetas() {
 
-    const tabla =
+    const contenedor =
         document.getElementById(
             "tablaMaquetas"
         );
 
-    if (!tabla) return;
+
+    if (!contenedor) return;
+
 
     const {
         data,
@@ -175,6 +190,7 @@ async function cargarMaquetas() {
             .select("*")
             .order("id");
 
+
     if (error) {
 
         console.error(
@@ -182,113 +198,157 @@ async function cargarMaquetas() {
             error
         );
 
-        tabla.innerHTML = `
-            <tr>
-                <td colspan="5">
-                    Error al cargar las maquetas.
-                </td>
-            </tr>
+
+        contenedor.innerHTML = `
+            <div class="loading-card">
+                Error al cargar las maquetas.
+            </div>
         `;
 
         return;
     }
+
 
     if (!data || !data.length) {
 
-        tabla.innerHTML = `
-            <tr>
-                <td colspan="5">
-                    No existen maquetas registradas.
-                </td>
-            </tr>
+        contenedor.innerHTML = `
+            <div class="loading-card">
+                No existen maquetas registradas.
+            </div>
         `;
 
         return;
     }
 
-    tabla.innerHTML =
+
+    /*
+       =====================================================
+       GENERAR TARJETAS
+       =====================================================
+    */
+
+    contenedor.innerHTML =
         data.map(maqueta => {
 
             const estado =
                 maqueta.disponible
+
                     ? `
                         <span class="estado-disponible">
                             🟢 Disponible
                         </span>
                     `
+
                     : `
                         <span class="estado-no-disponible">
                             🔴 No disponible
                         </span>
                     `;
 
+
             const botonEstado =
                 maqueta.disponible
+
                     ? `
                         <button
                             class="btn-desactivar-maqueta"
                             data-id="${maqueta.id}"
                             data-nombre="${escapeHTML(maqueta.nombre)}"
                         >
-                            🔴 No disponible
+                            🔴 Marcar no disponible
                         </button>
                     `
+
                     : `
                         <button
                             class="btn-activar-maqueta"
                             data-id="${maqueta.id}"
                             data-nombre="${escapeHTML(maqueta.nombre)}"
                         >
-                            🟢 Activar
+                            🟢 Habilitar maqueta
                         </button>
                     `;
 
+
             return `
-                <tr>
 
-                    <td>
-                        ${escapeHTML(maqueta.codigo || "-")}
-                    </td>
+                <div class="maqueta-card">
 
-                    <td>
-                        ${escapeHTML(maqueta.nombre)}
-                    </td>
+                    <div class="maqueta-card-header">
 
-                    <td>
+                        <div>
+
+                            <div class="maqueta-codigo">
+
+                                ${escapeHTML(
+                                    maqueta.codigo || "SIN CÓDIGO"
+                                )}
+
+                            </div>
+
+
+                            <h3>
+
+                                ${escapeHTML(
+                                    maqueta.nombre
+                                )}
+
+                            </h3>
+
+                        </div>
+
+
+                        <div>
+
+                            ${estado}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="maqueta-descripcion">
+
                         ${escapeHTML(
-                            maqueta.descripcion || "-"
+                            maqueta.descripcion || "Sin descripción."
                         )}
-                    </td>
 
-                    <td>
-                        ${estado}
-                    </td>
+                    </div>
 
-                    <td>
+
+                    <div class="maqueta-acciones">
 
                         <button
                             class="btn-editar-maqueta"
                             data-id="${maqueta.id}"
-                            data-codigo="${escapeHTML(maqueta.codigo || "")}"
-                            data-nombre="${escapeHTML(maqueta.nombre)}"
-                            data-descripcion="${escapeHTML(maqueta.descripcion || "")}"
+                            data-codigo="${escapeHTML(
+                                maqueta.codigo || ""
+                            )}"
+                            data-nombre="${escapeHTML(
+                                maqueta.nombre
+                            )}"
+                            data-descripcion="${escapeHTML(
+                                maqueta.descripcion || ""
+                            )}"
                         >
-                            ✏️ Editar
+                            ✏️ Editar maqueta
                         </button>
+
 
                         ${botonEstado}
 
-                    </td>
+                    </div>
 
-                </tr>
+                </div>
+
             `;
 
         }).join("");
 
 
     /* =====================================================
-       EDITAR
-       ===================================================== */
+       EVENTO EDITAR
+    ===================================================== */
 
     document
         .querySelectorAll(
@@ -301,10 +361,15 @@ async function cargarMaquetas() {
                 () => {
 
                     abrirEditarMaqueta(
+
                         button.dataset.id,
+
                         button.dataset.codigo,
+
                         button.dataset.nombre,
+
                         button.dataset.descripcion
+
                     );
 
                 }
@@ -314,8 +379,8 @@ async function cargarMaquetas() {
 
 
     /* =====================================================
-       DESACTIVAR
-       ===================================================== */
+       EVENTO DESACTIVAR
+    ===================================================== */
 
     document
         .querySelectorAll(
@@ -328,9 +393,13 @@ async function cargarMaquetas() {
                 () => {
 
                     cambiarEstadoMaqueta(
+
                         button.dataset.id,
+
                         false,
+
                         button.dataset.nombre
+
                     );
 
                 }
@@ -340,8 +409,8 @@ async function cargarMaquetas() {
 
 
     /* =====================================================
-       ACTIVAR
-       ===================================================== */
+       EVENTO ACTIVAR
+    ===================================================== */
 
     document
         .querySelectorAll(
@@ -354,9 +423,13 @@ async function cargarMaquetas() {
                 () => {
 
                     cambiarEstadoMaqueta(
+
                         button.dataset.id,
+
                         true,
+
                         button.dataset.nombre
+
                     );
 
                 }
@@ -369,23 +442,43 @@ async function cargarMaquetas() {
 
 /* =========================================================
    ESCAPAR HTML
-   ========================================================= */
+========================================================= */
 
 function escapeHTML(text) {
 
     return String(text)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 
 }
 
 
 /* =========================================================
    ABRIR EDICIÓN
-   ========================================================= */
+========================================================= */
 
 function abrirEditarMaqueta(
     id,
@@ -399,30 +492,36 @@ function abrirEditarMaqueta(
             "modalMaqueta"
         );
 
+
     const titulo =
         modal?.querySelector(
             ".modal-header h2"
         );
+
 
     const form =
         document.getElementById(
             "formMaqueta"
         );
 
+
     const inputCodigo =
         document.getElementById(
             "codigoMaqueta"
         );
+
 
     const inputNombre =
         document.getElementById(
             "nombreMaqueta"
         );
 
+
     const inputDescripcion =
         document.getElementById(
             "descripcionMaqueta"
         );
+
 
     const mensaje =
         document.getElementById(
@@ -433,13 +532,17 @@ function abrirEditarMaqueta(
     if (!modal || !form) return;
 
 
-    /* Guardamos el ID que vamos a editar */
+    /*
+       Guardar ID que se está editando
+    */
 
     form.dataset.editandoId =
         id;
 
 
-    /* Cambiar título */
+    /*
+       Cambiar título
+    */
 
     if (titulo) {
 
@@ -449,24 +552,31 @@ function abrirEditarMaqueta(
     }
 
 
-    /* Cargar datos */
+    /*
+       Cargar datos
+    */
 
     inputCodigo.value =
         codigo || "";
 
+
     inputNombre.value =
         nombre || "";
+
 
     inputDescripcion.value =
         descripcion || "";
 
 
-    /* Cambiar botón */
+    /*
+       Cambiar texto del botón
+    */
 
     const boton =
         form.querySelector(
             'button[type="submit"]'
         );
+
 
     if (boton) {
 
@@ -489,7 +599,7 @@ function abrirEditarMaqueta(
 
 /* =========================================================
    CAMBIAR ESTADO
-   ========================================================= */
+========================================================= */
 
 async function cambiarEstadoMaqueta(
     id,
@@ -532,8 +642,10 @@ async function cambiarEstadoMaqueta(
                 "La sesión ha expirado."
             );
 
+
             window.location.href =
                 "index.html";
+
 
             return;
 
@@ -558,6 +670,7 @@ async function cambiarEstadoMaqueta(
                             `Bearer ${session.access_token}`
 
                     },
+
 
                     body:
                         JSON.stringify({
@@ -604,6 +717,7 @@ async function cambiarEstadoMaqueta(
 
         console.error(error);
 
+
         alert(
             "Error de conexión con el servidor."
         );
@@ -615,7 +729,7 @@ async function cambiarEstadoMaqueta(
 
 /* =========================================================
    CREAR / EDITAR MAQUETA
-   ========================================================= */
+========================================================= */
 
 const formMaqueta =
     document.getElementById(
@@ -757,6 +871,7 @@ if (formMaqueta) {
 
                             },
 
+
                             body:
                                 JSON.stringify(
                                     datos
@@ -795,6 +910,7 @@ if (formMaqueta) {
 
                 formMaqueta.reset();
 
+
                 delete formMaqueta.dataset.editandoId;
 
 
@@ -802,6 +918,7 @@ if (formMaqueta) {
                     formMaqueta.querySelector(
                         'button[type="submit"]'
                     );
+
 
                 if (boton) {
 
@@ -816,6 +933,7 @@ if (formMaqueta) {
                         .querySelector(
                             "#modalMaqueta .modal-header h2"
                         );
+
 
                 if (titulo) {
 
@@ -835,6 +953,7 @@ if (formMaqueta) {
                             "modalMaqueta"
                         );
 
+
                     if (modal) {
 
                         modal.classList.remove(
@@ -842,6 +961,7 @@ if (formMaqueta) {
                         );
 
                     }
+
 
                     mensaje.textContent =
                         "";
@@ -852,6 +972,7 @@ if (formMaqueta) {
             } catch (error) {
 
                 console.error(error);
+
 
                 mensaje.textContent =
                     "Error de conexión con el servidor.";
@@ -866,7 +987,7 @@ if (formMaqueta) {
 
 /* =========================================================
    CREAR USUARIO
-   ========================================================= */
+========================================================= */
 
 const formUsuario =
     document.getElementById(
@@ -969,6 +1090,7 @@ if (formUsuario) {
 
                             },
 
+
                             body:
                                 JSON.stringify({
 
@@ -1023,6 +1145,7 @@ if (formUsuario) {
                             "modalUsuario"
                         );
 
+
                     if (modal) {
 
                         modal.classList.remove(
@@ -1030,6 +1153,7 @@ if (formUsuario) {
                         );
 
                     }
+
 
                     mensaje.textContent =
                         "";
@@ -1040,6 +1164,7 @@ if (formUsuario) {
             } catch (error) {
 
                 console.error(error);
+
 
                 mensaje.textContent =
                     "Error de conexión con el servidor.";
@@ -1054,7 +1179,7 @@ if (formUsuario) {
 
 /* =========================================================
    NUEVO USUARIO
-   ========================================================= */
+========================================================= */
 
 const btnNuevoUsuario =
     document.getElementById(
@@ -1073,6 +1198,7 @@ if (btnNuevoUsuario) {
                     "modalUsuario"
                 );
 
+
             if (modal) {
 
                 modal.classList.add(
@@ -1089,7 +1215,7 @@ if (btnNuevoUsuario) {
 
 /* =========================================================
    NUEVA MAQUETA
-   ========================================================= */
+========================================================= */
 
 const btnNuevaMaqueta =
     document.getElementById(
@@ -1108,6 +1234,7 @@ if (btnNuevaMaqueta) {
                     "formMaqueta"
                 );
 
+
             const modal =
                 document.getElementById(
                     "modalMaqueta"
@@ -1120,10 +1247,12 @@ if (btnNuevaMaqueta) {
 
                 delete form.dataset.editandoId;
 
+
                 const boton =
                     form.querySelector(
                         'button[type="submit"]'
                     );
+
 
                 if (boton) {
 
@@ -1139,6 +1268,7 @@ if (btnNuevaMaqueta) {
                 document.querySelector(
                     "#modalMaqueta .modal-header h2"
                 );
+
 
             if (titulo) {
 
@@ -1164,7 +1294,7 @@ if (btnNuevaMaqueta) {
 
 /* =========================================================
    CERRAR MODALES
-   ========================================================= */
+========================================================= */
 
 document
     .querySelectorAll(
@@ -1180,6 +1310,7 @@ document
                     document.getElementById(
                         button.dataset.modal
                     );
+
 
                 if (modal) {
 
@@ -1197,7 +1328,7 @@ document
 
 /* =========================================================
    CERRAR SESIÓN
-   ========================================================= */
+========================================================= */
 
 const btnCerrarSesion =
     document.getElementById(
@@ -1215,6 +1346,7 @@ if (btnCerrarSesion) {
                 .auth
                 .signOut();
 
+
             window.location.href =
                 "index.html";
 
@@ -1226,7 +1358,7 @@ if (btnCerrarSesion) {
 
 /* =========================================================
    RESERVAS
-   ========================================================= */
+========================================================= */
 
 async function cargarReservas() {
 
@@ -1234,6 +1366,7 @@ async function cargarReservas() {
         document.getElementById(
             "tablaReservas"
         );
+
 
     if (!tabla) return;
 
@@ -1259,6 +1392,7 @@ async function cargarReservas() {
             "Error cargando reservas:",
             error
         );
+
 
         tabla.innerHTML = `
             <tr>
@@ -1293,27 +1427,39 @@ async function cargarReservas() {
                 <tr>
 
                     <td>
-                        ${reserva.fecha || "-"}
+                        ${escapeHTML(
+                            reserva.fecha || "-"
+                        )}
                     </td>
 
                     <td>
-                        ${reserva.horario || "-"}
+                        ${escapeHTML(
+                            reserva.horario || "-"
+                        )}
                     </td>
 
                     <td>
-                        ${reserva.maqueta || "-"}
+                        ${escapeHTML(
+                            reserva.maqueta || "-"
+                        )}
                     </td>
 
                     <td>
-                        ${reserva.docente || "-"}
+                        ${escapeHTML(
+                            reserva.docente || "-"
+                        )}
                     </td>
 
                     <td>
-                        ${reserva.grupo || "-"}
+                        ${escapeHTML(
+                            reserva.grupo || "-"
+                        )}
                     </td>
 
                     <td>
-                        ${reserva.estado || "-"}
+                        ${escapeHTML(
+                            reserva.estado || "-"
+                        )}
                     </td>
 
                 </tr>
@@ -1325,7 +1471,7 @@ async function cargarReservas() {
 
 /* =========================================================
    INICIAR PANEL
-   ========================================================= */
+========================================================= */
 
 (async () => {
 
