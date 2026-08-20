@@ -5,54 +5,94 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Administración - CETA</title>
 
-    <link rel="stylesheet" href="css/estilos.css">
+    <link
+        rel="stylesheet"
+        href="css/estilos.css"
+    >
 
 </head>
 
+
 <body>
+
+
+    <!-- =====================================================
+         ENCABEZADO
+    ====================================================== -->
 
     <header class="admin-header">
 
-        <div>
-            <h1>CETA</h1>
-            <p>Administración de Reserva de Maquetas</p>
+        <div class="header-content">
+
+            <div>
+
+                <span class="instituto-label">
+                    CETA
+                </span>
+
+                <h1>
+                    Reserva de Maquetas
+                </h1>
+
+                <p>
+                    Panel de administración
+                </p>
+
+            </div>
+
+
+            <button
+                id="btnCerrarSesion"
+                class="btn-cerrar-sesion"
+            >
+                Cerrar sesión
+            </button>
+
         </div>
 
-        <button id="btnCerrarSesion">
-            Cerrar sesión
-        </button>
-
     </header>
+
 
 
     <main class="admin-container">
 
 
-        <!-- ================================================= -->
-        <!-- USUARIO ADMINISTRADOR -->
-        <!-- ================================================= -->
+        <!-- =================================================
+             BIENVENIDA
+        ================================================== -->
 
         <section class="admin-welcome">
 
-            <h2>
-                Panel de administración
-            </h2>
+            <div class="welcome-icon">
+                👨‍💼
+            </div>
 
-            <p id="nombreAdministrador">
-                Cargando...
-            </p>
+            <div>
+
+                <h2>
+                    Panel de administración
+                </h2>
+
+                <p id="nombreAdministrador">
+                    Cargando...
+                </p>
+
+            </div>
 
         </section>
 
 
 
-        <!-- ================================================= -->
-        <!-- USUARIOS -->
-        <!-- ================================================= -->
+        <!-- =================================================
+             USUARIOS
+        ================================================== -->
 
         <section class="admin-section">
 
@@ -60,18 +100,28 @@
 
                 <div>
 
+                    <span class="section-number">
+                        01
+                    </span>
+
                     <h2>
                         👤 Usuarios
                     </h2>
 
                     <p>
-                        Administración de docentes y usuarios.
+                        Administración de docentes y usuarios
+                        del sistema.
                     </p>
 
                 </div>
 
-                <button id="btnNuevoUsuario">
-                    + Nuevo usuario
+
+                <button
+                    id="btnNuevoUsuario"
+                    class="btn-primary"
+                >
+                    <span>+</span>
+                    Nuevo usuario
                 </button>
 
             </div>
@@ -130,9 +180,9 @@
 
 
 
-        <!-- ================================================= -->
-        <!-- MAQUETAS -->
-        <!-- ================================================= -->
+        <!-- =================================================
+             MAQUETAS
+        ================================================== -->
 
         <section class="admin-section">
 
@@ -140,69 +190,43 @@
 
                 <div>
 
+                    <span class="section-number">
+                        02
+                    </span>
+
                     <h2>
                         🔧 Maquetas
                     </h2>
 
                     <p>
-                        Administración de las maquetas disponibles.
+                        Administra las maquetas disponibles
+                        para las prácticas.
                     </p>
 
                 </div>
 
-                <button id="btnNuevaMaqueta">
-                    + Nueva maqueta
+
+                <button
+                    id="btnNuevaMaqueta"
+                    class="btn-primary"
+                >
+                    <span>+</span>
+                    Nueva maqueta
                 </button>
 
             </div>
 
 
-            <div class="table-container">
+            <!-- Contenedor de tarjetas -->
 
-                <table>
+            <div
+                id="tablaMaquetas"
+                class="maquetas-grid"
+            >
 
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                Código
-                            </th>
-
-                            <th>
-                                Nombre
-                            </th>
-
-                            <th>
-                                Descripción
-                            </th>
-
-                            <th>
-                                Estado
-                            </th>
-
-                            <th>
-                                Acciones
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody id="tablaMaquetas">
-
-                        <tr>
-
-                            <td colspan="5">
-                                Cargando maquetas...
-                            </td>
-
-                        </tr>
-
-                    </tbody>
-
-                </table>
+                <div class="loading-card">
+                    Cargando maquetas...
+                </div>
 
             </div>
 
@@ -210,9 +234,9 @@
 
 
 
-        <!-- ================================================= -->
-        <!-- RESERVAS -->
-        <!-- ================================================= -->
+        <!-- =================================================
+             RESERVAS
+        ================================================== -->
 
         <section class="admin-section">
 
@@ -220,12 +244,17 @@
 
                 <div>
 
+                    <span class="section-number">
+                        03
+                    </span>
+
                     <h2>
                         📅 Reservas
                     </h2>
 
                     <p>
-                        Todas las reservas registradas.
+                        Consulta todas las reservas
+                        registradas en el sistema.
                     </p>
 
                 </div>
@@ -292,21 +321,37 @@
     </main>
 
 
-    <!-- ================================================= -->
-    <!-- MODAL NUEVO USUARIO -->
-    <!-- ================================================= -->
 
-    <div id="modalUsuario" class="modal">
+    <!-- =====================================================
+         MODAL USUARIO
+    ====================================================== -->
+
+    <div
+        id="modalUsuario"
+        class="modal"
+    >
 
         <div class="modal-content">
 
             <div class="modal-header">
 
-                <h2>
-                    Crear usuario
-                </h2>
+                <div>
 
-                <button class="btnCerrarModal" data-modal="modalUsuario">
+                    <span class="modal-label">
+                        Administración
+                    </span>
+
+                    <h2>
+                        Crear usuario
+                    </h2>
+
+                </div>
+
+
+                <button
+                    class="btnCerrarModal"
+                    data-modal="modalUsuario"
+                >
                     ×
                 </button>
 
@@ -315,40 +360,43 @@
 
             <form id="formUsuario">
 
-                <label>
+                <label for="nuevoNombre">
                     Nombre completo
                 </label>
 
                 <input
                     type="text"
                     id="nuevoNombre"
+                    placeholder="Ej: Juan Pérez"
                     required
                 >
 
 
-                <label>
+                <label for="nuevoUsuario">
                     Usuario
                 </label>
 
                 <input
                     type="text"
                     id="nuevoUsuario"
+                    placeholder="Ej: jperez"
                     required
                 >
 
 
-                <label>
+                <label for="nuevaPassword">
                     Contraseña
                 </label>
 
                 <input
                     type="password"
                     id="nuevaPassword"
+                    placeholder="Contraseña"
                     required
                 >
 
 
-                <label>
+                <label for="nuevoRol">
                     Rol
                 </label>
 
@@ -365,12 +413,18 @@
                 </select>
 
 
-                <button type="submit">
+                <button
+                    type="submit"
+                    class="btn-primary btn-form"
+                >
                     Crear usuario
                 </button>
 
 
-                <p id="mensajeUsuario"></p>
+                <p
+                    id="mensajeUsuario"
+                    class="mensaje-form"
+                ></p>
 
             </form>
 
@@ -380,21 +434,36 @@
 
 
 
-    <!-- ================================================= -->
-    <!-- MODAL NUEVA MAQUETA -->
-    <!-- ================================================= -->
+    <!-- =====================================================
+         MODAL MAQUETA
+    ====================================================== -->
 
-    <div id="modalMaqueta" class="modal">
+    <div
+        id="modalMaqueta"
+        class="modal"
+    >
 
         <div class="modal-content">
 
             <div class="modal-header">
 
-                <h2>
-                    Nueva maqueta
-                </h2>
+                <div>
 
-                <button class="btnCerrarModal" data-modal="modalMaqueta">
+                    <span class="modal-label">
+                        Administración
+                    </span>
+
+                    <h2>
+                        Nueva maqueta
+                    </h2>
+
+                </div>
+
+
+                <button
+                    class="btnCerrarModal"
+                    data-modal="modalMaqueta"
+                >
                     ×
                 </button>
 
@@ -403,7 +472,7 @@
 
             <form id="formMaqueta">
 
-                <label>
+                <label for="codigoMaqueta">
                     Código
                 </label>
 
@@ -414,33 +483,41 @@
                 >
 
 
-                <label>
+                <label for="nombreMaqueta">
                     Nombre
                 </label>
 
                 <input
                     type="text"
                     id="nombreMaqueta"
+                    placeholder="Nombre de la maqueta"
                     required
                 >
 
 
-                <label>
+                <label for="descripcionMaqueta">
                     Descripción
                 </label>
 
                 <textarea
                     id="descripcionMaqueta"
                     rows="4"
+                    placeholder="Descripción de la maqueta..."
                 ></textarea>
 
 
-                <button type="submit">
+                <button
+                    type="submit"
+                    class="btn-primary btn-form"
+                >
                     Agregar maqueta
                 </button>
 
 
-                <p id="mensajeMaqueta"></p>
+                <p
+                    id="mensajeMaqueta"
+                    class="mensaje-form"
+                ></p>
 
             </form>
 
@@ -449,11 +526,19 @@
     </div>
 
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- =====================================================
+         SCRIPTS
+    ====================================================== -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
 
     <script src="js/config.js"></script>
 
     <script src="js/admin.js"></script>
+
 
 </body>
 
