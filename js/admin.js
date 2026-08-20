@@ -15,6 +15,7 @@ async function comprobarAdministrador() {
         error
     } = await supabaseClient.auth.getUser();
 
+
     if (error || !user) {
 
         window.location.href = "index.html";
@@ -49,10 +50,18 @@ async function comprobarAdministrador() {
     }
 
 
-    document.getElementById(
-        "nombreAdministrador"
-    ).textContent =
-        `Bienvenido, ${perfil.nombre}`;
+    const nombreAdministrador =
+        document.getElementById(
+            "nombreAdministrador"
+        );
+
+
+    if (nombreAdministrador) {
+
+        nombreAdministrador.textContent =
+            `Bienvenido, ${perfil.nombre}`;
+
+    }
 
 
     return perfil;
@@ -66,7 +75,16 @@ async function comprobarAdministrador() {
 async function cargarUsuarios() {
 
     const tabla =
-        document.getElementById("tablaUsuarios");
+        document.getElementById(
+            "tablaUsuarios"
+        );
+
+
+    if (!tabla) {
+
+        return;
+
+    }
 
 
     const {
@@ -83,7 +101,11 @@ async function cargarUsuarios() {
 
     if (error) {
 
-        console.error(error);
+        console.error(
+            "Error cargando usuarios:",
+            error
+        );
+
 
         tabla.innerHTML = `
             <tr>
@@ -111,43 +133,44 @@ async function cargarUsuarios() {
     }
 
 
-    tabla.innerHTML = data.map(usuario => {
+    tabla.innerHTML =
+        data.map(usuario => {
 
-        const estado =
-            usuario.activo
-                ? "Activo"
-                : "Desactivado";
+            const estado =
+                usuario.activo
+                    ? "Activo"
+                    : "Desactivado";
 
 
-        return `
+            return `
 
-            <tr>
+                <tr>
 
-                <td>
-                    ${usuario.usuario}
-                </td>
+                    <td>
+                        ${usuario.usuario}
+                    </td>
 
-                <td>
-                    ${usuario.nombre}
-                </td>
+                    <td>
+                        ${usuario.nombre}
+                    </td>
 
-                <td>
-                    ${usuario.rol}
-                </td>
+                    <td>
+                        ${usuario.rol}
+                    </td>
 
-                <td>
-                    ${estado}
-                </td>
+                    <td>
+                        ${estado}
+                    </td>
 
-                <td>
-                    Próximamente
-                </td>
+                    <td>
+                        Próximamente
+                    </td>
 
-            </tr>
+                </tr>
 
-        `;
+            `;
 
-    }).join("");
+        }).join("");
 }
 
 
@@ -156,6 +179,19 @@ async function cargarUsuarios() {
    ========================================================= */
 
 async function cargarMaquetas() {
+
+    const tabla =
+        document.getElementById(
+            "tablaMaquetas"
+        );
+
+
+    if (!tabla) {
+
+        return;
+
+    }
+
 
     const {
         data,
@@ -167,15 +203,13 @@ async function cargarMaquetas() {
             .order("id");
 
 
-    const tabla =
-        document.getElementById(
-            "tablaMaquetas"
-        );
-
-
     if (error) {
 
-        console.error(error);
+        console.error(
+            "Error cargando maquetas:",
+            error
+        );
+
 
         tabla.innerHTML = `
             <tr>
@@ -203,35 +237,40 @@ async function cargarMaquetas() {
     }
 
 
-    tabla.innerHTML = data.map(maqueta => `
+    tabla.innerHTML =
+        data.map(maqueta => `
 
-        <tr>
+            <tr>
 
-            <td>
-                ${maqueta.codigo || "-"}
-            </td>
+                <td>
+                    ${maqueta.codigo || "-"}
+                </td>
 
-            <td>
-                ${maqueta.nombre}
-            </td>
+                <td>
+                    ${maqueta.nombre}
+                </td>
 
-            <td>
-                ${maqueta.descripcion || "-"}
-            </td>
+                <td>
+                    ${maqueta.descripcion || "-"}
+                </td>
 
-            <td>
-                ${maqueta.disponible
-                    ? "Disponible"
-                    : "No disponible"}
-            </td>
+                <td>
 
-            <td>
-                Próximamente
-            </td>
+                    ${
+                        maqueta.disponible
+                            ? "Disponible"
+                            : "No disponible"
+                    }
 
-        </tr>
+                </td>
 
-    `).join("");
+                <td>
+                    Próximamente
+                </td>
+
+            </tr>
+
+        `).join("");
 }
 
 
@@ -240,6 +279,19 @@ async function cargarMaquetas() {
    ========================================================= */
 
 async function cargarReservas() {
+
+    const tabla =
+        document.getElementById(
+            "tablaReservas"
+        );
+
+
+    if (!tabla) {
+
+        return;
+
+    }
+
 
     const {
         data,
@@ -267,15 +319,13 @@ async function cargarReservas() {
             });
 
 
-    const tabla =
-        document.getElementById(
-            "tablaReservas"
-        );
-
-
     if (error) {
 
-        console.error(error);
+        console.error(
+            "Error cargando reservas:",
+            error
+        );
+
 
         tabla.innerHTML = `
             <tr>
@@ -303,37 +353,38 @@ async function cargarReservas() {
     }
 
 
-    tabla.innerHTML = data.map(reserva => `
+    tabla.innerHTML =
+        data.map(reserva => `
 
-        <tr>
+            <tr>
 
-            <td>
-                ${reserva.fecha}
-            </td>
+                <td>
+                    ${reserva.fecha}
+                </td>
 
-            <td>
-                ${reserva.horario}
-            </td>
+                <td>
+                    ${reserva.horario}
+                </td>
 
-            <td>
-                ${reserva.maquetas?.nombre || "-"}
-            </td>
+                <td>
+                    ${reserva.maquetas?.nombre || "-"}
+                </td>
 
-            <td>
-                ${reserva.perfiles?.nombre || "-"}
-            </td>
+                <td>
+                    ${reserva.perfiles?.nombre || "-"}
+                </td>
 
-            <td>
-                ${reserva.grupo}
-            </td>
+                <td>
+                    ${reserva.grupo || "-"}
+                </td>
 
-            <td>
-                ${reserva.estado}
-            </td>
+                <td>
+                    ${reserva.estado || "-"}
+                </td>
 
-        </tr>
+            </tr>
 
-    `).join("");
+        `).join("");
 }
 
 
@@ -341,209 +392,483 @@ async function cargarReservas() {
    CREAR USUARIO
    ========================================================= */
 
-document
-    .getElementById("formUsuario")
-    .addEventListener("submit", async (event) => {
-
-        event.preventDefault();
-
-
-        const nombre =
-            document
-                .getElementById("nuevoNombre")
-                .value
-                .trim();
+const formUsuario =
+    document.getElementById(
+        "formUsuario"
+    );
 
 
-        const usuario =
-            document
-                .getElementById("nuevoUsuario")
-                .value
-                .trim()
-                .toLowerCase();
+if (formUsuario) {
+
+    formUsuario.addEventListener(
+        "submit",
+        async (event) => {
+
+            event.preventDefault();
 
 
-        const password =
-            document
-                .getElementById("nuevaPassword")
-                .value;
+            const nombre =
+                document
+                    .getElementById(
+                        "nuevoNombre"
+                    )
+                    .value
+                    .trim();
 
 
-        const rol =
-            document
-                .getElementById("nuevoRol")
-                .value;
+            const usuario =
+                document
+                    .getElementById(
+                        "nuevoUsuario"
+                    )
+                    .value
+                    .trim()
+                    .toLowerCase();
 
 
-        const mensaje =
-            document
-                .getElementById("mensajeUsuario");
+            const password =
+                document
+                    .getElementById(
+                        "nuevaPassword"
+                    )
+                    .value;
 
 
-        mensaje.textContent =
-            "Creando usuario...";
+            const rol =
+                document
+                    .getElementById(
+                        "nuevoRol"
+                    )
+                    .value;
 
 
-        try {
-
-            /*
-             * Obtener sesión actual
-             */
-
-            const {
-                data: {
-                    session
-                }
-            } =
-                await supabaseClient
-                    .auth
-                    .getSession();
-
-
-            if (!session) {
-
-                mensaje.textContent =
-                    "La sesión ha expirado.";
-
-                return;
-            }
-
-
-            /*
-             * Llamar a Edge Function
-             */
-
-            const respuesta =
-                await fetch(
-                    `${SUPABASE_URL}/functions/v1/crear-usuario`,
-                    {
-                        method: "POST",
-
-                        headers: {
-
-                            "Content-Type":
-                                "application/json",
-
-                            "Authorization":
-                                `Bearer ${session.access_token}`
-
-                        },
-
-                        body: JSON.stringify({
-
-                            nombre: nombre,
-
-                            usuario: usuario,
-
-                            password: password,
-
-                            rol: rol
-
-                        })
-
-                    }
+            const mensaje =
+                document.getElementById(
+                    "mensajeUsuario"
                 );
 
 
-            const resultado =
-                await respuesta.json();
+            mensaje.textContent =
+                "Creando usuario...";
 
 
-            if (!respuesta.ok) {
+            try {
 
-                console.error(resultado);
+                const {
+                    data: {
+                        session
+                    }
+                } =
+                    await supabaseClient
+                        .auth
+                        .getSession();
+
+
+                if (!session) {
+
+                    mensaje.textContent =
+                        "La sesión ha expirado.";
+
+                    return;
+
+                }
+
+
+                const respuesta =
+                    await fetch(
+
+                        `${SUPABASE_URL}/functions/v1/crear-usuario`,
+
+                        {
+
+                            method: "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json",
+
+                                "Authorization":
+                                    `Bearer ${session.access_token}`
+
+                            },
+
+                            body:
+                                JSON.stringify({
+
+                                    nombre:
+                                        nombre,
+
+                                    usuario:
+                                        usuario,
+
+                                    password:
+                                        password,
+
+                                    rol:
+                                        rol
+
+                                })
+
+                        }
+
+                    );
+
+
+                const resultado =
+                    await respuesta.json();
+
+
+                if (!respuesta.ok) {
+
+                    console.error(
+                        resultado
+                    );
+
+
+                    mensaje.textContent =
+                        resultado.error ||
+                        "No se pudo crear el usuario.";
+
+                    return;
+
+                }
+
 
                 mensaje.textContent =
-                    resultado.error ||
-                    "No se pudo crear el usuario.";
+                    "Usuario creado correctamente.";
 
-                return;
+
+                formUsuario.reset();
+
+
+                await cargarUsuarios();
+
+
+                setTimeout(() => {
+
+                    const modal =
+                        document.getElementById(
+                            "modalUsuario"
+                        );
+
+
+                    if (modal) {
+
+                        modal.classList.remove(
+                            "active"
+                        );
+
+                    }
+
+
+                    mensaje.textContent =
+                        "";
+
+                }, 1200);
+
+
+            } catch (error) {
+
+                console.error(
+                    "Error creando usuario:",
+                    error
+                );
+
+
+                mensaje.textContent =
+                    "Error de conexión con el servidor.";
+
             }
 
+        }
+    );
 
-            /*
-             * Usuario creado
-             */
-
-            mensaje.textContent =
-                "Usuario creado correctamente.";
+}
 
 
-            /*
-             * Limpiar formulario
-             */
+/* =========================================================
+   CREAR MAQUETA
+   ========================================================= */
 
-            document
-                .getElementById("formUsuario")
-                .reset();
-
-
-            /*
-             * Actualizar tabla
-             */
-
-            await cargarUsuarios();
+const formMaqueta =
+    document.getElementById(
+        "formMaqueta"
+    );
 
 
-            /*
-             * Cerrar ventana después
-             * de un momento
-             */
+if (formMaqueta) {
 
-            setTimeout(() => {
+    formMaqueta.addEventListener(
+        "submit",
+        async (event) => {
 
+            event.preventDefault();
+
+
+            const codigo =
                 document
-                    .getElementById("modalUsuario")
-                    .classList
-                    .remove("active");
-
-                mensaje.textContent = "";
-
-            }, 1200);
+                    .getElementById(
+                        "codigoMaqueta"
+                    )
+                    .value
+                    .trim();
 
 
-        } catch (error) {
+            const nombre =
+                document
+                    .getElementById(
+                        "nombreMaqueta"
+                    )
+                    .value
+                    .trim();
 
-            console.error(error);
+
+            const descripcion =
+                document
+                    .getElementById(
+                        "descripcionMaqueta"
+                    )
+                    .value
+                    .trim();
+
+
+            const mensaje =
+                document.getElementById(
+                    "mensajeMaqueta"
+                );
+
 
             mensaje.textContent =
-                "Error de conexión con el servidor.";
+                "Creando maqueta...";
+
+
+            try {
+
+                /* =========================================
+                   OBTENER SESIÓN
+                   ========================================= */
+
+                const {
+                    data: {
+                        session
+                    }
+                } =
+                    await supabaseClient
+                        .auth
+                        .getSession();
+
+
+                if (!session) {
+
+                    mensaje.textContent =
+                        "La sesión ha expirado.";
+
+                    return;
+
+                }
+
+
+                /* =========================================
+                   LLAMAR EDGE FUNCTION
+                   ========================================= */
+
+                const respuesta =
+                    await fetch(
+
+                        `${SUPABASE_URL}/functions/v1/crear-maqueta`,
+
+                        {
+
+                            method: "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json",
+
+                                "Authorization":
+                                    `Bearer ${session.access_token}`
+
+                            },
+
+                            body:
+                                JSON.stringify({
+
+                                    codigo:
+                                        codigo,
+
+                                    nombre:
+                                        nombre,
+
+                                    descripcion:
+                                        descripcion
+
+                                })
+
+                        }
+
+                    );
+
+
+                const resultado =
+                    await respuesta.json();
+
+
+                /* =========================================
+                   COMPROBAR RESPUESTA
+                   ========================================= */
+
+                if (!respuesta.ok) {
+
+                    console.error(
+                        resultado
+                    );
+
+
+                    mensaje.textContent =
+                        resultado.error ||
+                        "No se pudo crear la maqueta.";
+
+                    return;
+
+                }
+
+
+                /* =========================================
+                   ÉXITO
+                   ========================================= */
+
+                mensaje.textContent =
+                    "Maqueta creada correctamente.";
+
+
+                formMaqueta.reset();
+
+
+                /* =========================================
+                   ACTUALIZAR TABLA
+                   ========================================= */
+
+                await cargarMaquetas();
+
+
+                /* =========================================
+                   CERRAR MODAL
+                   ========================================= */
+
+                setTimeout(() => {
+
+                    const modal =
+                        document.getElementById(
+                            "modalMaqueta"
+                        );
+
+
+                    if (modal) {
+
+                        modal.classList.remove(
+                            "active"
+                        );
+
+                    }
+
+
+                    mensaje.textContent =
+                        "";
+
+                }, 1200);
+
+
+            } catch (error) {
+
+                console.error(
+                    "Error creando maqueta:",
+                    error
+                );
+
+
+                mensaje.textContent =
+                    "Error de conexión con el servidor.";
+
+            }
 
         }
+    );
 
-    });
-
-
-/* =========================================================
-   NUEVO USUARIO
-   ========================================================= */
-
-document
-    .getElementById("btnNuevoUsuario")
-    .addEventListener("click", () => {
-
-        document
-            .getElementById("modalUsuario")
-            .classList
-            .add("active");
-
-    });
+}
 
 
 /* =========================================================
-   NUEVA MAQUETA
+   BOTÓN NUEVO USUARIO
    ========================================================= */
 
-document
-    .getElementById("btnNuevaMaqueta")
-    .addEventListener("click", () => {
+const btnNuevoUsuario =
+    document.getElementById(
+        "btnNuevoUsuario"
+    );
 
-        document
-            .getElementById("modalMaqueta")
-            .classList
-            .add("active");
 
-    });
+if (btnNuevoUsuario) {
+
+    btnNuevoUsuario.addEventListener(
+        "click",
+        () => {
+
+            const modal =
+                document.getElementById(
+                    "modalUsuario"
+                );
+
+
+            if (modal) {
+
+                modal.classList.add(
+                    "active"
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   BOTÓN NUEVA MAQUETA
+   ========================================================= */
+
+const btnNuevaMaqueta =
+    document.getElementById(
+        "btnNuevaMaqueta"
+    );
+
+
+if (btnNuevaMaqueta) {
+
+    btnNuevaMaqueta.addEventListener(
+        "click",
+        () => {
+
+            const modal =
+                document.getElementById(
+                    "modalMaqueta"
+                );
+
+
+            if (modal) {
+
+                modal.classList.add(
+                    "active"
+                );
+
+            }
+
+        }
+    );
+
+}
 
 
 /* =========================================================
@@ -551,7 +876,9 @@ document
    ========================================================= */
 
 document
-    .querySelectorAll(".btnCerrarModal")
+    .querySelectorAll(
+        ".btnCerrarModal"
+    )
     .forEach(button => {
 
         button.addEventListener(
@@ -563,8 +890,14 @@ document
                         button.dataset.modal
                     );
 
-                modal.classList
-                    .remove("active");
+
+                if (modal) {
+
+                    modal.classList.remove(
+                        "active"
+                    );
+
+                }
 
             }
         );
@@ -576,9 +909,15 @@ document
    CERRAR SESIÓN
    ========================================================= */
 
-document
-    .getElementById("btnCerrarSesion")
-    .addEventListener(
+const btnCerrarSesion =
+    document.getElementById(
+        "btnCerrarSesion"
+    );
+
+
+if (btnCerrarSesion) {
+
+    btnCerrarSesion.addEventListener(
         "click",
         async () => {
 
@@ -586,15 +925,18 @@ document
                 .auth
                 .signOut();
 
+
             window.location.href =
                 "index.html";
 
         }
     );
 
+}
+
 
 /* =========================================================
-   INICIALIZAR
+   INICIALIZAR PANEL
    ========================================================= */
 
 (async () => {
@@ -604,7 +946,9 @@ document
 
 
     if (!perfil) {
+
         return;
+
     }
 
 
