@@ -1922,3 +1922,287 @@ tbody tr:hover {
     }
 
 }
+/* =========================================================
+   DISEÑO VERTICAL - PÁGINA DOCENTE
+   ========================================================= */
+
+.docente-page {
+    display: block;
+    width: 100%;
+    min-height: 100vh;
+}
+
+
+/* =========================================================
+   ENCABEZADO VERTICAL
+   ========================================================= */
+
+.docente-header {
+
+    width: 100%;
+
+    padding: 20px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    text-align: center;
+
+    gap: 15px;
+
+}
+
+
+.docente-header-left {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+}
+
+
+.logo-ceta {
+
+    width: 80px;
+
+    height: 80px;
+
+    object-fit: contain;
+
+}
+
+
+.docente-header h1 {
+
+    margin: 0;
+
+    font-size: 28px;
+
+}
+
+
+.docente-header p {
+
+    margin: 4px 0 0;
+
+}
+
+
+/* =========================================================
+   USUARIO Y CERRAR SESIÓN
+   ========================================================= */
+
+.docente-header-right {
+
+    width: 100%;
+
+    max-width: 400px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 10px;
+
+}
+
+
+.usuario-conectado {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    text-align: center;
+
+    gap: 3px;
+
+}
+
+
+.btn-cerrar-sesion {
+
+    width: 100%;
+
+    max-width: 300px;
+
+    padding: 12px 20px;
+
+}
+
+
+/* =========================================================
+   CONTENIDO PRINCIPAL
+   ========================================================= */
+
+.docente-container {
+
+    width: 100%;
+
+    max-width: 1100px;
+
+    margin: 0 auto;
+
+    padding: 25px 20px;
+
+}
+
+
+/* =========================================================
+   FORMULARIO COMPLETAMENTE VERTICAL
+   ========================================================= */
+
+.form-reserva {
+
+    width: 100%;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 18px;
+
+}
+
+
+.campo-reserva {
+
+    width: 100%;
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+
+.campo-reserva input,
+.campo-reserva select {
+
+    width: 100%;
+
+}
+
+
+/* =========================================================
+   BOTÓN DE RESERVA
+   ========================================================= */
+
+.reserva-boton-container {
+
+    width: 100%;
+
+    display: flex;
+
+    justify-content: center;
+
+    margin-top: 5px;
+
+}
+
+
+.btn-reservar {
+
+    width: 100%;
+
+    max-width: 400px;
+
+}
+
+
+/* =========================================================
+   TABLA SEMANAL
+   ========================================================= */
+
+.tabla-semana-container {
+
+    width: 100%;
+
+    overflow-x: auto;
+
+    -webkit-overflow-scrolling: touch;
+
+}
+
+
+.tabla-semana {
+
+    min-width: 900px;
+
+}
+
+
+/* =========================================================
+   CONTROLES DE SEMANA
+   ========================================================= */
+
+.semana-header {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    text-align: center;
+
+    gap: 15px;
+
+}
+
+
+.controles-semana {
+
+    width: 100%;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    gap: 8px;
+
+}
+
+
+.btn-semana {
+
+    width: 100%;
+
+    max-width: 350px;
+
+}
+
+
+/* =========================================================
+   PIE DE PÁGINA
+   ========================================================= */
+
+.docente-footer {
+
+    width: 100%;
+
+    text-align: center;
+
+    padding: 30px 15px;
+
+}
