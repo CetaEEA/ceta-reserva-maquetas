@@ -4,7 +4,7 @@
 
 
 // =========================================================
-// CONEXIÓN CON SUPABASE
+// CONEXIÓN SUPABASE
 // =========================================================
 
 const supabaseClient = supabase.createClient(
@@ -36,19 +36,15 @@ loginForm.addEventListener(
 
 
         // =================================================
-        // OBTENER USUARIO
+        // OBTENER DATOS
         // =================================================
 
-        const usuario = document
+        const usuarioIngresado = document
             .getElementById("usuario")
             .value
             .trim()
             .toLowerCase();
 
-
-        // =================================================
-        // OBTENER CONTRASEÑA
-        // =================================================
 
         const password = document
             .getElementById("password")
@@ -59,10 +55,10 @@ loginForm.addEventListener(
 
 
         // =================================================
-        // VALIDAR CAMPOS
+        // VALIDACIÓN
         // =================================================
 
-        if (!usuario || !password) {
+        if (!usuarioIngresado || !password) {
 
             mensaje.textContent =
                 "Complete todos los campos.";
@@ -72,28 +68,48 @@ loginForm.addEventListener(
 
 
         // =================================================
-        // CREAR CORREO INTERNO
+        // DETERMINAR EMAIL DE AUTENTICACIÓN
         // =================================================
         //
-        // Ejemplo:
+        // Si escribe:
         //
-        // usuario: juan
+        // profesor1
         //
-        // se convierte internamente en:
+        // usamos:
         //
-        // juan@ceta.internal
+        // profesor1@ceta.internal
         //
-        // El docente NO necesita conocer este correo.
+        //
+        // Si escribe:
+        //
+        // administrador@gmail.com
+        //
+        // usamos directamente ese correo.
+        //
+        // Esto mantiene compatibilidad con las cuentas
+        // antiguas del administrador.
         // =================================================
 
-        const emailInterno =
-            `${usuario}@ceta.internal`;
+        let emailAuth;
+
+
+        if (usuarioIngresado.includes("@")) {
+
+            emailAuth =
+                usuarioIngresado;
+
+        } else {
+
+            emailAuth =
+                `${usuarioIngresado}@ceta.internal`;
+
+        }
 
 
         try {
 
             // =============================================
-            // AUTENTICAR
+            // AUTENTICACIÓN
             // =============================================
 
             const {
@@ -105,7 +121,7 @@ loginForm.addEventListener(
                     .signInWithPassword({
 
                         email:
-                            emailInterno,
+                            emailAuth,
 
                         password:
                             password
@@ -114,7 +130,7 @@ loginForm.addEventListener(
 
 
             // =============================================
-            // CREDENCIALES INCORRECTAS
+            // ERROR DE AUTENTICACIÓN
             // =============================================
 
             if (error) {
@@ -142,12 +158,13 @@ loginForm.addEventListener(
 
 
             console.log(
-                "Autenticación correcta."
+                "Autenticación correcta:",
+                data.user.id
             );
 
 
             // =============================================
-            // BUSCAR PERFIL
+            // OBTENER PERFIL
             // =============================================
 
             const {
@@ -199,37 +216,13 @@ loginForm.addEventListener(
 
 
             console.log(
-                "Perfil:",
+                "Perfil encontrado:",
                 perfil
             );
 
 
             // =============================================
-            // COMPROBAR QUE EL USUARIO COINCIDA
-            // =============================================
-
-            if (
-                perfil.usuario
-                    .toLowerCase()
-                !==
-                usuario
-            ) {
-
-                mensaje.textContent =
-                    "El perfil no corresponde al usuario.";
-
-
-                await supabaseClient
-                    .auth
-                    .signOut();
-
-
-                return;
-            }
-
-
-            // =============================================
-            // COMPROBAR ESTADO
+            // COMPROBAR USUARIO ACTIVO
             // =============================================
 
             if (!perfil.activo) {
@@ -248,7 +241,7 @@ loginForm.addEventListener(
 
 
             // =============================================
-            // GUARDAR PERFIL EN LA SESIÓN
+            // GUARDAR PERFIL
             // =============================================
 
             sessionStorage.setItem(
@@ -258,7 +251,7 @@ loginForm.addEventListener(
 
 
             // =============================================
-            // REDIRECCIONAR SEGÚN ROL
+            // REDIRECCIÓN ADMINISTRADOR
             // =============================================
 
             if (
@@ -267,7 +260,7 @@ loginForm.addEventListener(
             ) {
 
                 console.log(
-                    "Ingresando al panel administrador."
+                    "Acceso administrador."
                 );
 
 
@@ -279,13 +272,17 @@ loginForm.addEventListener(
             }
 
 
+            // =============================================
+            // REDIRECCIÓN DOCENTE
+            // =============================================
+
             if (
                 perfil.rol ===
                 "docente"
             ) {
 
                 console.log(
-                    "Ingresando al panel docente."
+                    "Acceso docente."
                 );
 
 
@@ -300,6 +297,12 @@ loginForm.addEventListener(
             // =============================================
             // ROL DESCONOCIDO
             // =============================================
+
+            console.error(
+                "Rol desconocido:",
+                perfil.rol
+            );
+
 
             mensaje.textContent =
                 "El usuario no tiene un rol válido.";
