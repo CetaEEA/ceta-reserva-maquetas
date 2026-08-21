@@ -4,7 +4,7 @@
 
 
 // =========================================================
-// CONEXIÓN SUPABASE
+// CONEXIÓN CON SUPABASE
 // =========================================================
 
 const supabaseClient = supabase.createClient(
@@ -14,7 +14,7 @@ const supabaseClient = supabase.createClient(
 
 
 // =========================================================
-// ELEMENTOS HTML
+// ELEMENTOS
 // =========================================================
 
 const loginForm =
@@ -35,9 +35,9 @@ loginForm.addEventListener(
         event.preventDefault();
 
 
-        // -------------------------------------------------
-        // OBTENER DATOS
-        // -------------------------------------------------
+        // =================================================
+        // OBTENER USUARIO
+        // =================================================
 
         const usuario = document
             .getElementById("usuario")
@@ -45,6 +45,10 @@ loginForm.addEventListener(
             .trim()
             .toLowerCase();
 
+
+        // =================================================
+        // OBTENER CONTRASEÑA
+        // =================================================
 
         const password = document
             .getElementById("password")
@@ -54,9 +58,9 @@ loginForm.addEventListener(
         mensaje.textContent = "";
 
 
-        // -------------------------------------------------
+        // =================================================
         // VALIDAR CAMPOS
-        // -------------------------------------------------
+        // =================================================
 
         if (!usuario || !password) {
 
@@ -67,191 +71,235 @@ loginForm.addEventListener(
         }
 
 
-        // -------------------------------------------------
-        // CORREO INTERNO DE SUPABASE
-        // -------------------------------------------------
-
-        /*
-         * Actualmente el sistema utiliza esta identidad
-         * interna para realizar la autenticación.
-         *
-         * NO MODIFICAMOS ESTA PARTE todavía porque
-         * actualmente el login está funcionando.
-         */
+        // =================================================
+        // CREAR CORREO INTERNO
+        // =================================================
+        //
+        // Ejemplo:
+        //
+        // usuario: juan
+        //
+        // se convierte internamente en:
+        //
+        // juan@ceta.internal
+        //
+        // El docente NO necesita conocer este correo.
+        // =================================================
 
         const emailInterno =
-            "zetaandrew45@gmail.com";
+            `${usuario}@ceta.internal`;
 
 
-        // -------------------------------------------------
-        // AUTENTICACIÓN
-        // -------------------------------------------------
+        try {
 
-        const {
-            data,
-            error
-        } =
-            await supabaseClient.auth.signInWithPassword({
+            // =============================================
+            // AUTENTICAR
+            // =============================================
 
-                email: emailInterno,
-
-                password: password
-
-            });
-
-
-        // -------------------------------------------------
-        // ERROR DE LOGIN
-        // -------------------------------------------------
-
-        if (error) {
-
-            console.error(
-                "Error de autenticación:",
+            const {
+                data,
                 error
-            );
+            } =
+                await supabaseClient
+                    .auth
+                    .signInWithPassword({
+
+                        email:
+                            emailInterno,
+
+                        password:
+                            password
+
+                    });
 
 
-            mensaje.textContent =
-                "Usuario o contraseña incorrectos.";
+            // =============================================
+            // CREDENCIALES INCORRECTAS
+            // =============================================
+
+            if (error) {
+
+                console.error(
+                    "Error de autenticación:",
+                    error
+                );
 
 
-            return;
-        }
+                mensaje.textContent =
+                    "Usuario o contraseña incorrectos.";
+
+                return;
+            }
 
 
-        console.log(
-            "Usuario autenticado:",
-            data.user
-        );
+            if (!data.user) {
 
+                mensaje.textContent =
+                    "No se pudo iniciar sesión.";
 
-        // -------------------------------------------------
-        // OBTENER PERFIL
-        // -------------------------------------------------
+                return;
+            }
 
-        const {
-            data: perfil,
-            error: errorPerfil
-        } =
-            await supabaseClient
-
-                .from("perfiles")
-
-                .select(
-                    "usuario, nombre, rol, activo"
-                )
-
-                .eq(
-                    "id",
-                    data.user.id
-                )
-
-                .single();
-
-
-        // -------------------------------------------------
-        // PERFIL NO ENCONTRADO
-        // -------------------------------------------------
-
-        if (
-            errorPerfil ||
-            !perfil
-        ) {
-
-            console.error(
-                "Error obteniendo perfil:",
-                errorPerfil
-            );
-
-
-            mensaje.textContent =
-                "No se encontró el perfil del usuario.";
-
-
-            await supabaseClient
-                .auth
-                .signOut();
-
-
-            return;
-        }
-
-
-        console.log(
-            "Perfil:",
-            perfil
-        );
-
-
-        // -------------------------------------------------
-        // USUARIO DESACTIVADO
-        // -------------------------------------------------
-
-        if (!perfil.activo) {
-
-            mensaje.textContent =
-                "Este usuario está desactivado.";
-
-
-            await supabaseClient
-                .auth
-                .signOut();
-
-
-            return;
-        }
-
-
-        // -------------------------------------------------
-        // GUARDAR PERFIL
-        // -------------------------------------------------
-
-        sessionStorage.setItem(
-            "ceta_usuario",
-            JSON.stringify(perfil)
-        );
-
-
-        // -------------------------------------------------
-        // REDIRECCIÓN SEGÚN ROL
-        // -------------------------------------------------
-
-        if (
-            perfil.rol ===
-            "administrador"
-        ) {
 
             console.log(
-                "Acceso administrador."
+                "Autenticación correcta."
             );
 
 
-            window.location.href =
-                "admin.html";
+            // =============================================
+            // BUSCAR PERFIL
+            // =============================================
+
+            const {
+                data: perfil,
+                error: errorPerfil
+            } =
+                await supabaseClient
+
+                    .from("perfiles")
+
+                    .select(
+                        "usuario, nombre, rol, activo"
+                    )
+
+                    .eq(
+                        "id",
+                        data.user.id
+                    )
+
+                    .single();
 
 
-        } else if (
-            perfil.rol ===
-            "docente"
-        ) {
+            // =============================================
+            // PERFIL NO ENCONTRADO
+            // =============================================
+
+            if (
+                errorPerfil ||
+                !perfil
+            ) {
+
+                console.error(
+                    "Error cargando perfil:",
+                    errorPerfil
+                );
+
+
+                mensaje.textContent =
+                    "No se encontró el perfil del usuario.";
+
+
+                await supabaseClient
+                    .auth
+                    .signOut();
+
+
+                return;
+            }
+
 
             console.log(
-                "Acceso docente."
+                "Perfil:",
+                perfil
             );
 
 
-            window.location.href =
-                "docente.html";
+            // =============================================
+            // COMPROBAR QUE EL USUARIO COINCIDA
+            // =============================================
+
+            if (
+                perfil.usuario
+                    .toLowerCase()
+                !==
+                usuario
+            ) {
+
+                mensaje.textContent =
+                    "El perfil no corresponde al usuario.";
 
 
-        } else {
+                await supabaseClient
+                    .auth
+                    .signOut();
 
-            console.error(
-                "Rol desconocido:",
-                perfil.rol
+
+                return;
+            }
+
+
+            // =============================================
+            // COMPROBAR ESTADO
+            // =============================================
+
+            if (!perfil.activo) {
+
+                mensaje.textContent =
+                    "Este usuario está desactivado.";
+
+
+                await supabaseClient
+                    .auth
+                    .signOut();
+
+
+                return;
+            }
+
+
+            // =============================================
+            // GUARDAR PERFIL EN LA SESIÓN
+            // =============================================
+
+            sessionStorage.setItem(
+                "ceta_usuario",
+                JSON.stringify(perfil)
             );
 
+
+            // =============================================
+            // REDIRECCIONAR SEGÚN ROL
+            // =============================================
+
+            if (
+                perfil.rol ===
+                "administrador"
+            ) {
+
+                console.log(
+                    "Ingresando al panel administrador."
+                );
+
+
+                window.location.href =
+                    "admin.html";
+
+
+                return;
+            }
+
+
+            if (
+                perfil.rol ===
+                "docente"
+            ) {
+
+                console.log(
+                    "Ingresando al panel docente."
+                );
+
+
+                window.location.href =
+                    "docente.html";
+
+
+                return;
+            }
+
+
+            // =============================================
+            // ROL DESCONOCIDO
+            // =============================================
 
             mensaje.textContent =
                 "El usuario no tiene un rol válido.";
@@ -260,6 +308,18 @@ loginForm.addEventListener(
             await supabaseClient
                 .auth
                 .signOut();
+
+
+        } catch (error) {
+
+            console.error(
+                "Error inesperado:",
+                error
+            );
+
+
+            mensaje.textContent =
+                "Error de conexión con el servidor.";
 
         }
 
