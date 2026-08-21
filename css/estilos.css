@@ -1210,3 +1210,719 @@ tbody tr:hover {
     }
 
 }
+/* =========================================================
+   PÁGINA DEL DOCENTE
+   ========================================================= */
+
+.docente-page {
+
+    display: block;
+
+    min-height: 100vh;
+
+    background-color: #f1f3f6;
+
+    position: relative;
+
+}
+
+
+/* =========================================================
+   MEMBRETE DE FONDO CETA
+   ========================================================= */
+
+.docente-page::before {
+
+    content: "";
+
+    position: fixed;
+
+    inset: 0;
+
+    background-image:
+        url("../img/logo-ceta-transparente.png");
+
+    background-repeat: no-repeat;
+
+    background-position: center;
+
+    background-size: 500px;
+
+    opacity: 0.035;
+
+    pointer-events: none;
+
+    z-index: 0;
+
+}
+
+
+/* =========================================================
+   ENCABEZADO
+   ========================================================= */
+
+.docente-header {
+
+    position: relative;
+
+    z-index: 2;
+
+    width: 100%;
+
+    padding: 18px 35px;
+
+    background: #1f2937;
+
+    color: white;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 20px;
+
+}
+
+
+.docente-header-left {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+}
+
+
+.logo-ceta {
+
+    width: 70px;
+
+    height: 70px;
+
+    object-fit: contain;
+
+}
+
+
+.docente-header h1 {
+
+    margin: 0 0 4px 0;
+
+    font-size: 28px;
+
+}
+
+
+.docente-header p {
+
+    margin: 0;
+
+    opacity: 0.8;
+
+}
+
+
+.docente-header-right {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 20px;
+
+}
+
+
+.usuario-conectado {
+
+    display: flex;
+
+    flex-direction: column;
+
+    text-align: right;
+
+    font-size: 14px;
+
+}
+
+
+.usuario-conectado span {
+
+    opacity: 0.7;
+
+}
+
+
+.usuario-conectado strong {
+
+    font-size: 16px;
+
+}
+
+
+.btn-cerrar-sesion {
+
+    width: auto;
+
+    padding: 10px 18px;
+
+    background: #dc2626;
+
+    border-radius: 6px;
+
+}
+
+
+/* =========================================================
+   CONTENEDOR
+   ========================================================= */
+
+.docente-container {
+
+    position: relative;
+
+    z-index: 1;
+
+    width: 100%;
+
+    max-width: 1400px;
+
+    margin: auto;
+
+    padding: 30px;
+
+}
+
+
+/* =========================================================
+   BIENVENIDA
+   ========================================================= */
+
+.docente-welcome {
+
+    background: white;
+
+    padding: 25px;
+
+    border-radius: 10px;
+
+    margin-bottom: 25px;
+
+    box-shadow:
+        0 4px 15px rgba(0,0,0,0.08);
+
+}
+
+
+.docente-welcome h2 {
+
+    margin-bottom: 8px;
+
+}
+
+
+.docente-welcome p {
+
+    color: #666;
+
+}
+
+
+/* =========================================================
+   SECCIONES
+   ========================================================= */
+
+.docente-section {
+
+    background: white;
+
+    padding: 25px;
+
+    border-radius: 10px;
+
+    margin-bottom: 30px;
+
+    box-shadow:
+        0 4px 15px rgba(0,0,0,0.08);
+
+}
+
+
+.docente-section .section-header {
+
+    margin-bottom: 25px;
+
+}
+
+
+.docente-section .section-header h2 {
+
+    margin-bottom: 5px;
+
+}
+
+
+.docente-section .section-header p {
+
+    color: #666;
+
+}
+
+
+/* =========================================================
+   FORMULARIO DE RESERVA
+   ========================================================= */
+
+.form-reserva {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(250px, 1fr));
+
+    gap: 20px;
+
+}
+
+
+.campo-reserva {
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+
+.campo-reserva label {
+
+    margin-bottom: 7px;
+
+    font-weight: bold;
+
+}
+
+
+.campo-reserva input,
+.campo-reserva select {
+
+    width: 100%;
+
+    padding: 13px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 6px;
+
+    font-size: 16px;
+
+    background: white;
+
+}
+
+
+.campo-reserva input:focus,
+.campo-reserva select:focus {
+
+    outline: none;
+
+    border-color: #1f2937;
+
+}
+
+
+.campo-reserva small {
+
+    margin-top: 7px;
+
+    color: #666;
+
+}
+
+
+/* =========================================================
+   BOTÓN RESERVAR
+   ========================================================= */
+
+.reserva-boton-container {
+
+    grid-column: 1 / -1;
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    margin-top: 5px;
+
+}
+
+
+.btn-reservar {
+
+    width: auto;
+
+    min-width: 220px;
+
+    padding: 14px 25px;
+
+    background: #1f2937;
+
+}
+
+
+.mensaje-reserva {
+
+    grid-column: 1 / -1;
+
+    text-align: center;
+
+    font-weight: bold;
+
+    margin-top: 5px;
+
+}
+
+
+/* =========================================================
+   CONTROLES DE SEMANA
+   ========================================================= */
+
+.semana-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 20px;
+
+}
+
+
+.controles-semana {
+
+    display: flex;
+
+    gap: 8px;
+
+    flex-wrap: wrap;
+
+    justify-content: flex-end;
+
+}
+
+
+.btn-semana {
+
+    width: auto;
+
+    padding: 10px 15px;
+
+    background: #374151;
+
+    font-size: 14px;
+
+}
+
+
+/* =========================================================
+   TABLA SEMANAL
+   ========================================================= */
+
+.tabla-semana-container {
+
+    width: 100%;
+
+    overflow-x: auto;
+
+}
+
+
+.tabla-semana {
+
+    width: 100%;
+
+    min-width: 900px;
+
+    border-collapse: separate;
+
+    border-spacing: 0;
+
+}
+
+
+.tabla-semana th,
+.tabla-semana td {
+
+    border: 1px solid #ddd;
+
+    padding: 10px;
+
+    text-align: center;
+
+    vertical-align: middle;
+
+}
+
+
+.tabla-semana thead th {
+
+    background: #1f2937;
+
+    color: white;
+
+    font-weight: bold;
+
+}
+
+
+.tabla-semana tbody th {
+
+    background: #f3f4f6;
+
+    white-space: nowrap;
+
+    font-size: 14px;
+
+}
+
+
+.tabla-semana td {
+
+    height: 130px;
+
+    min-width: 160px;
+
+    background: #fafafa;
+
+}
+
+
+/* =========================================================
+   RESERVA DENTRO DE LA TABLA
+   ========================================================= */
+
+.reserva-card {
+
+    background: #f3f4f6;
+
+    border-left: 5px solid #1f2937;
+
+    border-radius: 6px;
+
+    padding: 12px;
+
+    text-align: left;
+
+    box-shadow:
+        0 2px 6px rgba(0,0,0,0.08);
+
+}
+
+
+.reserva-card strong {
+
+    display: block;
+
+    margin-bottom: 5px;
+
+}
+
+
+.reserva-card span {
+
+    display: block;
+
+    font-size: 13px;
+
+    margin-top: 3px;
+
+}
+
+
+.reserva-libre {
+
+    color: #777;
+
+    font-size: 14px;
+
+}
+
+
+/* =========================================================
+   ESTADOS DE MAQUETA
+   ========================================================= */
+
+.maqueta-disponible {
+
+    color: #15803d;
+
+    font-weight: bold;
+
+}
+
+
+.maqueta-ocupada {
+
+    color: #b91c1c;
+
+    font-weight: bold;
+
+}
+
+
+/* =========================================================
+   PIE DE PÁGINA
+   ========================================================= */
+
+.docente-footer {
+
+    text-align: center;
+
+    padding: 25px 10px 10px;
+
+    color: #777;
+
+    font-size: 14px;
+
+}
+
+
+.docente-footer strong {
+
+    color: #1f2937;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .docente-header {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+    }
+
+
+    .docente-header-right {
+
+        width: 100%;
+
+        justify-content: space-between;
+
+    }
+
+
+    .usuario-conectado {
+
+        text-align: left;
+
+    }
+
+
+    .form-reserva {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .reserva-boton-container {
+
+        justify-content: stretch;
+
+    }
+
+
+    .btn-reservar {
+
+        width: 100%;
+
+    }
+
+
+    .semana-header {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+    }
+
+
+    .controles-semana {
+
+        justify-content: flex-start;
+
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .docente-container {
+
+        padding: 15px;
+
+    }
+
+
+    .docente-section,
+    .docente-welcome {
+
+        padding: 18px;
+
+    }
+
+
+    .docente-header {
+
+        padding: 15px;
+
+    }
+
+
+    .logo-ceta {
+
+        width: 55px;
+
+        height: 55px;
+
+    }
+
+
+    .docente-header h1 {
+
+        font-size: 23px;
+
+    }
+
+
+    .docente-header-right {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+    .btn-cerrar-sesion {
+
+        width: 100%;
+
+    }
+
+}
