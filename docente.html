@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Reserva de Maquetas - CETA</title>
+
+    <link rel="stylesheet" href="css/estilos.css">
+
+</head>
+
+
+<body class="docente-page">
+
+
+    <!-- =====================================================
+         ENCABEZADO
+    ====================================================== -->
+
+    <header class="docente-header">
+
+        <div class="docente-header-left">
+
+            <img
+                src="img/logo-ceta.png"
+                alt="CETA"
+                class="logo-ceta"
+            >
+
+            <div>
+
+                <h1>
+                    CETA
+                </h1>
+
+                <p>
+                    Registro de uso de maquetas
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="docente-header-right">
+
+            <div class="usuario-conectado">
+
+                <span>
+                    Usuario:
+                </span>
+
+                <strong id="nombreDocente">
+                    Cargando...
+                </strong>
+
+            </div>
+
+
+            <button
+                id="btnCerrarSesionDocente"
+                class="btn-cerrar-sesion"
+            >
+                Cerrar sesión
+            </button>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =====================================================
+         CONTENIDO PRINCIPAL
+    ====================================================== -->
+
+    <main class="docente-container">
+
+
+        <!-- =================================================
+             BIENVENIDA
+        ================================================== -->
+
+        <section class="docente-welcome">
+
+            <h2>
+                Reserva de maquetas
+            </h2>
+
+            <p>
+                Seleccione la fecha, horario, grupo y maqueta
+                que desea utilizar.
+            </p>
+
+        </section>
+
+
+
+        <!-- =================================================
+             FORMULARIO DE RESERVA
+        ================================================== -->
+
+        <section class="docente-section">
+
+            <div class="section-header">
+
+                <div>
+
+                    <h2>
+                        📅 Nueva reserva
+                    </h2>
+
+                    <p>
+                        Complete los datos para registrar el
+                        uso de una maqueta.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <form id="formReserva" class="form-reserva">
+
+
+                <!-- =========================================
+                     GRUPO
+                ========================================== -->
+
+                <div class="campo-reserva">
+
+                    <label for="grupoReserva">
+                        Grupo
+                    </label>
+
+                    <input
+                        type="text"
+                        id="grupoReserva"
+                        placeholder="Ej: 101, 202, 300M..."
+                        required
+                    >
+
+                </div>
+
+
+
+                <!-- =========================================
+                     FECHA
+                ========================================== -->
+
+                <div class="campo-reserva">
+
+                    <label for="fechaReserva">
+                        Fecha
+                    </label>
+
+                    <input
+                        type="date"
+                        id="fechaReserva"
+                        required
+                    >
+
+                    <small id="diaSeleccionado">
+                        Seleccione una fecha
+                    </small>
+
+                </div>
+
+
+
+                <!-- =========================================
+                     HORARIO
+                ========================================== -->
+
+                <div class="campo-reserva">
+
+                    <label for="horarioReserva">
+                        Horario
+                    </label>
+
+                    <select
+                        id="horarioReserva"
+                        required
+                    >
+
+                        <option value="">
+                            Seleccione un horario
+                        </option>
+
+                        <option value="09:00-12:00">
+                            09:00 - 12:00
+                        </option>
+
+                        <option value="14:00-17:00">
+                            14:00 - 17:00
+                        </option>
+
+                        <option value="19:00-21:30">
+                            19:00 - 21:30
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+
+                <!-- =========================================
+                     MAQUETA
+                ========================================== -->
+
+                <div class="campo-reserva">
+
+                    <label for="maquetaReserva">
+                        Maqueta
+                    </label>
+
+                    <select
+                        id="maquetaReserva"
+                        required
+                    >
+
+                        <option value="">
+                            Cargando maquetas...
+                        </option>
+
+                    </select>
+
+                    <small id="estadoMaqueta">
+                        Seleccione una maqueta
+                    </small>
+
+                </div>
+
+
+
+                <!-- =========================================
+                     BOTÓN
+                ========================================== -->
+
+                <div class="reserva-boton-container">
+
+                    <button
+                        type="submit"
+                        id="btnReservar"
+                        class="btn-reservar"
+                    >
+                        📅 Registrar reserva
+                    </button>
+
+                </div>
+
+
+                <p
+                    id="mensajeReserva"
+                    class="mensaje-reserva"
+                ></p>
+
+
+            </form>
+
+        </section>
+
+
+
+        <!-- =================================================
+             TABLA SEMANAL
+        ================================================== -->
+
+        <section class="docente-section">
+
+            <div class="section-header semana-header">
+
+                <div>
+
+                    <h2>
+                        📋 Reservas de la semana
+                    </h2>
+
+                    <p id="textoSemana">
+                        Semana actual
+                    </p>
+
+                </div>
+
+
+                <div class="controles-semana">
+
+                    <button
+                        id="btnSemanaAnterior"
+                        class="btn-semana"
+                    >
+                        ← Semana anterior
+                    </button>
+
+
+                    <button
+                        id="btnSemanaActual"
+                        class="btn-semana"
+                    >
+                        Semana actual
+                    </button>
+
+
+                    <button
+                        id="btnSemanaSiguiente"
+                        class="btn-semana"
+                    >
+                        Semana siguiente →
+                    </button>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =============================================
+                 TABLA
+            ============================================== -->
+
+            <div class="tabla-semana-container">
+
+                <table
+                    class="tabla-semana"
+                    id="tablaSemana"
+                >
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Horario
+                            </th>
+
+                            <th>
+                                LUNES
+                            </th>
+
+                            <th>
+                                MARTES
+                            </th>
+
+                            <th>
+                                MIÉRCOLES
+                            </th>
+
+                            <th>
+                                JUEVES
+                            </th>
+
+                            <th>
+                                VIERNES
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        <tr>
+
+                            <th>
+                                09:00 - 12:00
+                            </th>
+
+                            <td>
+                                Cargando...
+                            </td>
+
+                            <td>
+                                Cargando...
+                            </td>
+
+                            <td>
+                                Cargando...
+                            </td>
+
+                            <td>
+                                Cargando...
+                            </td>
+
+                            <td>
+                                Cargando...
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <th>
+                                14:00 - 17:00
+                            </th>
+
+                            <td>
+                                Cargando...
+                            </td>
+
+                            <td>
+                                Cargando...
+                            </td>
+
+                            <td>
+                                Cargando...
+                            </td>
+
+                            <td>
+                                Cargando...
+                            </td>
+
+                            <td>
+                                Cargando...
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <th>
+                                19:00 - 21:30
+                            </th>
+
+                            <td>
+                                Cargando...
+                            </td>
+
+                            <td>
+                                Cargando...
+                            </td>
+
+                            <td>
+                                Cargando...
+                            </td>
+
+                            <td>
+                                Cargando...
+                            </td>
+
+                            <td>
+                                Cargando...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             PIE DE PÁGINA
+        ================================================== -->
+
+        <footer class="docente-footer">
+
+            Desarrollado por
+            <strong>Andres Vega</strong>
+
+        </footer>
+
+
+    </main>
+
+
+
+    <!-- =====================================================
+         SUPABASE
+    ====================================================== -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="js/config.js"></script>
+
+    <script src="js/docente.js"></script>
+
+
+</body>
+
+</html>
