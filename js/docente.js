@@ -8,11 +8,9 @@
 // INICIALIZAR SUPABASE
 // =========================================================
 
-const { createClient } = supabase;
-
-const supabaseClient = createClient(
+const supabaseClient = supabase.createClient(
     SUPABASE_URL,
-    SUPABASE_ANON_KEY
+    SUPABASE_KEY
 );
 
 
@@ -54,7 +52,7 @@ async function comprobarSesion() {
 
         window.location.href = "index.html";
 
-        return;
+        return false;
     }
 
 
@@ -63,14 +61,18 @@ async function comprobarSesion() {
 
     if (!session) {
 
+        console.log(
+            "No existe una sesión activa."
+        );
+
         window.location.href = "index.html";
 
-        return;
+        return false;
     }
 
 
     console.log(
-        "Sesión iniciada:",
+        "Sesión activa:",
         session.user.email
     );
 
@@ -79,6 +81,8 @@ async function comprobarSesion() {
         session.user.id
     );
 
+
+    return true;
 }
 
 
@@ -97,7 +101,7 @@ async function cargarDatosDocente(uid) {
 
             .from("perfiles")
 
-            .select("usuario, nombre, rol")
+            .select("*")
 
             .eq("id", uid)
 
@@ -110,6 +114,7 @@ async function cargarDatosDocente(uid) {
                 "Error cargando perfil:",
                 error
             );
+
 
             nombreDocente.textContent =
                 "Usuario";
@@ -124,8 +129,15 @@ async function cargarDatosDocente(uid) {
         );
 
 
-        // Intentamos utilizar el campo nombre
-        // y si no existe usamos usuario.
+        /*
+         * Intentamos obtener el nombre.
+         *
+         * Si tu tabla utiliza "nombre", se mostrará
+         * ese campo.
+         *
+         * Si no existe o está vacío, utilizamos
+         * "usuario".
+         */
 
         const nombre =
             data.nombre ||
@@ -140,7 +152,7 @@ async function cargarDatosDocente(uid) {
     } catch (error) {
 
         console.error(
-            "Error:",
+            "Error inesperado cargando perfil:",
             error
         );
 
@@ -171,9 +183,13 @@ async function cargarMaquetas() {
 
             .from("maquetas")
 
-            .select(
-                "id, codigo, nombre, descripcion, disponible"
-            )
+            .select(`
+                id,
+                codigo,
+                nombre,
+                descripcion,
+                disponible
+            `)
 
             .eq(
                 "disponible",
@@ -254,20 +270,35 @@ async function cargarMaquetas() {
                     );
 
 
+                /*
+                 * El value será el ID de la maqueta.
+                 */
+
                 option.value =
                     maqueta.id;
 
+
+                /*
+                 * Lo que verá el docente.
+                 */
 
                 option.textContent =
                     `${maqueta.codigo} - ${maqueta.nombre}`;
 
 
+                /*
+                 * Guardamos información adicional
+                 * para utilizarla posteriormente.
+                 */
+
                 option.dataset.nombre =
                     maqueta.nombre;
 
-
                 option.dataset.codigo =
                     maqueta.codigo;
+
+                option.dataset.descripcion =
+                    maqueta.descripcion || "";
 
 
                 maquetaReserva.appendChild(
@@ -279,7 +310,7 @@ async function cargarMaquetas() {
 
 
         estadoMaqueta.textContent =
-            `${data.length} maqueta(s) disponible(s).`;
+            `${data.length} maqueta(s) habilitada(s).`;
 
         estadoMaqueta.className =
             "maqueta-disponible";
@@ -288,9 +319,16 @@ async function cargarMaquetas() {
     } catch (error) {
 
         console.error(
-            "Error inesperado:",
+            "Error inesperado cargando maquetas:",
             error
         );
+
+
+        maquetaReserva.innerHTML = `
+            <option value="">
+                Error inesperado
+            </option>
+        `;
 
     }
 
@@ -327,7 +365,7 @@ maquetaReserva.addEventListener(
 
 
         estadoMaqueta.textContent =
-            `Maqueta seleccionada: ${option.textContent}`;
+            `✓ ${option.textContent} seleccionada`;
 
         estadoMaqueta.className =
             "maqueta-disponible";
@@ -344,40 +382,75 @@ btnCerrarSesionDocente.addEventListener(
     "click",
     async function () {
 
-        const {
-            error
-        } = await supabaseClient.auth.signOut();
+        try {
+
+            const {
+                error
+            } = await supabaseClient.auth.signOut();
 
 
-        if (error) {
+            if (error) {
+
+                console.error(
+                    "Error cerrando sesión:",
+                    error
+                );
+
+                return;
+            }
+
+
+            window.location.href =
+                "index.html";
+
+
+        } catch (error) {
 
             console.error(
-                "Error cerrando sesión:",
+                "Error inesperado cerrando sesión:",
                 error
             );
 
-            return;
         }
-
-
-        window.location.href =
-            "index.html";
 
     }
 );
 
 
 // =========================================================
-// INICIAR
+// INICIAR PÁGINA
 // =========================================================
 
 async function iniciarPagina() {
 
-    await comprobarSesion();
+    console.log(
+        "Iniciando página del docente..."
+    );
+
+
+    const sesionActiva =
+        await comprobarSesion();
+
+
+    if (!sesionActiva) {
+
+        return;
+
+    }
+
 
     await cargarMaquetas();
 
+
+    console.log(
+        "Página del docente iniciada correctamente."
+    );
+
 }
 
+
+// =========================================================
+// EJECUTAR
+// =========================================================
 
 iniciarPagina();
