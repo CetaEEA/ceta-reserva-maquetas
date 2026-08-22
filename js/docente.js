@@ -19,11 +19,8 @@ const supabaseClient = supabase.createClient(
 // =========================================================
 
 let usuarioActual = null;
-
 let perfilActual = null;
-
 let inicioSemanaActual = obtenerLunes(new Date());
-
 let listaMaquetas = [];
 
 
@@ -270,7 +267,7 @@ async function comprobarSesion() {
 
 
 // =========================================================
-// CARGAR PERFIL
+// CARGAR PERFIL DOCENTE
 // =========================================================
 
 async function cargarDatosDocente(uid) {
@@ -324,15 +321,7 @@ async function cargarDatosDocente(uid) {
         }
 
 
-        /*
-         * Esta página está destinada a docentes.
-         */
-
         if (data.rol !== "docente") {
-
-            console.warn(
-                "El usuario no es docente."
-            );
 
             if (
                 data.rol ===
@@ -461,7 +450,7 @@ async function cargarMaquetasBase() {
 
 
 // =========================================================
-// MOSTRAR MAQUETAS SIN FILTRAR
+// MOSTRAR MAQUETAS SIN FILTRO
 // =========================================================
 
 function mostrarMaquetasSinFiltro() {
@@ -533,7 +522,7 @@ function mostrarMaquetasSinFiltro() {
 
 
 // =========================================================
-// CARGAR DISPONIBILIDAD
+// ACTUALIZAR DISPONIBILIDAD
 // =========================================================
 
 async function actualizarDisponibilidad() {
@@ -576,10 +565,6 @@ async function actualizarDisponibilidad() {
             fechaObjeto
         );
 
-
-    /*
-     * No permitir sábados ni domingos.
-     */
 
     if (
         dia === "sabado" ||
@@ -624,7 +609,7 @@ async function actualizarDisponibilidad() {
 
 
 // =========================================================
-// MAQUETAS DISPONIBLES PARA FECHA/HORARIO
+// MAQUETAS DISPONIBLES
 // =========================================================
 
 async function cargarMaquetasDisponibles(
@@ -785,10 +770,6 @@ async function cargarAreasDisponibles(
 
     try {
 
-        /*
-         * Obtener las 9 áreas habilitadas.
-         */
-
         const {
             data: areas,
             error: errorAreas
@@ -825,11 +806,6 @@ async function cargarAreasDisponibles(
         }
 
 
-        /*
-         * Consultar cuáles son las áreas libres
-         * especialmente designadas para ese día.
-         */
-
         const {
             data: libres,
             error: errorLibres
@@ -863,10 +839,6 @@ async function cargarAreasDisponibles(
             return;
         }
 
-
-        /*
-         * Consultar áreas que ya tienen reserva.
-         */
 
         const {
             data: reservas,
@@ -931,10 +903,6 @@ async function cargarAreasDisponibles(
             );
 
 
-        // =================================================
-        // MOSTRAR RECUADRO VERDE
-        // =================================================
-
         const libresDisponibles =
             Array.from(
                 areasLibres
@@ -967,21 +935,12 @@ async function cargarAreasDisponibles(
         }
 
 
-        // =================================================
-        // CONSTRUIR SELECTOR
-        // =================================================
-
         areaReserva.innerHTML = `
             <option value="">
                 Seleccione un área
             </option>
         `;
 
-
-        /*
-         * Primero mostramos las áreas libres
-         * recomendadas.
-         */
 
         const areasOrdenadas =
             [...(areas || [])]
@@ -1038,11 +997,6 @@ async function cargarAreasDisponibles(
                     area.codigo;
 
 
-                /*
-                 * Si ya está reservada:
-                 * no podrá seleccionarse.
-                 */
-
                 if (
                     areasOcupadas.has(
                         area.codigo
@@ -1062,20 +1016,11 @@ async function cargarAreasDisponibles(
                     )
                 ) {
 
-                    /*
-                     * Área recomendada para práctica.
-                     */
-
                     option.textContent =
                         `⭐ ${area.codigo} — Área libre para práctica`;
 
 
                 } else {
-
-                    /*
-                     * Las demás áreas siguen disponibles,
-                     * tal como se definió.
-                     */
 
                     option.textContent =
                         `${area.codigo} — Disponible`;
@@ -1238,10 +1183,6 @@ formReserva.addEventListener(
             areaReserva.value;
 
 
-        // =================================================
-        // VALIDACIONES
-        // =================================================
-
         if (
             !grupo ||
             !titulo ||
@@ -1280,10 +1221,6 @@ formReserva.addEventListener(
         }
 
 
-        /*
-         * Evitar reservar fechas anteriores.
-         */
-
         const hoy =
             new Date();
 
@@ -1318,7 +1255,7 @@ formReserva.addEventListener(
         try {
 
             // =============================================
-            // VOLVER A COMPROBAR MAQUETA
+            // COMPROBAR MAQUETA
             // =============================================
 
             const {
@@ -1378,7 +1315,7 @@ formReserva.addEventListener(
 
 
             // =============================================
-            // VOLVER A COMPROBAR ÁREA
+            // COMPROBAR ÁREA
             // =============================================
 
             const {
@@ -1450,7 +1387,7 @@ formReserva.addEventListener(
 
                     .insert({
 
-                        usuario:
+                        usuario_id:
                             usuarioActual.id,
 
                         grupo:
@@ -1479,14 +1416,6 @@ formReserva.addEventListener(
 
             if (error) {
 
-                /*
-                 * Código PostgreSQL 23505:
-                 * violación de índice UNIQUE.
-                 *
-                 * Esto puede suceder si dos docentes
-                 * intentan reservar al mismo tiempo.
-                 */
-
                 if (
                     error.code ===
                     "23505"
@@ -1508,22 +1437,11 @@ formReserva.addEventListener(
             }
 
 
-            // =============================================
-            // RESERVA CORRECTA
-            // =============================================
-
             mostrarMensaje(
                 "✓ Reserva registrada correctamente.",
                 true
             );
 
-
-            /*
-             * Limpiamos algunos campos.
-             *
-             * Conservamos fecha y horario para facilitar
-             * otra reserva si el docente lo necesita.
-             */
 
             grupoReserva.value =
                 "";
@@ -1540,11 +1458,6 @@ formReserva.addEventListener(
 
             await actualizarDisponibilidad();
 
-
-            /*
-             * Si la fecha reservada pertenece a otra
-             * semana, mostramos esa semana.
-             */
 
             inicioSemanaActual =
                 obtenerLunes(
@@ -1583,7 +1496,7 @@ formReserva.addEventListener(
 
 
 // =========================================================
-// MENSAJE DE RESERVA
+// MENSAJE
 // =========================================================
 
 function mostrarMensaje(
@@ -1642,13 +1555,6 @@ async function cargarTablaSemanal() {
 
     try {
 
-        /*
-         * Obtenemos las reservas.
-         *
-         * No seleccionamos titulo_tema porque ese dato
-         * NO debe mostrarse en la vista docente.
-         */
-
         const {
             data: reservas,
             error
@@ -1659,7 +1565,7 @@ async function cargarTablaSemanal() {
 
                 .select(`
                     id,
-                    usuario,
+                    usuario_id,
                     grupo,
                     fecha,
                     horario,
@@ -1704,17 +1610,13 @@ async function cargarTablaSemanal() {
         }
 
 
-        /*
-         * Necesitamos los nombres de docentes.
-         */
-
         const usuarios =
             [
                 ...new Set(
                     (reservas || [])
                         .map(
                             reserva =>
-                                reserva.usuario
+                                reserva.usuario_id
                         )
                         .filter(Boolean)
                 )
@@ -1754,10 +1656,6 @@ async function cargarTablaSemanal() {
         }
 
 
-        /*
-         * Mapa de docentes.
-         */
-
         const mapaPerfiles =
             new Map();
 
@@ -1774,10 +1672,6 @@ async function cargarTablaSemanal() {
             }
         );
 
-
-        /*
-         * Mapa de maquetas.
-         */
 
         const mapaMaquetas =
             new Map();
@@ -1815,7 +1709,7 @@ async function cargarTablaSemanal() {
 
 
 // =========================================================
-// ACTUALIZAR FECHAS DE ENCABEZADO
+// ENCABEZADOS DE TABLA
 // =========================================================
 
 function actualizarEncabezadosTabla(
@@ -1986,7 +1880,7 @@ function renderizarTablaSemanal(
 
                             const docente =
                                 mapaPerfiles.get(
-                                    reserva.usuario
+                                    reserva.usuario_id
                                 ) ||
                                 "Docente";
 
@@ -1999,13 +1893,6 @@ function renderizarTablaSemanal(
                                 ) ||
                                 "Maqueta";
 
-
-                            /*
-                             * IMPORTANTE:
-                             *
-                             * NO mostramos titulo_tema
-                             * en la vista del docente.
-                             */
 
                             tarjeta.innerHTML = `
                                 <strong>
