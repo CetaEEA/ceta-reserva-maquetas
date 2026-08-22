@@ -275,9 +275,14 @@ async function cargarUsuarios() {
 
                         <td>
 
-                            <span class="acciones-pendientes">
-                                Gestión próximamente
-                            </span>
+                            <div class="acciones-usuario">
+                                <button type="button" class="btn-editar-usuario"
+                                    data-id="${usuario.id}" data-usuario="${escapeHTML(usuario.usuario)}"
+                                    data-nombre="${escapeHTML(usuario.nombre)}" data-rol="${escapeHTML(usuario.rol)}"
+                                    data-activo="${usuario.activo}">✏️ Editar</button>
+                                <button type="button" class="btn-eliminar-usuario"
+                                    data-id="${usuario.id}" data-nombre="${escapeHTML(usuario.nombre || usuario.usuario)}">🗑️ Eliminar</button>
+                            </div>
 
                         </td>
 
@@ -287,6 +292,73 @@ async function cargarUsuarios() {
 
             }
         ).join("");
+
+    document.querySelectorAll(".btn-editar-usuario").forEach(button => {
+        button.addEventListener("click", () => abrirEditarUsuario(button.dataset));
+    });
+
+    document.querySelectorAll(".btn-eliminar-usuario").forEach(button => {
+        button.addEventListener("click", () => eliminarUsuario(button.dataset.id, button.dataset.nombre));
+    });
+}
+
+
+function abrirEditarUsuario(u) {
+    document.getElementById("editarUsuarioId").value = u.id;
+    document.getElementById("editarNombre").value = u.nombre || "";
+    document.getElementById("editarUsuario").value = u.usuario || "";
+    document.getElementById("editarRol").value = u.rol || "docente";
+    document.getElementById("editarEstado").value = String(u.activo === "true");
+    document.getElementById("editarPassword").value = "";
+    document.getElementById("mensajeEditarUsuario").textContent = "";
+    document.getElementById("modalEditarUsuario")?.classList.add("active");
+}
+
+const formEditarUsuario = document.getElementById("formEditarUsuario");
+formEditarUsuario?.addEventListener("submit", async event => {
+    event.preventDefault();
+    const mensaje = document.getElementById("mensajeEditarUsuario");
+    mensaje.textContent = "Guardando cambios...";
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) { mensaje.textContent = "Sesión expirada."; return; }
+
+    const payload = {
+        id: document.getElementById("editarUsuarioId").value,
+        nombre: document.getElementById("editarNombre").value.trim(),
+        usuario: document.getElementById("editarUsuario").value.trim().toLowerCase(),
+        rol: document.getElementById("editarRol").value,
+        activo: document.getElementById("editarEstado").value === "true",
+        password: document.getElementById("editarPassword").value
+    };
+
+    try {
+        const respuesta = await fetch(`${SUPABASE_URL}/functions/v1/editar-usuario`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
+            body: JSON.stringify(payload)
+        });
+        const resultado = await respuesta.json();
+        if (!respuesta.ok) { mensaje.textContent = resultado.error || "No se pudo editar."; return; }
+        mensaje.textContent = "Usuario actualizado correctamente.";
+        await cargarUsuarios();
+        setTimeout(() => document.getElementById("modalEditarUsuario")?.classList.remove("active"), 700);
+    } catch (error) { console.error("Error editando usuario:", error); mensaje.textContent = "Error de conexión."; }
+});
+
+async function eliminarUsuario(id, nombre) {
+    if (!confirm(`¿Desea eliminar al usuario "${nombre}"?`)) return;
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) { alert("Sesión expirada."); return; }
+    try {
+        const respuesta = await fetch(`${SUPABASE_URL}/functions/v1/eliminar-usuario`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
+            body: JSON.stringify({ id })
+        });
+        const resultado = await respuesta.json();
+        if (!respuesta.ok) { alert(resultado.error || "No se pudo eliminar."); return; }
+        await cargarUsuarios();
+    } catch (error) { console.error("Error eliminando usuario:", error); alert("Error de conexión."); }
 }
 
 
@@ -2009,6 +2081,13 @@ function renderizarTablaAdmin(
                             `;
 
 
+                            const botonCancelar = document.createElement("button");
+                            botonCancelar.type = "button";
+                            botonCancelar.className = "btn-cancelar-reserva";
+                            botonCancelar.textContent = "✖ Cancelar reserva";
+                            botonCancelar.addEventListener("click", () => cancelarReservaAdmin(r.id));
+                            tarjeta.appendChild(botonCancelar);
+
                             celda.appendChild(
                                 tarjeta
                             );
@@ -2030,6 +2109,23 @@ function renderizarTablaAdmin(
 
         }
     );
+}
+
+
+// =========================================================
+// CANCELAR RESERVA - ADMINISTRADOR
+// =========================================================
+
+async function cancelarReservaAdmin(reservaId) {
+    if (!confirm("¿Desea cancelar esta reserva? La maqueta y el área volverán a quedar disponibles.")) return;
+    try {
+        const { data, error } = await supabaseClient.from("reservas")
+            .update({ estado: "cancelada", updated_at: new Date().toISOString() })
+            .eq("id", reservaId).eq("estado", "activa").select("id");
+        if (error) throw error;
+        if (!data || data.length === 0) { alert("No se pudo cancelar o ya estaba cancelada."); return; }
+        await cargarReservasAdmin();
+    } catch (error) { console.error("Error cancelando reserva:", error); alert("No fue posible cancelar la reserva."); }
 }
 
 
