@@ -15,7 +15,7 @@ const supabaseClient = supabase.createClient(
 
 
 // =========================================================
-// VARIABLES
+// VARIABLES GLOBALES
 // =========================================================
 
 let inicioSemanaAdmin =
@@ -80,9 +80,9 @@ async function comprobarAdministrador() {
     if (
         errorPerfil ||
         !perfil ||
-        perfil.rol !==
-            "administrador" ||
-        !perfil.activo
+        perfil.rol !== "administrador" ||
+        !perfil.activo ||
+        perfil.eliminado === true
     ) {
 
         await supabaseClient
@@ -166,31 +166,35 @@ async function cargarUsuarios() {
 
 
     if (!tabla) {
-
         return;
     }
 
 
     const {
-    data,
-    error
-} =
-    await supabaseClient
+        data,
+        error
+    } =
+        await supabaseClient
 
-        .from("perfiles")
+            .from("perfiles")
 
-        .select(
-            "id, usuario, nombre, rol, activo, eliminado"
-        )
+            .select(`
+                id,
+                usuario,
+                nombre,
+                rol,
+                activo,
+                eliminado
+            `)
 
-        .eq(
-            "eliminado",
-            false
-        )
+            .eq(
+                "eliminado",
+                false
+            )
 
-        .order(
-            "nombre"
-        );
+            .order(
+                "nombre"
+            );
 
 
     if (error) {
@@ -202,13 +206,14 @@ async function cargarUsuarios() {
 
 
         tabla.innerHTML = `
+
             <tr>
                 <td colspan="5">
                     Error al cargar usuarios.
                 </td>
             </tr>
-        `;
 
+        `;
 
         return;
     }
@@ -220,13 +225,14 @@ async function cargarUsuarios() {
     ) {
 
         tabla.innerHTML = `
+
             <tr>
                 <td colspan="5">
                     No existen usuarios.
                 </td>
             </tr>
-        `;
 
+        `;
 
         return;
     }
@@ -281,12 +287,45 @@ async function cargarUsuarios() {
                         <td>
 
                             <div class="acciones-usuario">
-                                <button type="button" class="btn-editar-usuario"
-                                    data-id="${usuario.id}" data-usuario="${escapeHTML(usuario.usuario)}"
-                                    data-nombre="${escapeHTML(usuario.nombre)}" data-rol="${escapeHTML(usuario.rol)}"
-                                    data-activo="${usuario.activo}">✏️ Editar</button>
-                                <button type="button" class="btn-eliminar-usuario"
-                                    data-id="${usuario.id}" data-nombre="${escapeHTML(usuario.nombre || usuario.usuario)}">🗑️ Eliminar</button>
+
+                                <button
+                                    type="button"
+                                    class="btn-editar-usuario"
+
+                                    data-id="${usuario.id}"
+
+                                    data-usuario="${escapeHTML(
+                                        usuario.usuario
+                                    )}"
+
+                                    data-nombre="${escapeHTML(
+                                        usuario.nombre
+                                    )}"
+
+                                    data-rol="${escapeHTML(
+                                        usuario.rol
+                                    )}"
+
+                                    data-activo="${usuario.activo}"
+                                >
+                                    ✏️ Editar
+                                </button>
+
+
+                                <button
+                                    type="button"
+                                    class="btn-eliminar-usuario"
+
+                                    data-id="${usuario.id}"
+
+                                    data-nombre="${escapeHTML(
+                                        usuario.nombre ||
+                                        usuario.usuario
+                                    )}"
+                                >
+                                    🗑️ Eliminar
+                                </button>
+
                             </div>
 
                         </td>
@@ -296,74 +335,410 @@ async function cargarUsuarios() {
                 `;
 
             }
-        ).join("");
+        )
+        .join("");
 
-    document.querySelectorAll(".btn-editar-usuario").forEach(button => {
-        button.addEventListener("click", () => abrirEditarUsuario(button.dataset));
-    });
 
-    document.querySelectorAll(".btn-eliminar-usuario").forEach(button => {
-        button.addEventListener("click", () => eliminarUsuario(button.dataset.id, button.dataset.nombre));
-    });
+    // =====================================================
+    // BOTONES EDITAR
+    // =====================================================
+
+    document
+        .querySelectorAll(
+            ".btn-editar-usuario"
+        )
+        .forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        abrirEditarUsuario(
+                            button.dataset
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+    // =====================================================
+    // BOTONES ELIMINAR
+    // =====================================================
+
+    document
+        .querySelectorAll(
+            ".btn-eliminar-usuario"
+        )
+        .forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        eliminarUsuario(
+
+                            button.dataset.id,
+
+                            button.dataset.nombre
+
+                        );
+
+                    }
+                );
+
+            }
+        );
 }
 
 
-function abrirEditarUsuario(u) {
-    document.getElementById("editarUsuarioId").value = u.id;
-    document.getElementById("editarNombre").value = u.nombre || "";
-    document.getElementById("editarUsuario").value = u.usuario || "";
-    document.getElementById("editarRol").value = u.rol || "docente";
-    document.getElementById("editarEstado").value = String(u.activo === "true");
-    document.getElementById("editarPassword").value = "";
-    document.getElementById("mensajeEditarUsuario").textContent = "";
-    document.getElementById("modalEditarUsuario")?.classList.add("active");
+// =========================================================
+// ABRIR EDITAR USUARIO
+// =========================================================
+
+function abrirEditarUsuario(
+    usuario
+) {
+
+    document.getElementById(
+        "editarUsuarioId"
+    ).value =
+        usuario.id;
+
+
+    document.getElementById(
+        "editarNombre"
+    ).value =
+        usuario.nombre || "";
+
+
+    document.getElementById(
+        "editarUsuario"
+    ).value =
+        usuario.usuario || "";
+
+
+    document.getElementById(
+        "editarRol"
+    ).value =
+        usuario.rol || "docente";
+
+
+    document.getElementById(
+        "editarEstado"
+    ).value =
+        String(
+            usuario.activo === "true"
+        );
+
+
+    document.getElementById(
+        "editarPassword"
+    ).value =
+        "";
+
+
+    document.getElementById(
+        "mensajeEditarUsuario"
+    ).textContent =
+        "";
+
+
+    document
+        .getElementById(
+            "modalEditarUsuario"
+        )
+        ?.classList
+        .add(
+            "active"
+        );
 }
 
-const formEditarUsuario = document.getElementById("formEditarUsuario");
-formEditarUsuario?.addEventListener("submit", async event => {
-    event.preventDefault();
-    const mensaje = document.getElementById("mensajeEditarUsuario");
-    mensaje.textContent = "Guardando cambios...";
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    if (!session) { mensaje.textContent = "Sesión expirada."; return; }
 
-    const payload = {
-        id: document.getElementById("editarUsuarioId").value,
-        nombre: document.getElementById("editarNombre").value.trim(),
-        usuario: document.getElementById("editarUsuario").value.trim().toLowerCase(),
-        rol: document.getElementById("editarRol").value,
-        activo: document.getElementById("editarEstado").value === "true",
-        password: document.getElementById("editarPassword").value
-    };
+// =========================================================
+// GUARDAR EDICIÓN USUARIO
+// =========================================================
+
+const formEditarUsuario =
+    document.getElementById(
+        "formEditarUsuario"
+    );
+
+
+formEditarUsuario
+    ?.addEventListener(
+        "submit",
+        async event => {
+
+            event.preventDefault();
+
+
+            const mensaje =
+                document.getElementById(
+                    "mensajeEditarUsuario"
+                );
+
+
+            mensaje.textContent =
+                "Guardando cambios...";
+
+
+            const {
+                data: { session }
+            } =
+                await supabaseClient
+                    .auth
+                    .getSession();
+
+
+            if (!session) {
+
+                mensaje.textContent =
+                    "Sesión expirada.";
+
+                return;
+            }
+
+
+            const payload = {
+
+                id:
+                    document
+                        .getElementById(
+                            "editarUsuarioId"
+                        )
+                        .value,
+
+                nombre:
+                    document
+                        .getElementById(
+                            "editarNombre"
+                        )
+                        .value
+                        .trim(),
+
+                usuario:
+                    document
+                        .getElementById(
+                            "editarUsuario"
+                        )
+                        .value
+                        .trim()
+                        .toLowerCase(),
+
+                rol:
+                    document
+                        .getElementById(
+                            "editarRol"
+                        )
+                        .value,
+
+                activo:
+                    document
+                        .getElementById(
+                            "editarEstado"
+                        )
+                        .value === "true",
+
+                password:
+                    document
+                        .getElementById(
+                            "editarPassword"
+                        )
+                        .value
+
+            };
+
+
+            try {
+
+                const respuesta =
+                    await fetch(
+
+                        `${SUPABASE_URL}/functions/v1/editar-usuario`,
+
+                        {
+
+                            method:
+                                "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json",
+
+                                "Authorization":
+                                    `Bearer ${session.access_token}`
+
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    payload
+                                )
+
+                        }
+
+                    );
+
+
+                const resultado =
+                    await respuesta.json();
+
+
+                if (!respuesta.ok) {
+
+                    mensaje.textContent =
+                        resultado.error ||
+                        "No se pudo editar.";
+
+                    return;
+                }
+
+
+                mensaje.textContent =
+                    "Usuario actualizado correctamente.";
+
+
+                await cargarUsuarios();
+
+
+                setTimeout(
+                    () => {
+
+                        document
+                            .getElementById(
+                                "modalEditarUsuario"
+                            )
+                            ?.classList
+                            .remove(
+                                "active"
+                            );
+
+                    },
+                    700
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Error editando usuario:",
+                    error
+                );
+
+
+                mensaje.textContent =
+                    "Error de conexión.";
+            }
+
+        }
+    );
+
+
+// =========================================================
+// ELIMINAR USUARIO
+// =========================================================
+
+async function eliminarUsuario(
+    id,
+    nombre
+) {
+
+    if (
+        !confirm(
+            `¿Desea eliminar al usuario "${nombre}"?`
+        )
+    ) {
+
+        return;
+    }
+
+
+    const {
+        data: { session }
+    } =
+        await supabaseClient
+            .auth
+            .getSession();
+
+
+    if (!session) {
+
+        alert(
+            "Sesión expirada."
+        );
+
+        return;
+    }
+
 
     try {
-        const respuesta = await fetch(`${SUPABASE_URL}/functions/v1/editar-usuario`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
-            body: JSON.stringify(payload)
-        });
-        const resultado = await respuesta.json();
-        if (!respuesta.ok) { mensaje.textContent = resultado.error || "No se pudo editar."; return; }
-        mensaje.textContent = "Usuario actualizado correctamente.";
-        await cargarUsuarios();
-        setTimeout(() => document.getElementById("modalEditarUsuario")?.classList.remove("active"), 700);
-    } catch (error) { console.error("Error editando usuario:", error); mensaje.textContent = "Error de conexión."; }
-});
 
-async function eliminarUsuario(id, nombre) {
-    if (!confirm(`¿Desea eliminar al usuario "${nombre}"?`)) return;
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    if (!session) { alert("Sesión expirada."); return; }
-    try {
-        const respuesta = await fetch(`${SUPABASE_URL}/functions/v1/eliminar-usuario`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
-            body: JSON.stringify({ id })
-        });
-        const resultado = await respuesta.json();
-        if (!respuesta.ok) { alert(resultado.error || "No se pudo eliminar."); return; }
+        const respuesta =
+            await fetch(
+
+                `${SUPABASE_URL}/functions/v1/eliminar-usuario`,
+
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json",
+
+                        "Authorization":
+                            `Bearer ${session.access_token}`
+
+                    },
+
+                    body:
+                        JSON.stringify({
+                            id
+                        })
+
+                }
+
+            );
+
+
+        const resultado =
+            await respuesta.json();
+
+
+        if (!respuesta.ok) {
+
+            alert(
+                resultado.error ||
+                "No se pudo eliminar."
+            );
+
+            return;
+        }
+
+
         await cargarUsuarios();
-    } catch (error) { console.error("Error eliminando usuario:", error); alert("Error de conexión."); }
+
+
+    } catch (error) {
+
+        console.error(
+            "Error eliminando usuario:",
+            error
+        );
+
+
+        alert(
+            "Error de conexión."
+        );
+    }
 }
 
 
@@ -380,7 +755,6 @@ async function cargarMaquetas() {
 
 
     if (!contenedor) {
-
         return;
     }
 
@@ -409,11 +783,12 @@ async function cargarMaquetas() {
 
 
         contenedor.innerHTML = `
+
             <div class="loading-card">
                 Error al cargar las maquetas.
             </div>
-        `;
 
+        `;
 
         return;
     }
@@ -425,11 +800,12 @@ async function cargarMaquetas() {
     ) {
 
         contenedor.innerHTML = `
+
             <div class="loading-card">
                 No existen maquetas registradas.
             </div>
-        `;
 
+        `;
 
         return;
     }
@@ -563,8 +939,13 @@ async function cargarMaquetas() {
                 `;
 
             }
-        ).join("");
+        )
+        .join("");
 
+
+    // =====================================================
+    // EDITAR
+    // =====================================================
 
     document
         .querySelectorAll(
@@ -596,6 +977,10 @@ async function cargarMaquetas() {
         );
 
 
+    // =====================================================
+    // DESACTIVAR
+    // =====================================================
+
     document
         .querySelectorAll(
             ".btn-desactivar-maqueta"
@@ -623,6 +1008,10 @@ async function cargarMaquetas() {
             }
         );
 
+
+    // =====================================================
+    // ACTIVAR
+    // =====================================================
 
     document
         .querySelectorAll(
@@ -654,7 +1043,7 @@ async function cargarMaquetas() {
 
 
 // =========================================================
-// EDITAR MAQUETA
+// ABRIR EDITAR MAQUETA
 // =========================================================
 
 function abrirEditarMaqueta(
@@ -748,7 +1137,7 @@ function abrirEditarMaqueta(
 
 
 // =========================================================
-// ESTADO MAQUETA
+// CAMBIAR ESTADO MAQUETA
 // =========================================================
 
 async function cambiarEstadoMaqueta(
@@ -789,8 +1178,10 @@ async function cambiarEstadoMaqueta(
                 "La sesión ha expirado."
             );
 
+
             window.location.href =
                 "index.html";
+
 
             return;
         }
@@ -823,8 +1214,7 @@ async function cambiarEstadoMaqueta(
                             id:
                                 Number(id),
 
-                            disponible:
-                                disponible
+                            disponible
 
                         })
 
@@ -854,6 +1244,7 @@ async function cambiarEstadoMaqueta(
     } catch (error) {
 
         console.error(
+            "Error cambiando estado:",
             error
         );
 
@@ -885,7 +1276,8 @@ if (formMaqueta) {
 
 
             const idEditando =
-                formMaqueta.dataset
+                formMaqueta
+                    .dataset
                     .editandoId;
 
 
@@ -1061,6 +1453,7 @@ if (formMaqueta) {
             } catch (error) {
 
                 console.error(
+                    "Error guardando maqueta:",
                     error
                 );
 
@@ -1240,6 +1633,7 @@ if (formUsuario) {
             } catch (error) {
 
                 console.error(
+                    "Error creando usuario:",
                     error
                 );
 
@@ -1299,6 +1693,7 @@ document
                 delete form
                     .dataset
                     .editandoId;
+
             }
 
 
@@ -1316,7 +1711,7 @@ document
 
 
 // =========================================================
-// MODALES
+// CERRAR MODALES
 // =========================================================
 
 document
@@ -1371,7 +1766,7 @@ document
 
 
 // =========================================================
-// FECHAS
+// FUNCIONES DE FECHA
 // =========================================================
 
 function obtenerLunesAdmin(
@@ -1445,7 +1840,8 @@ function fechaLocalISOAdmin(
     const mes =
         String(
             fecha.getMonth() + 1
-        ).padStart(
+        )
+        .padStart(
             2,
             "0"
         );
@@ -1454,7 +1850,8 @@ function fechaLocalISOAdmin(
     const dia =
         String(
             fecha.getDate()
-        ).padStart(
+        )
+        .padStart(
             2,
             "0"
         );
@@ -1471,6 +1868,7 @@ function formatearFechaAdmin(
     return fecha.toLocaleDateString(
         "es-BO",
         {
+
             day:
                 "2-digit",
 
@@ -1479,6 +1877,7 @@ function formatearFechaAdmin(
 
             year:
                 "numeric"
+
         }
     );
 }
@@ -1499,7 +1898,6 @@ function actualizarEncabezadosAdmin(
 
 
     if (!tabla) {
-
         return;
     }
 
@@ -1538,25 +1936,33 @@ function actualizarEncabezadosAdmin(
             );
 
 
-        encabezados[
-            i + 1
-        ].innerHTML = `
+        if (
+            encabezados[
+                i + 1
+            ]
+        ) {
 
-            ${nombres[i]}
+            encabezados[
+                i + 1
+            ].innerHTML = `
 
-            <br>
+                ${nombres[i]}
 
-            <small>
-                ${formatearFechaAdmin(fecha)}
-            </small>
+                <br>
 
-        `;
+                <small>
+                    ${formatearFechaAdmin(fecha)}
+                </small>
+
+            `;
+
+        }
     }
 }
 
 
 // =========================================================
-// CARGAR RESERVAS
+// CARGAR RESERVAS SEMANALES
 // =========================================================
 
 async function cargarReservasAdmin() {
@@ -1637,6 +2043,10 @@ async function cargarReservasAdmin() {
 
     try {
 
+        // =================================================
+        // RESERVAS
+        // =================================================
+
         const {
             data: reservas,
             error
@@ -1646,17 +2056,17 @@ async function cargarReservasAdmin() {
                 .from("reservas")
 
                 .select(`
-                id,
-                usuario_id,
-                grupo,
-                fecha,
-                horario,
-                maqueta_id,
-                maqueta_id_2,
-                maqueta_id_3,
-                area_codigo,
-                titulo_tema,
-                estado
+                    id,
+                    usuario_id,
+                    grupo,
+                    fecha,
+                    horario,
+                    maqueta_id,
+                    maqueta_id_2,
+                    maqueta_id_3,
+                    area_codigo,
+                    titulo_tema,
+                    estado
                 `)
 
                 .gte(
@@ -1682,6 +2092,7 @@ async function cargarReservasAdmin() {
         if (error) {
 
             console.error(
+                "Error cargando reservas:",
                 error
             );
 
@@ -1689,14 +2100,13 @@ async function cargarReservasAdmin() {
             tbody.innerHTML = `
 
                 <tr>
-
                     <td colspan="6">
                         Error al cargar.
                     </td>
-
                 </tr>
 
             `;
+
 
             return;
         }
@@ -1706,6 +2116,10 @@ async function cargarReservasAdmin() {
             reservas || [];
 
 
+        // =================================================
+        // IDS DE DOCENTES
+        // =================================================
+
         const idsUsuarios =
             [
                 ...new Set(
@@ -1713,8 +2127,8 @@ async function cargarReservasAdmin() {
                     listaReservas
 
                         .map(
-                            r =>
-                                r.usuario_id
+                            reserva =>
+                                reserva.usuario_id
                         )
 
                         .filter(
@@ -1725,26 +2139,34 @@ async function cargarReservasAdmin() {
             ];
 
 
+        // =================================================
+        // IDS DE TODAS LAS MAQUETAS
+        // =================================================
+
         const idsMaquetas =
-    [
-        ...new Set(
+            [
+                ...new Set(
 
-            listaReservas
+                    listaReservas
 
-                .flatMap(
-                    r => [
-                        r.maqueta_id,
-                        r.maqueta_id_2,
-                        r.maqueta_id_3
-                    ]
+                        .flatMap(
+                            reserva => [
+
+                                reserva.maqueta_id,
+
+                                reserva.maqueta_id_2,
+
+                                reserva.maqueta_id_3
+
+                            ]
+                        )
+
+                        .filter(
+                            Boolean
+                        )
+
                 )
-
-                .filter(
-                    Boolean
-                )
-
-        )
-    ];
+            ];
 
 
         let perfiles = [];
@@ -1752,12 +2174,17 @@ async function cargarReservasAdmin() {
         let maquetas = [];
 
 
+        // =================================================
+        // CARGAR DOCENTES
+        // =================================================
+
         if (
-            idsUsuarios.length
+            idsUsuarios.length > 0
         ) {
 
             const {
-                data
+                data,
+                error: errorPerfiles
             } =
                 await supabaseClient
 
@@ -1773,17 +2200,33 @@ async function cargarReservasAdmin() {
                     );
 
 
-            perfiles =
-                data || [];
+            if (errorPerfiles) {
+
+                console.error(
+                    "Error cargando docentes:",
+                    errorPerfiles
+                );
+
+            } else {
+
+                perfiles =
+                    data || [];
+
+            }
         }
 
 
+        // =================================================
+        // CARGAR MAQUETAS
+        // =================================================
+
         if (
-            idsMaquetas.length
+            idsMaquetas.length > 0
         ) {
 
             const {
-                data
+                data,
+                error: errorMaquetas
             } =
                 await supabaseClient
 
@@ -1799,24 +2242,39 @@ async function cargarReservasAdmin() {
                     );
 
 
-            maquetas =
-                data || [];
+            if (errorMaquetas) {
+
+                console.error(
+                    "Error cargando nombres de maquetas:",
+                    errorMaquetas
+                );
+
+            } else {
+
+                maquetas =
+                    data || [];
+
+            }
         }
 
+
+        // =================================================
+        // MAPA DOCENTES
+        // =================================================
 
         const mapaPerfiles =
             new Map();
 
 
         perfiles.forEach(
-            p => {
+            perfil => {
 
                 mapaPerfiles.set(
 
-                    p.id,
+                    perfil.id,
 
-                    p.nombre ||
-                    p.usuario ||
+                    perfil.nombre ||
+                    perfil.usuario ||
                     "Docente"
 
                 );
@@ -1825,30 +2283,42 @@ async function cargarReservasAdmin() {
         );
 
 
+        // =================================================
+        // MAPA MAQUETAS
+        // =================================================
+
         const mapaMaquetas =
             new Map();
 
 
         maquetas.forEach(
-            m => {
+            maqueta => {
+
+                const codigo =
+                    maqueta.codigo
+
+                        ? `${maqueta.codigo} - `
+
+                        : "";
+
 
                 mapaMaquetas.set(
 
                     String(
-                        m.id
+                        maqueta.id
                     ),
 
-                    `${
-                        m.codigo
-                            ? m.codigo + " - "
-                            : ""
-                    }${m.nombre}`
+                    `${codigo}${maqueta.nombre}`
 
                 );
 
             }
         );
 
+
+        // =================================================
+        // DATOS PARA PDF
+        // =================================================
 
         reservasSemanaPDF =
             listaReservas;
@@ -1861,6 +2331,10 @@ async function cargarReservasAdmin() {
         mapaMaquetasPDF =
             mapaMaquetas;
 
+
+        // =================================================
+        // DIBUJAR TABLA
+        // =================================================
 
         renderizarTablaAdmin(
 
@@ -1878,6 +2352,7 @@ async function cargarReservasAdmin() {
     } catch (error) {
 
         console.error(
+            "Error inesperado cargando reservas:",
             error
         );
 
@@ -1898,8 +2373,40 @@ async function cargarReservasAdmin() {
 
 
 // =========================================================
-// RENDERIZAR TABLA
+// OBTENER NOMBRES DE LAS MAQUETAS DE UNA RESERVA
 // =========================================================
+
+function obtenerNombresMaquetas(
+    reserva,
+    mapaMaquetas
+) {
+
+    const ids =
+        [
+
+            reserva.maqueta_id,
+
+            reserva.maqueta_id_2,
+
+            reserva.maqueta_id_3
+
+        ]
+        .filter(
+            Boolean
+        );
+
+
+    return ids.map(
+        id =>
+
+            mapaMaquetas.get(
+                String(id)
+            ) ||
+            "Maqueta"
+
+    );
+}
+
 
 // =========================================================
 // RENDERIZAR TABLA
@@ -1912,14 +2419,21 @@ function renderizarTablaAdmin(
     lunes
 ) {
 
+    const tabla =
+        document.getElementById(
+            "tablaSemanaAdmin"
+        );
+
+
+    if (!tabla) {
+        return;
+    }
+
+
     const tbody =
-        document
-            .getElementById(
-                "tablaSemanaAdmin"
-            )
-            .querySelector(
-                "tbody"
-            );
+        tabla.querySelector(
+            "tbody"
+        );
 
 
     const horarios = [
@@ -2004,19 +2518,19 @@ function renderizarTablaAdmin(
 
                 const lista =
                     reservas.filter(
-                        r =>
+                        reserva =>
 
-                            r.fecha ===
+                            reserva.fecha ===
                                 fechaISO &&
 
-                            r.horario ===
+                            reserva.horario ===
                                 horario
                     );
 
 
-                // =========================================
+                // =================================================
                 // SIN RESERVAS
-                // =========================================
+                // =================================================
 
                 if (
                     lista.length === 0
@@ -2033,14 +2547,14 @@ function renderizarTablaAdmin(
                 }
 
 
-                // =========================================
+                // =================================================
                 // CON RESERVAS
-                // =========================================
+                // =================================================
 
                 else {
 
                     lista.forEach(
-                        r => {
+                        reserva => {
 
                             const tarjeta =
                                 document.createElement(
@@ -2052,46 +2566,21 @@ function renderizarTablaAdmin(
                                 "reserva-card";
 
 
-                            // =================================
-                            // DOCENTE
-                            // =================================
-
                             const docente =
                                 mapaPerfiles.get(
-                                    r.usuario_id
+                                    reserva.usuario_id
                                 ) ||
                                 "Docente";
 
 
-                            // =================================
-                            // MAQUETAS DE ESTA RESERVA
-                            // =================================
-
-                            const idsMaquetasReserva =
-                                [
-
-                                    r.maqueta_id,
-
-                                    r.maqueta_id_2,
-
-                                    r.maqueta_id_3
-
-                                ]
-                                .filter(
-                                    Boolean
-                                );
-
-
                             const nombresMaquetas =
-                                idsMaquetasReserva
-                                    .map(
-                                        id =>
+                                obtenerNombresMaquetas(
 
-                                            mapaMaquetas.get(
-                                                String(id)
-                                            ) ||
-                                            "Maqueta"
-                                    );
+                                    reserva,
+
+                                    mapaMaquetas
+
+                                );
 
 
                             const listaMaquetasHTML =
@@ -2106,8 +2595,10 @@ function renderizarTablaAdmin(
                                             <strong
                                                 class="maqueta-reservada-item"
                                             >
+
                                                 🔧 ${indice + 1}.
                                                 ${escapeHTML(nombre)}
+
                                             </strong>
 
                                         `
@@ -2115,10 +2606,6 @@ function renderizarTablaAdmin(
 
                                     .join("");
 
-
-                            // =================================
-                            // TARJETA
-                            // =================================
 
                             tarjeta.innerHTML = `
 
@@ -2145,7 +2632,8 @@ function renderizarTablaAdmin(
 
                                     👥 Grupo:
                                     ${escapeHTML(
-                                        r.grupo || "-"
+                                        reserva.grupo ||
+                                        "-"
                                     )}
 
                                 </span>
@@ -2155,7 +2643,8 @@ function renderizarTablaAdmin(
 
                                     📍 Área:
                                     ${escapeHTML(
-                                        r.area_codigo || "-"
+                                        reserva.area_codigo ||
+                                        "-"
                                     )}
 
                                 </span>
@@ -2168,7 +2657,7 @@ function renderizarTablaAdmin(
                                     📚 Tema:
 
                                     ${escapeHTML(
-                                        r.titulo_tema ||
+                                        reserva.titulo_tema ||
                                         "Sin tema"
                                     )}
 
@@ -2177,9 +2666,9 @@ function renderizarTablaAdmin(
                             `;
 
 
-                            // =================================
+                            // =================================================
                             // CANCELAR
-                            // =================================
+                            // =================================================
 
                             const botonCancelar =
                                 document.createElement(
@@ -2201,10 +2690,13 @@ function renderizarTablaAdmin(
 
                             botonCancelar.addEventListener(
                                 "click",
-                                () =>
+                                () => {
+
                                     cancelarReservaAdmin(
-                                        r.id
-                                    )
+                                        reserva.id
+                                    );
+
+                                }
                             );
 
 
@@ -2236,31 +2728,99 @@ function renderizarTablaAdmin(
     );
 }
 
+
 // =========================================================
-// CANCELAR RESERVA - ADMINISTRADOR
+// CANCELAR RESERVA
 // =========================================================
 
-async function cancelarReservaAdmin(reservaId) {
-    if (
-    !confirm(
-        "¿Desea cancelar esta reserva? Todas las maquetas seleccionadas y el área volverán a quedar disponibles."
-    )
+async function cancelarReservaAdmin(
+    reservaId
 ) {
-    return;
-}
+
+    const confirmar =
+        confirm(
+            "¿Desea cancelar esta reserva? Todas las maquetas seleccionadas y el área volverán a quedar disponibles."
+        );
+
+
+    if (!confirmar) {
+        return;
+    }
+
+
     try {
-        const { data, error } = await supabaseClient.from("reservas")
-            .update({ estado: "cancelada", updated_at: new Date().toISOString() })
-            .eq("id", reservaId).eq("estado", "activa").select("id");
-        if (error) throw error;
-        if (!data || data.length === 0) { alert("No se pudo cancelar o ya estaba cancelada."); return; }
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+
+                .from("reservas")
+
+                .update({
+
+                    estado:
+                        "cancelada",
+
+                    updated_at:
+                        new Date()
+                            .toISOString()
+
+                })
+
+                .eq(
+                    "id",
+                    reservaId
+                )
+
+                .eq(
+                    "estado",
+                    "activa"
+                )
+
+                .select("id");
+
+
+        if (error) {
+
+            throw error;
+        }
+
+
+        if (
+            !data ||
+            data.length === 0
+        ) {
+
+            alert(
+                "No se pudo cancelar o ya estaba cancelada."
+            );
+
+            return;
+        }
+
+
         await cargarReservasAdmin();
-    } catch (error) { console.error("Error cancelando reserva:", error); alert("No fue posible cancelar la reserva."); }
+
+
+    } catch (error) {
+
+        console.error(
+            "Error cancelando reserva:",
+            error
+        );
+
+
+        alert(
+            "No fue posible cancelar la reserva."
+        );
+    }
 }
 
 
 // =========================================================
-// NAVEGACIÓN SEMANAS
+// SEMANA ANTERIOR
 // =========================================================
 
 document
@@ -2284,6 +2844,10 @@ document
     );
 
 
+// =========================================================
+// SEMANA ACTUAL
+// =========================================================
+
 document
     .getElementById(
         "btnSemanaActualAdmin"
@@ -2303,6 +2867,10 @@ document
         }
     );
 
+
+// =========================================================
+// SEMANA SIGUIENTE
+// =========================================================
 
 document
     .getElementById(
@@ -2334,7 +2902,10 @@ async function cargarImagenDataURL(
 ) {
 
     return new Promise(
-        (resolve, reject) => {
+        (
+            resolve,
+            reject
+        ) => {
 
             const img =
                 new Image();
@@ -2406,7 +2977,7 @@ async function cargarImagenDataURL(
 
 
 // =========================================================
-// PDF
+// BOTÓN PDF
 // =========================================================
 
 document
@@ -2418,6 +2989,10 @@ document
         descargarTablaPDF
     );
 
+
+// =========================================================
+// DESCARGAR PDF
+// =========================================================
 
 async function descargarTablaPDF() {
 
@@ -2481,12 +3056,19 @@ async function descargarTablaPDF() {
 
 
         doc.addImage(
+
             logo,
+
             "PNG",
+
             12,
+
             8,
+
             25,
+
             25
+
         );
 
 
@@ -2509,13 +3091,18 @@ async function descargarTablaPDF() {
 
 
     doc.text(
+
         "INSTITUTO CETA",
+
         148,
+
         14,
+
         {
             align:
                 "center"
         }
+
     );
 
 
@@ -2525,13 +3112,18 @@ async function descargarTablaPDF() {
 
 
     doc.text(
+
         "Sistema de Reserva de Maquetas",
+
         148,
+
         21,
+
         {
             align:
                 "center"
         }
+
     );
 
 
@@ -2541,24 +3133,34 @@ async function descargarTablaPDF() {
 
 
     doc.text(
+
         "Reporte semanal de reservas",
+
         148,
+
         27,
+
         {
             align:
                 "center"
         }
+
     );
 
 
     doc.text(
+
         `Semana: ${formatearFechaAdmin(lunes)} al ${formatearFechaAdmin(viernes)}`,
+
         148,
+
         32,
+
         {
             align:
                 "center"
         }
+
     );
 
 
@@ -2583,13 +3185,21 @@ async function descargarTablaPDF() {
 
     const fechasDias =
         dias.map(
-            (_, i) =>
+            (
+                _,
+                indice
+            ) =>
+
                 sumarDiasAdmin(
                     lunes,
-                    i
+                    indice
                 )
         );
 
+
+    // =====================================================
+    // HORARIOS
+    // =====================================================
 
     const horarios = [
 
@@ -2616,18 +3226,29 @@ async function descargarTablaPDF() {
     };
 
 
+    // =====================================================
+    // ENCABEZADO TABLA PDF
+    // =====================================================
+
     const head = [[
 
         "Horario",
 
         ...fechasDias.map(
-            (fecha, i) =>
+            (
+                fecha,
+                indice
+            ) =>
 
-                `${dias[i]}\n${formatearFechaAdmin(fecha)}`
+                `${dias[indice]}\n${formatearFechaAdmin(fecha)}`
         )
 
     ]];
 
+
+    // =====================================================
+    // CONTENIDO TABLA PDF
+    // =====================================================
 
     const body =
         horarios.map(
@@ -2654,19 +3275,22 @@ async function descargarTablaPDF() {
                         const reservas =
                             reservasSemanaPDF
                                 .filter(
-                                    r =>
+                                    reserva =>
 
-                                        r.fecha ===
+                                        reserva.fecha ===
                                             fechaISO &&
 
-                                        r.horario ===
+                                        reserva.horario ===
                                             horario
                                 );
 
 
+                        // =================================================
+                        // SIN RESERVAS
+                        // =================================================
+
                         if (
-                            reservas.length ===
-                            0
+                            reservas.length === 0
                         ) {
 
                             fila.push(
@@ -2677,80 +3301,66 @@ async function descargarTablaPDF() {
                         }
 
 
+                        // =================================================
+                        // RESERVAS DE LA CELDA
+                        // =================================================
+
                         const contenido =
                             reservas
 
                                 .map(
-                                    r => {
+                                    reserva => {
 
                                         const docente =
-                                            mapaPerfilesPDF
-                                                .get(
-                                                    r.usuario_id
-                                                ) ||
+                                            mapaPerfilesPDF.get(
+                                                reserva.usuario_id
+                                            ) ||
                                             "Docente";
 
 
-                                        const idsMaquetasReserva =
-                                            [
+                                        const nombresMaquetas =
+                                            obtenerNombresMaquetas(
 
-                                                r.maqueta_id,
+                                                reserva,
 
-                                                r.maqueta_id_2,
+                                                mapaMaquetasPDF
 
-                                                r.maqueta_id_3
-    
-                                                ]
-                                                .filter(
-                                                Boolean
-                                                    );
+                                            );
 
 
-                                            const nombresMaquetas =
-                                                idsMaquetasReserva
+                                        const textoMaquetas =
+                                            nombresMaquetas
 
-                                                    .map(
-                                                        id =>
-
-                                                    mapaMaquetasPDF
-                                                    .get(
-                                                    String(id)
-                                                        ) ||
-                                                    "Maqueta"
-                                                    );
-
-
-                                                    const textoMaquetas =
-                                                    nombresMaquetas
-
-                                                    .map(
+                                                .map(
                                                     (
-                                                    nombre,
-                                                    indice
-                                                        ) =>
-                                                    `Maqueta ${indice + 1}: ${nombre}`
-                                                        )
+                                                        nombre,
+                                                        indice
+                                                    ) =>
 
-                                                    .join(
+                                                        `Maqueta ${indice + 1}: ${nombre}`
+                                                )
+
+                                                .join(
                                                     "\n"
-                                                            );
+                                                );
 
 
-                                                        return [
+                                        return [
 
-                                                        textoMaquetas,
+                                            textoMaquetas,
 
-                                                    `Docente: ${docente}`,
+                                            `Docente: ${docente}`,
 
-                                                    `Grupo: ${r.grupo || "-"}`,
+                                            `Grupo: ${reserva.grupo || "-"}`,
 
-                                                    `Área: ${r.area_codigo || "-"}`,
+                                            `Área: ${reserva.area_codigo || "-"}`,
 
-                                                    `Tema: ${r.titulo_tema || "Sin tema"}`
+                                            `Tema: ${reserva.titulo_tema || "Sin tema"}`
 
-                                                    ].join(
-                                                        "\n"
-                                                        );
+                                        ]
+                                        .join(
+                                            "\n"
+                                        );
 
                                     }
                                 )
@@ -2773,6 +3383,10 @@ async function descargarTablaPDF() {
             }
         );
 
+
+    // =====================================================
+    // GENERAR TABLA
+    // =====================================================
 
     doc.autoTable({
 
@@ -2874,9 +3488,13 @@ async function descargarTablaPDF() {
 
 
         doc.text(
+
             "Desarrollado por Andres Vega",
+
             10,
+
             altura - 6
+
         );
 
 
@@ -2897,6 +3515,10 @@ async function descargarTablaPDF() {
     }
 
 
+    // =====================================================
+    // NOMBRE ARCHIVO
+    // =====================================================
+
     const archivo =
 
         `CETA_Reservas_${fechaLocalISOAdmin(lunes)}_${fechaLocalISOAdmin(viernes)}.pdf`;
@@ -2909,7 +3531,7 @@ async function descargarTablaPDF() {
 
 
 // =========================================================
-// INICIAR
+// INICIAR PANEL
 // =========================================================
 
 (async () => {
@@ -2924,7 +3546,6 @@ async function descargarTablaPDF() {
 
 
     if (!perfil) {
-
         return;
     }
 
