@@ -2081,9 +2081,9 @@ btnCerrarSesionDocente.addEventListener(
         } catch (error) {
 
             console.error(
-                "Error inesperado cerrando sesión:",
-                error
-            );
+    "Error registrando reserva:",
+    JSON.stringify(error, null, 2)
+);
         }
     }
 );
