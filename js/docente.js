@@ -1915,6 +1915,15 @@ function renderizarTablaSemanal(
                             `;
 
 
+                            if (usuarioActual && reserva.usuario_id === usuarioActual.id) {
+                                const boton = document.createElement("button");
+                                boton.type = "button";
+                                boton.className = "btn-cancelar-reserva";
+                                boton.textContent = "✖ Cancelar mi reserva";
+                                boton.addEventListener("click", () => cancelarReservaDocente(reserva.id));
+                                tarjeta.appendChild(boton);
+                            }
+
                             celda.appendChild(
                                 tarjeta
                             );
@@ -1934,6 +1943,39 @@ function renderizarTablaSemanal(
             );
         }
     );
+}
+
+
+// =========================================================
+// CANCELAR RESERVA DEL DOCENTE
+// =========================================================
+
+async function cancelarReservaDocente(reservaId) {
+    if (!usuarioActual) return;
+    if (!confirm("¿Desea cancelar esta reserva? La maqueta y el área volverán a quedar disponibles.")) return;
+
+    try {
+        const { data, error } = await supabaseClient
+            .from("reservas")
+            .update({ estado: "cancelada", updated_at: new Date().toISOString() })
+            .eq("id", reservaId)
+            .eq("usuario_id", usuarioActual.id)
+            .eq("estado", "activa")
+            .select("id");
+
+        if (error) throw error;
+        if (!data || data.length === 0) {
+            mostrarMensaje("No se pudo cancelar la reserva o ya estaba cancelada.", false);
+            return;
+        }
+
+        mostrarMensaje("✓ Reserva cancelada correctamente.", true);
+        await actualizarDisponibilidad();
+        await cargarTablaSemanal();
+    } catch (error) {
+        console.error("Error cancelando reserva:", error);
+        mostrarMensaje("No fue posible cancelar la reserva.", false);
+    }
 }
 
 
@@ -2081,9 +2123,9 @@ btnCerrarSesionDocente.addEventListener(
         } catch (error) {
 
             console.error(
-    "Error registrando reserva:",
-    error
-);
+                "Error cerrando sesión:",
+                error
+            );
         }
     }
 );
