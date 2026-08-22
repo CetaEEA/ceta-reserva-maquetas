@@ -172,20 +172,25 @@ async function cargarUsuarios() {
 
 
     const {
-        data,
-        error
-    } =
-        await supabaseClient
+    data,
+    error
+} =
+    await supabaseClient
 
-            .from("perfiles")
+        .from("perfiles")
 
-            .select(
-                "id, usuario, nombre, rol, activo"
-            )
+        .select(
+            "id, usuario, nombre, rol, activo, eliminado"
+        )
 
-            .order(
-                "nombre"
-            );
+        .eq(
+            "eliminado",
+            false
+        )
+
+        .order(
+            "nombre"
+        );
 
 
     if (error) {
