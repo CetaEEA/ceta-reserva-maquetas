@@ -1,12 +1,31 @@
+// =========================================================
+// ADMIN.JS
+// Sistema de Reserva de Maquetas CETA
+// =========================================================
+
+
+// =========================================================
+// INICIALIZAR SUPABASE
+// =========================================================
+
 const supabaseClient = supabase.createClient(
     SUPABASE_URL,
     SUPABASE_KEY
 );
 
 
-/* =========================================================
-   COMPROBAR ADMINISTRADOR
-========================================================= */
+// =========================================================
+// VARIABLES GLOBALES
+// =========================================================
+
+let inicioSemanaAdmin = obtenerLunesAdmin(
+    new Date()
+);
+
+
+// =========================================================
+// COMPROBAR ADMINISTRADOR
+// =========================================================
 
 async function comprobarAdministrador() {
 
@@ -16,9 +35,14 @@ async function comprobarAdministrador() {
     } =
         await supabaseClient.auth.getUser();
 
-    if (error || !user) {
 
-        window.location.href = "index.html";
+    if (
+        error ||
+        !user
+    ) {
+
+        window.location.href =
+            "index.html";
 
         return null;
     }
@@ -29,9 +53,16 @@ async function comprobarAdministrador() {
         error: errorPerfil
     } =
         await supabaseClient
+
             .from("perfiles")
+
             .select("*")
-            .eq("id", user.id)
+
+            .eq(
+                "id",
+                user.id
+            )
+
             .single();
 
 
@@ -42,9 +73,14 @@ async function comprobarAdministrador() {
         !perfil.activo
     ) {
 
-        await supabaseClient.auth.signOut();
+        await supabaseClient
+            .auth
+            .signOut();
 
-        window.location.href = "index.html";
+
+        window.location.href =
+            "index.html";
+
 
         return null;
     }
@@ -68,385 +104,15 @@ async function comprobarAdministrador() {
 }
 
 
-/* =========================================================
-   CARGAR USUARIOS
-========================================================= */
-
-async function cargarUsuarios() {
-
-    const tabla =
-        document.getElementById(
-            "tablaUsuarios"
-        );
-
-
-    if (!tabla) return;
-
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from("perfiles")
-            .select(
-                "id, usuario, nombre, rol, activo"
-            )
-            .order("nombre");
-
-
-    if (error) {
-
-        console.error(
-            "Error cargando usuarios:",
-            error
-        );
-
-
-        tabla.innerHTML = `
-            <tr>
-                <td colspan="5">
-                    Error al cargar los usuarios.
-                </td>
-            </tr>
-        `;
-
-        return;
-    }
-
-
-    if (!data || !data.length) {
-
-        tabla.innerHTML = `
-            <tr>
-                <td colspan="5">
-                    No existen usuarios registrados.
-                </td>
-            </tr>
-        `;
-
-        return;
-    }
-
-
-    tabla.innerHTML =
-        data.map(usuario => {
-
-            return `
-                <tr>
-
-                    <td>
-                        ${escapeHTML(usuario.usuario)}
-                    </td>
-
-                    <td>
-                        ${escapeHTML(usuario.nombre)}
-                    </td>
-
-                    <td>
-                        ${escapeHTML(usuario.rol)}
-                    </td>
-
-                    <td>
-                        ${
-                            usuario.activo
-                                ? "Activo"
-                                : "Desactivado"
-                        }
-                    </td>
-
-                    <td>
-                        Próximamente
-                    </td>
-
-                </tr>
-            `;
-
-        }).join("");
-}
-
-
-/* =========================================================
-   CARGAR MAQUETAS
-========================================================= */
-
-async function cargarMaquetas() {
-
-    const contenedor =
-        document.getElementById(
-            "tablaMaquetas"
-        );
-
-
-    if (!contenedor) return;
-
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from("maquetas")
-            .select("*")
-            .order("id");
-
-
-    if (error) {
-
-        console.error(
-            "Error cargando maquetas:",
-            error
-        );
-
-
-        contenedor.innerHTML = `
-            <div class="loading-card">
-                Error al cargar las maquetas.
-            </div>
-        `;
-
-        return;
-    }
-
-
-    if (!data || !data.length) {
-
-        contenedor.innerHTML = `
-            <div class="loading-card">
-                No existen maquetas registradas.
-            </div>
-        `;
-
-        return;
-    }
-
-
-    /*
-       =====================================================
-       GENERAR TARJETAS
-       =====================================================
-    */
-
-    contenedor.innerHTML =
-        data.map(maqueta => {
-
-            const estado =
-                maqueta.disponible
-
-                    ? `
-                        <span class="estado-disponible">
-                            🟢 Disponible
-                        </span>
-                    `
-
-                    : `
-                        <span class="estado-no-disponible">
-                            🔴 No disponible
-                        </span>
-                    `;
-
-
-            const botonEstado =
-                maqueta.disponible
-
-                    ? `
-                        <button
-                            class="btn-desactivar-maqueta"
-                            data-id="${maqueta.id}"
-                            data-nombre="${escapeHTML(maqueta.nombre)}"
-                        >
-                            🔴 Marcar no disponible
-                        </button>
-                    `
-
-                    : `
-                        <button
-                            class="btn-activar-maqueta"
-                            data-id="${maqueta.id}"
-                            data-nombre="${escapeHTML(maqueta.nombre)}"
-                        >
-                            🟢 Habilitar maqueta
-                        </button>
-                    `;
-
-
-            return `
-
-                <div class="maqueta-card">
-
-                    <div class="maqueta-card-header">
-
-                        <div>
-
-                            <div class="maqueta-codigo">
-
-                                ${escapeHTML(
-                                    maqueta.codigo || "SIN CÓDIGO"
-                                )}
-
-                            </div>
-
-
-                            <h3>
-
-                                ${escapeHTML(
-                                    maqueta.nombre
-                                )}
-
-                            </h3>
-
-                        </div>
-
-
-                        <div>
-
-                            ${estado}
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="maqueta-descripcion">
-
-                        ${escapeHTML(
-                            maqueta.descripcion || "Sin descripción."
-                        )}
-
-                    </div>
-
-
-                    <div class="maqueta-acciones">
-
-                        <button
-                            class="btn-editar-maqueta"
-                            data-id="${maqueta.id}"
-                            data-codigo="${escapeHTML(
-                                maqueta.codigo || ""
-                            )}"
-                            data-nombre="${escapeHTML(
-                                maqueta.nombre
-                            )}"
-                            data-descripcion="${escapeHTML(
-                                maqueta.descripcion || ""
-                            )}"
-                        >
-                            ✏️ Editar maqueta
-                        </button>
-
-
-                        ${botonEstado}
-
-                    </div>
-
-                </div>
-
-            `;
-
-        }).join("");
-
-
-    /* =====================================================
-       EVENTO EDITAR
-    ===================================================== */
-
-    document
-        .querySelectorAll(
-            ".btn-editar-maqueta"
-        )
-        .forEach(button => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    abrirEditarMaqueta(
-
-                        button.dataset.id,
-
-                        button.dataset.codigo,
-
-                        button.dataset.nombre,
-
-                        button.dataset.descripcion
-
-                    );
-
-                }
-            );
-
-        });
-
-
-    /* =====================================================
-       EVENTO DESACTIVAR
-    ===================================================== */
-
-    document
-        .querySelectorAll(
-            ".btn-desactivar-maqueta"
-        )
-        .forEach(button => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    cambiarEstadoMaqueta(
-
-                        button.dataset.id,
-
-                        false,
-
-                        button.dataset.nombre
-
-                    );
-
-                }
-            );
-
-        });
-
-
-    /* =====================================================
-       EVENTO ACTIVAR
-    ===================================================== */
-
-    document
-        .querySelectorAll(
-            ".btn-activar-maqueta"
-        )
-        .forEach(button => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    cambiarEstadoMaqueta(
-
-                        button.dataset.id,
-
-                        true,
-
-                        button.dataset.nombre
-
-                    );
-
-                }
-            );
-
-        });
-
-}
-
-
-/* =========================================================
-   ESCAPAR HTML
-========================================================= */
+// =========================================================
+// ESCAPAR HTML
+// =========================================================
 
 function escapeHTML(text) {
 
-    return String(text)
+    return String(
+        text ?? ""
+    )
 
         .replace(
             /&/g,
@@ -472,13 +138,431 @@ function escapeHTML(text) {
             /'/g,
             "&#039;"
         );
-
 }
 
 
-/* =========================================================
-   ABRIR EDICIÓN
-========================================================= */
+// =========================================================
+// CARGAR USUARIOS
+// =========================================================
+
+async function cargarUsuarios() {
+
+    const tabla =
+        document.getElementById(
+            "tablaUsuarios"
+        );
+
+
+    if (!tabla) {
+
+        return;
+    }
+
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+
+            .from("perfiles")
+
+            .select(
+                "id, usuario, nombre, rol, activo"
+            )
+
+            .order(
+                "nombre"
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Error cargando usuarios:",
+            error
+        );
+
+
+        tabla.innerHTML = `
+            <tr>
+                <td colspan="5">
+                    Error al cargar los usuarios.
+                </td>
+            </tr>
+        `;
+
+
+        return;
+    }
+
+
+    if (
+        !data ||
+        !data.length
+    ) {
+
+        tabla.innerHTML = `
+            <tr>
+                <td colspan="5">
+                    No existen usuarios registrados.
+                </td>
+            </tr>
+        `;
+
+
+        return;
+    }
+
+
+    tabla.innerHTML =
+        data.map(
+            usuario => {
+
+                return `
+                    <tr>
+
+                        <td>
+                            ${escapeHTML(
+                                usuario.usuario
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHTML(
+                                usuario.nombre
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHTML(
+                                usuario.rol
+                            )}
+                        </td>
+
+                        <td>
+
+                            ${
+                                usuario.activo
+                                    ? "Activo"
+                                    : "Desactivado"
+                            }
+
+                        </td>
+
+                        <td>
+                            Próximamente
+                        </td>
+
+                    </tr>
+                `;
+
+            }
+        ).join("");
+}
+
+
+// =========================================================
+// CARGAR MAQUETAS
+// =========================================================
+
+async function cargarMaquetas() {
+
+    const contenedor =
+        document.getElementById(
+            "tablaMaquetas"
+        );
+
+
+    if (!contenedor) {
+
+        return;
+    }
+
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+
+            .from("maquetas")
+
+            .select("*")
+
+            .order(
+                "id"
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Error cargando maquetas:",
+            error
+        );
+
+
+        contenedor.innerHTML = `
+            <div class="loading-card">
+                Error al cargar las maquetas.
+            </div>
+        `;
+
+
+        return;
+    }
+
+
+    if (
+        !data ||
+        !data.length
+    ) {
+
+        contenedor.innerHTML = `
+            <div class="loading-card">
+                No existen maquetas registradas.
+            </div>
+        `;
+
+
+        return;
+    }
+
+
+    contenedor.innerHTML =
+        data.map(
+            maqueta => {
+
+                const estado =
+                    maqueta.disponible
+
+                        ? `
+                            <span class="estado-disponible">
+                                🟢 Disponible
+                            </span>
+                        `
+
+                        : `
+                            <span class="estado-no-disponible">
+                                🔴 No disponible
+                            </span>
+                        `;
+
+
+                const botonEstado =
+                    maqueta.disponible
+
+                        ? `
+                            <button
+                                class="btn-desactivar-maqueta"
+                                data-id="${maqueta.id}"
+                                data-nombre="${escapeHTML(
+                                    maqueta.nombre
+                                )}"
+                            >
+                                🔴 Marcar no disponible
+                            </button>
+                        `
+
+                        : `
+                            <button
+                                class="btn-activar-maqueta"
+                                data-id="${maqueta.id}"
+                                data-nombre="${escapeHTML(
+                                    maqueta.nombre
+                                )}"
+                            >
+                                🟢 Habilitar maqueta
+                            </button>
+                        `;
+
+
+                return `
+
+                    <div class="maqueta-card">
+
+                        <div class="maqueta-card-header">
+
+                            <div>
+
+                                <div class="maqueta-codigo">
+
+                                    ${escapeHTML(
+                                        maqueta.codigo ||
+                                        "SIN CÓDIGO"
+                                    )}
+
+                                </div>
+
+
+                                <h3>
+
+                                    ${escapeHTML(
+                                        maqueta.nombre
+                                    )}
+
+                                </h3>
+
+                            </div>
+
+
+                            <div>
+
+                                ${estado}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="maqueta-descripcion">
+
+                            ${escapeHTML(
+                                maqueta.descripcion ||
+                                "Sin descripción."
+                            )}
+
+                        </div>
+
+
+                        <div class="maqueta-acciones">
+
+                            <button
+                                class="btn-editar-maqueta"
+
+                                data-id="${maqueta.id}"
+
+                                data-codigo="${escapeHTML(
+                                    maqueta.codigo || ""
+                                )}"
+
+                                data-nombre="${escapeHTML(
+                                    maqueta.nombre
+                                )}"
+
+                                data-descripcion="${escapeHTML(
+                                    maqueta.descripcion || ""
+                                )}"
+                            >
+                                ✏️ Editar maqueta
+                            </button>
+
+
+                            ${botonEstado}
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            }
+        ).join("");
+
+
+    // =====================================================
+    // EDITAR MAQUETA
+    // =====================================================
+
+    document
+        .querySelectorAll(
+            ".btn-editar-maqueta"
+        )
+        .forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        abrirEditarMaqueta(
+
+                            button.dataset.id,
+
+                            button.dataset.codigo,
+
+                            button.dataset.nombre,
+
+                            button.dataset.descripcion
+
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+    // =====================================================
+    // DESACTIVAR MAQUETA
+    // =====================================================
+
+    document
+        .querySelectorAll(
+            ".btn-desactivar-maqueta"
+        )
+        .forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        cambiarEstadoMaqueta(
+
+                            button.dataset.id,
+
+                            false,
+
+                            button.dataset.nombre
+
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+    // =====================================================
+    // ACTIVAR MAQUETA
+    // =====================================================
+
+    document
+        .querySelectorAll(
+            ".btn-activar-maqueta"
+        )
+        .forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        cambiarEstadoMaqueta(
+
+                            button.dataset.id,
+
+                            true,
+
+                            button.dataset.nombre
+
+                        );
+
+                    }
+                );
+
+            }
+        );
+}
+
+
+// =========================================================
+// ABRIR EDICIÓN MAQUETA
+// =========================================================
 
 function abrirEditarMaqueta(
     id,
@@ -529,20 +613,18 @@ function abrirEditarMaqueta(
         );
 
 
-    if (!modal || !form) return;
+    if (
+        !modal ||
+        !form
+    ) {
 
+        return;
+    }
 
-    /*
-       Guardar ID que se está editando
-    */
 
     form.dataset.editandoId =
         id;
 
-
-    /*
-       Cambiar título
-    */
 
     if (titulo) {
 
@@ -551,10 +633,6 @@ function abrirEditarMaqueta(
 
     }
 
-
-    /*
-       Cargar datos
-    */
 
     inputCodigo.value =
         codigo || "";
@@ -567,10 +645,6 @@ function abrirEditarMaqueta(
     inputDescripcion.value =
         descripcion || "";
 
-
-    /*
-       Cambiar texto del botón
-    */
 
     const boton =
         form.querySelector(
@@ -586,20 +660,23 @@ function abrirEditarMaqueta(
     }
 
 
-    mensaje.textContent =
-        "";
+    if (mensaje) {
+
+        mensaje.textContent =
+            "";
+
+    }
 
 
     modal.classList.add(
         "active"
     );
-
 }
 
 
-/* =========================================================
-   CAMBIAR ESTADO
-========================================================= */
+// =========================================================
+// CAMBIAR ESTADO MAQUETA
+// =========================================================
 
 async function cambiarEstadoMaqueta(
     id,
@@ -620,7 +697,6 @@ async function cambiarEstadoMaqueta(
     ) {
 
         return;
-
     }
 
 
@@ -648,7 +724,6 @@ async function cambiarEstadoMaqueta(
 
 
             return;
-
         }
 
 
@@ -659,7 +734,8 @@ async function cambiarEstadoMaqueta(
 
                 {
 
-                    method: "POST",
+                    method:
+                        "POST",
 
                     headers: {
 
@@ -699,8 +775,8 @@ async function cambiarEstadoMaqueta(
                 "No se pudo cambiar el estado."
             );
 
-            return;
 
+            return;
         }
 
 
@@ -715,21 +791,21 @@ async function cambiarEstadoMaqueta(
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            error
+        );
 
 
         alert(
             "Error de conexión con el servidor."
         );
-
     }
-
 }
 
 
-/* =========================================================
-   CREAR / EDITAR MAQUETA
-========================================================= */
+// =========================================================
+// CREAR / EDITAR MAQUETA
+// =========================================================
 
 const formMaqueta =
     document.getElementById(
@@ -807,7 +883,6 @@ if (formMaqueta) {
                         "La sesión ha expirado.";
 
                     return;
-
                 }
 
 
@@ -859,7 +934,8 @@ if (formMaqueta) {
 
                         {
 
-                            method: "POST",
+                            method:
+                                "POST",
 
                             headers: {
 
@@ -897,8 +973,8 @@ if (formMaqueta) {
                         resultado.error ||
                         "No se pudo guardar la maqueta.";
 
-                    return;
 
+                    return;
                 }
 
 
@@ -929,10 +1005,9 @@ if (formMaqueta) {
 
 
                 const titulo =
-                    document
-                        .querySelector(
-                            "#modalMaqueta .modal-header h2"
-                        );
+                    document.querySelector(
+                        "#modalMaqueta .modal-header h2"
+                    );
 
 
                 if (titulo) {
@@ -946,48 +1021,51 @@ if (formMaqueta) {
                 await cargarMaquetas();
 
 
-                setTimeout(() => {
+                setTimeout(
+                    () => {
 
-                    const modal =
-                        document.getElementById(
-                            "modalMaqueta"
-                        );
-
-
-                    if (modal) {
-
-                        modal.classList.remove(
-                            "active"
-                        );
-
-                    }
+                        const modal =
+                            document.getElementById(
+                                "modalMaqueta"
+                            );
 
 
-                    mensaje.textContent =
-                        "";
+                        if (modal) {
 
-                }, 1200);
+                            modal.classList.remove(
+                                "active"
+                            );
+
+                        }
+
+
+                        mensaje.textContent =
+                            "";
+
+                    },
+                    1200
+                );
 
 
             } catch (error) {
 
-                console.error(error);
+                console.error(
+                    error
+                );
 
 
                 mensaje.textContent =
                     "Error de conexión con el servidor.";
-
             }
 
         }
     );
-
 }
 
 
-/* =========================================================
-   CREAR USUARIO
-========================================================= */
+// =========================================================
+// CREAR USUARIO
+// =========================================================
 
 const formUsuario =
     document.getElementById(
@@ -1067,7 +1145,6 @@ if (formUsuario) {
                         "La sesión ha expirado.";
 
                     return;
-
                 }
 
 
@@ -1078,7 +1155,8 @@ if (formUsuario) {
 
                         {
 
-                            method: "POST",
+                            method:
+                                "POST",
 
                             headers: {
 
@@ -1123,8 +1201,8 @@ if (formUsuario) {
                         resultado.error ||
                         "No se pudo crear el usuario.";
 
-                    return;
 
+                    return;
                 }
 
 
@@ -1138,48 +1216,51 @@ if (formUsuario) {
                 await cargarUsuarios();
 
 
-                setTimeout(() => {
+                setTimeout(
+                    () => {
 
-                    const modal =
-                        document.getElementById(
-                            "modalUsuario"
-                        );
-
-
-                    if (modal) {
-
-                        modal.classList.remove(
-                            "active"
-                        );
-
-                    }
+                        const modal =
+                            document.getElementById(
+                                "modalUsuario"
+                            );
 
 
-                    mensaje.textContent =
-                        "";
+                        if (modal) {
 
-                }, 1200);
+                            modal.classList.remove(
+                                "active"
+                            );
+
+                        }
+
+
+                        mensaje.textContent =
+                            "";
+
+                    },
+                    1200
+                );
 
 
             } catch (error) {
 
-                console.error(error);
+                console.error(
+                    error
+                );
 
 
                 mensaje.textContent =
                     "Error de conexión con el servidor.";
-
             }
 
         }
     );
-
 }
 
 
-/* =========================================================
-   NUEVO USUARIO
-========================================================= */
+// =========================================================
+// NUEVO USUARIO
+// =========================================================
 
 const btnNuevoUsuario =
     document.getElementById(
@@ -1209,13 +1290,12 @@ if (btnNuevoUsuario) {
 
         }
     );
-
 }
 
 
-/* =========================================================
-   NUEVA MAQUETA
-========================================================= */
+// =========================================================
+// NUEVA MAQUETA
+// =========================================================
 
 const btnNuevaMaqueta =
     document.getElementById(
@@ -1245,6 +1325,7 @@ if (btnNuevaMaqueta) {
 
                 form.reset();
 
+
                 delete form.dataset.editandoId;
 
 
@@ -1260,7 +1341,6 @@ if (btnNuevaMaqueta) {
                         "Agregar maqueta";
 
                 }
-
             }
 
 
@@ -1288,47 +1368,48 @@ if (btnNuevaMaqueta) {
 
         }
     );
-
 }
 
 
-/* =========================================================
-   CERRAR MODALES
-========================================================= */
+// =========================================================
+// CERRAR MODALES
+// =========================================================
 
 document
     .querySelectorAll(
         ".btnCerrarModal"
     )
-    .forEach(button => {
+    .forEach(
+        button => {
 
-        button.addEventListener(
-            "click",
-            () => {
+            button.addEventListener(
+                "click",
+                () => {
 
-                const modal =
-                    document.getElementById(
-                        button.dataset.modal
-                    );
+                    const modal =
+                        document.getElementById(
+                            button.dataset.modal
+                        );
 
 
-                if (modal) {
+                    if (modal) {
 
-                    modal.classList.remove(
-                        "active"
-                    );
+                        modal.classList.remove(
+                            "active"
+                        );
+
+                    }
 
                 }
+            );
 
-            }
-        );
-
-    });
+        }
+    );
 
 
-/* =========================================================
-   CERRAR SESIÓN
-========================================================= */
+// =========================================================
+// CERRAR SESIÓN
+// =========================================================
 
 const btnCerrarSesion =
     document.getElementById(
@@ -1352,11 +1433,205 @@ if (btnCerrarSesion) {
 
         }
     );
-
 }
-/* =========================================================
-   CARGAR TABLA SEMANAL
-========================================================= */
+
+
+// =========================================================
+// FUNCIONES DE FECHA PARA LA TABLA SEMANAL
+// =========================================================
+
+function obtenerLunesAdmin(fecha) {
+
+    const resultado =
+        new Date(
+            fecha.getFullYear(),
+            fecha.getMonth(),
+            fecha.getDate()
+        );
+
+
+    const dia =
+        resultado.getDay();
+
+
+    const diferencia =
+        dia === 0
+            ? -6
+            : 1 - dia;
+
+
+    resultado.setDate(
+        resultado.getDate() +
+        diferencia
+    );
+
+
+    resultado.setHours(
+        0,
+        0,
+        0,
+        0
+    );
+
+
+    return resultado;
+}
+
+
+function sumarDiasAdmin(
+    fecha,
+    dias
+) {
+
+    const resultado =
+        new Date(
+            fecha
+        );
+
+
+    resultado.setDate(
+        resultado.getDate() +
+        dias
+    );
+
+
+    return resultado;
+}
+
+
+function fechaLocalISOAdmin(
+    fecha
+) {
+
+    const anio =
+        fecha.getFullYear();
+
+
+    const mes =
+        String(
+            fecha.getMonth() + 1
+        ).padStart(
+            2,
+            "0"
+        );
+
+
+    const dia =
+        String(
+            fecha.getDate()
+        ).padStart(
+            2,
+            "0"
+        );
+
+
+    return `${anio}-${mes}-${dia}`;
+}
+
+
+function formatearFechaAdmin(
+    fecha
+) {
+
+    return fecha.toLocaleDateString(
+        "es-BO",
+        {
+
+            day:
+                "2-digit",
+
+            month:
+                "2-digit",
+
+            year:
+                "numeric"
+
+        }
+    );
+}
+
+
+// =========================================================
+// ACTUALIZAR ENCABEZADOS DE LA TABLA
+// =========================================================
+
+function actualizarEncabezadosAdmin(
+    lunes
+) {
+
+    const tabla =
+        document.getElementById(
+            "tablaSemanaAdmin"
+        );
+
+
+    if (!tabla) {
+
+        return;
+    }
+
+
+    const encabezados =
+        tabla.querySelectorAll(
+            "thead th"
+        );
+
+
+    const nombres = [
+
+        "LUNES",
+
+        "MARTES",
+
+        "MIÉRCOLES",
+
+        "JUEVES",
+
+        "VIERNES"
+
+    ];
+
+
+    for (
+        let i = 0;
+        i < 5;
+        i++
+    ) {
+
+        const fecha =
+            sumarDiasAdmin(
+                lunes,
+                i
+            );
+
+
+        if (
+            encabezados[
+                i + 1
+            ]
+        ) {
+
+            encabezados[
+                i + 1
+            ].innerHTML = `
+
+                ${nombres[i]}
+
+                <br>
+
+                <small>
+                    ${formatearFechaAdmin(fecha)}
+                </small>
+
+            `;
+        }
+    }
+}
+
+
+// =========================================================
+// CARGAR RESERVAS SEMANALES
+// =========================================================
 
 async function cargarReservasAdmin() {
 
@@ -1440,9 +1715,9 @@ async function cargarReservasAdmin() {
 
     try {
 
-        /* =================================================
-           CARGAR RESERVAS ACTIVAS
-        ================================================= */
+        // =================================================
+        // RESERVAS ACTIVAS
+        // =================================================
 
         const {
             data: reservas,
@@ -1482,7 +1757,8 @@ async function cargarReservasAdmin() {
                 .order(
                     "fecha",
                     {
-                        ascending: true
+                        ascending:
+                            true
                     }
                 );
 
@@ -1507,6 +1783,7 @@ async function cargarReservasAdmin() {
 
             `;
 
+
             return;
         }
 
@@ -1515,9 +1792,9 @@ async function cargarReservasAdmin() {
             reservas || [];
 
 
-        /* =================================================
-           OBTENER USUARIOS UTILIZADOS
-        ================================================= */
+        // =================================================
+        // PERFILES
+        // =================================================
 
         const idsUsuarios =
             [
@@ -1538,7 +1815,8 @@ async function cargarReservasAdmin() {
             ];
 
 
-        let perfiles = [];
+        let perfiles =
+            [];
 
 
         if (
@@ -1574,13 +1852,14 @@ async function cargarReservasAdmin() {
 
                 perfiles =
                     data || [];
+
             }
         }
 
 
-        /* =================================================
-           OBTENER MAQUETAS
-        ================================================= */
+        // =================================================
+        // MAQUETAS
+        // =================================================
 
         const idsMaquetas =
             [
@@ -1601,7 +1880,8 @@ async function cargarReservasAdmin() {
             ];
 
 
-        let maquetas = [];
+        let maquetas =
+            [];
 
 
         if (
@@ -1637,13 +1917,14 @@ async function cargarReservasAdmin() {
 
                 maquetas =
                     data || [];
+
             }
         }
 
 
-        /* =================================================
-           CREAR MAPAS
-        ================================================= */
+        // =================================================
+        // MAPA DE DOCENTES
+        // =================================================
 
         const mapaPerfiles =
             new Map();
@@ -1666,6 +1947,10 @@ async function cargarReservasAdmin() {
         );
 
 
+        // =================================================
+        // MAPA DE MAQUETAS
+        // =================================================
+
         const mapaMaquetas =
             new Map();
 
@@ -1673,13 +1958,19 @@ async function cargarReservasAdmin() {
         maquetas.forEach(
             maqueta => {
 
+                const codigo =
+                    maqueta.codigo
+                        ? `${maqueta.codigo} - `
+                        : "";
+
+
                 mapaMaquetas.set(
 
                     String(
                         maqueta.id
                     ),
 
-                    `${maqueta.codigo || ""} - ${maqueta.nombre}`
+                    `${codigo}${maqueta.nombre}`
 
                 );
 
@@ -1687,9 +1978,9 @@ async function cargarReservasAdmin() {
         );
 
 
-        /* =================================================
-           DIBUJAR TABLA
-        ================================================= */
+        // =================================================
+        // DIBUJAR TABLA
+        // =================================================
 
         renderizarTablaAdmin(
 
@@ -1727,9 +2018,9 @@ async function cargarReservasAdmin() {
 }
 
 
-/* =========================================================
-   RENDERIZAR TABLA ADMIN
-========================================================= */
+// =========================================================
+// RENDERIZAR TABLA SEMANAL ADMIN
+// =========================================================
 
 function renderizarTablaAdmin(
     reservas,
@@ -1759,7 +2050,9 @@ function renderizarTablaAdmin(
     const horarios = [
 
         "09:00-12:00",
+
         "14:00-17:00",
+
         "19:00-21:30"
 
     ];
@@ -1809,9 +2102,9 @@ function renderizarTablaAdmin(
             );
 
 
-            /* =============================================
-               LUNES A VIERNES
-            ============================================= */
+            // =================================================
+            // LUNES A VIERNES
+            // =================================================
 
             for (
                 let dia = 0;
@@ -1850,9 +2143,9 @@ function renderizarTablaAdmin(
                     );
 
 
-                /* =========================================
-                   SIN RESERVAS
-                ========================================= */
+                // =================================================
+                // SIN RESERVAS
+                // =================================================
 
                 if (
                     reservasCelda.length === 0
@@ -1869,9 +2162,9 @@ function renderizarTablaAdmin(
                 }
 
 
-                /* =========================================
-                   CON RESERVAS
-                ========================================= */
+                // =================================================
+                // CON RESERVAS
+                // =================================================
 
                 else {
 
@@ -1927,24 +2220,32 @@ function renderizarTablaAdmin(
 
 
                                 <span>
+
                                     👤
                                     ${escapeHTML(docente)}
+
                                 </span>
 
 
                                 <span>
+
                                     👥 Grupo:
                                     ${escapeHTML(grupo)}
+
                                 </span>
 
 
                                 <span>
+
                                     📍 Área:
                                     ${escapeHTML(area)}
+
                                 </span>
 
 
-                                <span class="reserva-tema-admin">
+                                <span
+                                    class="reserva-tema-admin"
+                                >
 
                                     📚 Tema:
 
@@ -1981,9 +2282,9 @@ function renderizarTablaAdmin(
 }
 
 
-/* =========================================================
-   SEMANA ANTERIOR
-========================================================= */
+// =========================================================
+// SEMANA ANTERIOR
+// =========================================================
 
 const btnSemanaAnteriorAdmin =
     document.getElementById(
@@ -1991,9 +2292,7 @@ const btnSemanaAnteriorAdmin =
     );
 
 
-if (
-    btnSemanaAnteriorAdmin
-) {
+if (btnSemanaAnteriorAdmin) {
 
     btnSemanaAnteriorAdmin.addEventListener(
         "click",
@@ -2013,9 +2312,9 @@ if (
 }
 
 
-/* =========================================================
-   SEMANA ACTUAL
-========================================================= */
+// =========================================================
+// SEMANA ACTUAL
+// =========================================================
 
 const btnSemanaActualAdmin =
     document.getElementById(
@@ -2023,9 +2322,7 @@ const btnSemanaActualAdmin =
     );
 
 
-if (
-    btnSemanaActualAdmin
-) {
+if (btnSemanaActualAdmin) {
 
     btnSemanaActualAdmin.addEventListener(
         "click",
@@ -2044,9 +2341,9 @@ if (
 }
 
 
-/* =========================================================
-   SEMANA SIGUIENTE
-========================================================= */
+// =========================================================
+// SEMANA SIGUIENTE
+// =========================================================
 
 const btnSemanaSiguienteAdmin =
     document.getElementById(
@@ -2054,9 +2351,7 @@ const btnSemanaSiguienteAdmin =
     );
 
 
-if (
-    btnSemanaSiguienteAdmin
-) {
+if (btnSemanaSiguienteAdmin) {
 
     btnSemanaSiguienteAdmin.addEventListener(
         "click",
@@ -2076,9 +2371,9 @@ if (
 }
 
 
-/* =========================================================
-   INICIAR PANEL
-========================================================= */
+// =========================================================
+// INICIAR PANEL
+// =========================================================
 
 (async () => {
 
@@ -2099,7 +2394,9 @@ if (
 
     await cargarUsuarios();
 
+
     await cargarMaquetas();
+
 
     await cargarReservasAdmin();
 
@@ -2109,4 +2406,3 @@ if (
     );
 
 })();
-
