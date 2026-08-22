@@ -31,19 +31,29 @@
 
         <div class="header-content">
 
-            <div>
+            <div class="admin-identidad">
 
-                <span class="instituto-label">
-                    CETA
-                </span>
+                <img
+                    src="img/logo-ceta-transparente.png"
+                    alt="Logo CETA"
+                    class="admin-logo"
+                >
 
-                <h1>
-                    Reserva de Maquetas
-                </h1>
+                <div>
 
-                <p>
-                    Panel de administración
-                </p>
+                    <span class="instituto-label">
+                        CETA
+                    </span>
+
+                    <h1>
+                        Reserva de Maquetas
+                    </h1>
+
+                    <p>
+                        Panel de administración
+                    </p>
+
+                </div>
 
             </div>
 
@@ -51,6 +61,7 @@
             <button
                 id="btnCerrarSesion"
                 class="btn-cerrar-sesion"
+                type="button"
             >
                 Cerrar sesión
             </button>
@@ -60,6 +71,10 @@
     </header>
 
 
+
+    <!-- =====================================================
+         CONTENIDO
+    ====================================================== -->
 
     <main class="admin-container">
 
@@ -119,60 +134,64 @@
                 <button
                     id="btnNuevoUsuario"
                     class="btn-primary"
+                    type="button"
                 >
-                    <span>+</span>
-                    Nuevo usuario
+                    + Nuevo usuario
                 </button>
 
             </div>
 
 
-            <div class="table-container">
+            <div class="usuarios-scroll">
 
-                <table>
+                <div class="table-container">
 
-                    <thead>
+                    <table class="tabla-usuarios">
 
-                        <tr>
+                        <thead>
 
-                            <th>
-                                Usuario
-                            </th>
+                            <tr>
 
-                            <th>
-                                Nombre
-                            </th>
+                                <th>
+                                    Usuario
+                                </th>
 
-                            <th>
-                                Rol
-                            </th>
+                                <th>
+                                    Nombre
+                                </th>
 
-                            <th>
-                                Estado
-                            </th>
+                                <th>
+                                    Rol
+                                </th>
 
-                            <th>
-                                Acciones
-                            </th>
+                                <th>
+                                    Estado
+                                </th>
 
-                        </tr>
+                                <th>
+                                    Acciones
+                                </th>
 
-                    </thead>
+                            </tr>
+
+                        </thead>
 
 
-                    <tbody id="tablaUsuarios">
+                        <tbody id="tablaUsuarios">
 
-                        <tr>
+                            <tr>
 
-                            <td colspan="5">
-                                Cargando usuarios...
-                            </td>
+                                <td colspan="5">
+                                    Cargando usuarios...
+                                </td>
 
-                        </tr>
+                            </tr>
 
-                    </tbody>
+                        </tbody>
 
-                </table>
+                    </table>
+
+                </div>
 
             </div>
 
@@ -209,9 +228,9 @@
                 <button
                     id="btnNuevaMaqueta"
                     class="btn-primary"
+                    type="button"
                 >
-                    <span>+</span>
-                    Nueva maqueta
+                    + Nueva maqueta
                 </button>
 
             </div>
@@ -233,7 +252,7 @@
 
 
         <!-- =================================================
-             RESERVAS SEMANALES
+             RESERVAS
         ================================================== -->
 
         <section class="admin-section">
@@ -251,8 +270,8 @@
                     </h2>
 
                     <p>
-                        Consulta la ocupación semanal de
-                        maquetas y áreas del taller.
+                        Consulta la ocupación semanal
+                        de maquetas y áreas del taller.
                     </p>
 
                 </div>
@@ -261,19 +280,10 @@
 
 
             <!-- =============================================
-                 NAVEGACIÓN ENTRE SEMANAS
+                 SEMANA MOSTRADA
             ============================================== -->
 
-            <div class="semana-controles">
-
-                <button
-                    type="button"
-                    id="btnSemanaAnteriorAdmin"
-                    class="btn-semana"
-                >
-                    ← Semana anterior
-                </button>
-
+            <div class="semana-panel">
 
                 <div class="semana-info">
 
@@ -288,35 +298,54 @@
                 </div>
 
 
-                <button
-                    type="button"
-                    id="btnSemanaSiguienteAdmin"
-                    class="btn-semana"
-                >
-                    Semana siguiente →
-                </button>
+                <div class="semana-controles">
+
+                    <button
+                        type="button"
+                        id="btnSemanaAnteriorAdmin"
+                        class="btn-semana"
+                    >
+                        ← Semana anterior
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="btnSemanaActualAdmin"
+                        class="btn-semana"
+                    >
+                        Semana actual
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="btnSemanaSiguienteAdmin"
+                        class="btn-semana"
+                    >
+                        Semana siguiente →
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="btnDescargarPDF"
+                        class="btn-pdf"
+                    >
+                        📄 Descargar PDF
+                    </button>
+
+                </div>
 
             </div>
 
-
-            <div class="semana-actual-contenedor">
-
-                <button
-                    type="button"
-                    id="btnSemanaActualAdmin"
-                    class="btn-semana-actual"
-                >
-                    Ir a semana actual
-                </button>
-
-            </div>
 
 
             <!-- =============================================
                  TABLA SEMANAL
             ============================================== -->
 
-            <div class="table-container tabla-semanal-container">
+            <div class="tabla-semanal-container">
 
                 <table
                     id="tablaSemanaAdmin"
@@ -373,6 +402,7 @@
             </div>
 
 
+
             <div class="admin-reserva-nota">
 
                 <strong>
@@ -380,9 +410,9 @@
                 </strong>
 
                 <p>
-                    El administrador puede visualizar
-                    docente, grupo, maqueta, área de taller
-                    y título del tema de cada reserva.
+                    Se muestra docente, grupo,
+                    maqueta, área de taller
+                    y título del tema.
                 </p>
 
             </div>
@@ -491,7 +521,10 @@
                     Rol
                 </label>
 
-                <select id="nuevoRol">
+                <select
+                    id="nuevoRol"
+                    required
+                >
 
                     <option value="docente">
                         Docente
@@ -527,6 +560,7 @@
 
     <!-- =====================================================
          MODAL EDITAR USUARIO
+         Lo dejamos preparado para el siguiente paso
     ====================================================== -->
 
     <div
@@ -563,8 +597,6 @@
 
 
             <form id="formEditarUsuario">
-
-                <!-- ID interno del usuario -->
 
                 <input
                     type="hidden"
@@ -768,9 +800,17 @@
         src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
     ></script>
 
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+    ></script>
+
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"
+    ></script>
+
     <script src="js/config.js"></script>
 
-    <script src="js/admin.js?v=6"></script>
+    <script src="js/admin.js?v=7"></script>
 
 
 </body>
