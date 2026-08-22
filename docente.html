@@ -33,9 +33,7 @@
 
             <div>
 
-                <h1>
-                    CETA
-                </h1>
+                <h1>CETA</h1>
 
                 <p>
                     Registro de uso de maquetas
@@ -64,6 +62,7 @@
             <button
                 id="btnCerrarSesionDocente"
                 class="btn-cerrar-sesion"
+                type="button"
             >
                 Cerrar sesión
             </button>
@@ -88,12 +87,12 @@
         <section class="docente-welcome">
 
             <h2>
-                Reserva de maquetas
+                Reserva de maquetas y áreas
             </h2>
 
             <p>
-                Seleccione la fecha, horario, grupo y maqueta
-                que desea utilizar.
+                Registre el grupo, tema, fecha, horario,
+                maqueta y área de taller que desea utilizar.
             </p>
 
         </section>
@@ -115,8 +114,8 @@
                     </h2>
 
                     <p>
-                        Complete los datos para registrar el
-                        uso de una maqueta.
+                        Complete los siguientes datos para
+                        registrar su reserva.
                     </p>
 
                 </div>
@@ -124,7 +123,10 @@
             </div>
 
 
-            <form id="formReserva" class="form-reserva">
+            <form
+                id="formReserva"
+                class="form-reserva"
+            >
 
 
                 <!-- =========================================
@@ -143,6 +145,33 @@
                         placeholder="Ej: 101, 202, 300M..."
                         required
                     >
+
+                </div>
+
+
+
+                <!-- =========================================
+                     TÍTULO DEL TEMA
+                ========================================== -->
+
+                <div class="campo-reserva">
+
+                    <label for="tituloTema">
+                        Título del tema
+                    </label>
+
+                    <input
+                        type="text"
+                        id="tituloTema"
+                        placeholder="Ej: Diagnóstico del sistema de inyección"
+                        maxlength="150"
+                        required
+                    >
+
+                    <small>
+                        🔒 El título del tema será visible
+                        únicamente para administración.
+                    </small>
 
                 </div>
 
@@ -230,8 +259,10 @@
 
                     </select>
 
+
                     <small id="estadoMaqueta">
-                        Seleccione una maqueta
+                        Seleccione una fecha y horario para
+                        comprobar disponibilidad.
                     </small>
 
                 </div>
@@ -239,7 +270,96 @@
 
 
                 <!-- =========================================
-                     BOTÓN
+                     ÁREA DE TALLER
+                ========================================== -->
+
+                <div class="campo-reserva">
+
+                    <label for="areaReserva">
+                        Área de taller
+                    </label>
+
+                    <select
+                        id="areaReserva"
+                        required
+                    >
+
+                        <option value="">
+                            Seleccione primero fecha y horario
+                        </option>
+
+                    </select>
+
+
+                    <!-- =====================================
+                         INFORMACIÓN DE ÁREAS LIBRES
+                    ====================================== -->
+
+                    <div
+                        id="informacionAreasLibres"
+                        class="areas-libres-info"
+                    >
+
+                        <div class="areas-libres-titulo">
+
+                            <span class="estrella-area">
+                                ★
+                            </span>
+
+                            <strong>
+                                Áreas libres para práctica
+                            </strong>
+
+                        </div>
+
+
+                        <p id="listaAreasLibres">
+
+                            Seleccione una fecha y un horario
+                            para conocer las áreas especialmente
+                            disponibles para práctica.
+
+                        </p>
+
+
+                        <small>
+
+                            Estas áreas están destinadas
+                            especialmente a docentes que
+                            necesiten realizar repasos o
+                            actividades prácticas.
+
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- =========================================
+                     AVISO DE DISPONIBILIDAD
+                ========================================== -->
+
+                <div class="aviso-disponibilidad">
+
+                    <strong>
+                        ℹ️ Importante
+                    </strong>
+
+                    <p>
+                        Una maqueta o área que ya haya sido
+                        reservada para la misma fecha y horario
+                        dejará de estar disponible para los
+                        demás docentes.
+                    </p>
+
+                </div>
+
+
+
+                <!-- =========================================
+                     BOTÓN REGISTRAR
                 ========================================== -->
 
                 <div class="reserva-boton-container">
@@ -293,6 +413,7 @@
                     <button
                         id="btnSemanaAnterior"
                         class="btn-semana"
+                        type="button"
                     >
                         ← Semana anterior
                     </button>
@@ -301,6 +422,7 @@
                     <button
                         id="btnSemanaActual"
                         class="btn-semana"
+                        type="button"
                     >
                         Semana actual
                     </button>
@@ -309,9 +431,37 @@
                     <button
                         id="btnSemanaSiguiente"
                         class="btn-semana"
+                        type="button"
                     >
                         Semana siguiente →
                     </button>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =============================================
+                 LEYENDA
+            ============================================== -->
+
+            <div class="leyenda-reservas">
+
+                <div class="leyenda-item">
+
+                    <span class="leyenda-punto punto-reservado"></span>
+
+                    Reserva registrada
+
+                </div>
+
+
+                <div class="leyenda-item">
+
+                    <span class="leyenda-punto punto-libre"></span>
+
+                    Área libre para práctica
 
                 </div>
 
@@ -365,34 +515,28 @@
 
                     <tbody>
 
+                        <!-- 09:00 - 12:00 -->
+
                         <tr>
 
                             <th>
                                 09:00 - 12:00
                             </th>
 
-                            <td>
-                                Cargando...
-                            </td>
+                            <td>Cargando...</td>
 
-                            <td>
-                                Cargando...
-                            </td>
+                            <td>Cargando...</td>
 
-                            <td>
-                                Cargando...
-                            </td>
+                            <td>Cargando...</td>
 
-                            <td>
-                                Cargando...
-                            </td>
+                            <td>Cargando...</td>
 
-                            <td>
-                                Cargando...
-                            </td>
+                            <td>Cargando...</td>
 
                         </tr>
 
+
+                        <!-- 14:00 - 17:00 -->
 
                         <tr>
 
@@ -400,28 +544,20 @@
                                 14:00 - 17:00
                             </th>
 
-                            <td>
-                                Cargando...
-                            </td>
+                            <td>Cargando...</td>
 
-                            <td>
-                                Cargando...
-                            </td>
+                            <td>Cargando...</td>
 
-                            <td>
-                                Cargando...
-                            </td>
+                            <td>Cargando...</td>
 
-                            <td>
-                                Cargando...
-                            </td>
+                            <td>Cargando...</td>
 
-                            <td>
-                                Cargando...
-                            </td>
+                            <td>Cargando...</td>
 
                         </tr>
 
+
+                        <!-- 19:00 - 21:30 -->
 
                         <tr>
 
@@ -429,25 +565,15 @@
                                 19:00 - 21:30
                             </th>
 
-                            <td>
-                                Cargando...
-                            </td>
+                            <td>Cargando...</td>
 
-                            <td>
-                                Cargando...
-                            </td>
+                            <td>Cargando...</td>
 
-                            <td>
-                                Cargando...
-                            </td>
+                            <td>Cargando...</td>
 
-                            <td>
-                                Cargando...
-                            </td>
+                            <td>Cargando...</td>
 
-                            <td>
-                                Cargando...
-                            </td>
+                            <td>Cargando...</td>
 
                         </tr>
 
@@ -468,7 +594,10 @@
         <footer class="docente-footer">
 
             Desarrollado por
-            <strong>Andres Vega</strong>
+
+            <strong>
+                Andres Vega
+            </strong>
 
         </footer>
 
