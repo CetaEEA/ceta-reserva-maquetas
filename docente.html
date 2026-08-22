@@ -5,11 +5,17 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Reserva de Maquetas - CETA</title>
 
-    <link rel="stylesheet" href="css/estilos.css">
+    <link
+        rel="stylesheet"
+        href="css/estilos.css"
+    >
 
 </head>
 
@@ -33,7 +39,9 @@
 
             <div>
 
-                <h1>CETA</h1>
+                <h1>
+                    CETA
+                </h1>
 
                 <p>
                     Registro de uso de maquetas
@@ -74,7 +82,7 @@
 
 
     <!-- =====================================================
-         CONTENIDO PRINCIPAL
+         CONTENIDO
     ====================================================== -->
 
     <main class="docente-container">
@@ -91,8 +99,10 @@
             </h2>
 
             <p>
-                Registre el grupo, tema, fecha, horario,
-                maqueta y área de taller que desea utilizar.
+                Puede reservar hasta un máximo de
+                <strong>3 maquetas</strong>
+                para el mismo grupo, fecha, horario
+                y área de taller.
             </p>
 
         </section>
@@ -100,7 +110,7 @@
 
 
         <!-- =================================================
-             FORMULARIO DE RESERVA
+             FORMULARIO
         ================================================== -->
 
         <section class="docente-section">
@@ -114,8 +124,8 @@
                     </h2>
 
                     <p>
-                        Complete los siguientes datos para
-                        registrar su reserva.
+                        La primera maqueta es obligatoria.
+                        La segunda y tercera son opcionales.
                     </p>
 
                 </div>
@@ -151,7 +161,7 @@
 
 
                 <!-- =========================================
-                     TÍTULO DEL TEMA
+                     TEMA
                 ========================================== -->
 
                 <div class="campo-reserva">
@@ -169,8 +179,7 @@
                     >
 
                     <small>
-                        🔒 El título del tema será visible
-                        únicamente para administración.
+                        🔒 Visible únicamente para administración.
                     </small>
 
                 </div>
@@ -239,38 +248,188 @@
 
 
                 <!-- =========================================
-                     MAQUETA
+                     MAQUETAS
                 ========================================== -->
 
-                <div class="campo-reserva">
+                <div class="grupo-maquetas-reserva">
 
-                    <label for="maquetaReserva">
-                        Maqueta
-                    </label>
+                    <div class="grupo-maquetas-titulo">
 
-                    <select
-                        id="maquetaReserva"
-                        required
+                        <h3>
+                            🔧 Maquetas
+                        </h3>
+
+                        <p>
+                            Puede seleccionar hasta tres maquetas.
+                        </p>
+
+                    </div>
+
+
+                    <!-- =====================================
+                         MAQUETA 1
+                    ====================================== -->
+
+                    <div
+                        class="campo-reserva bloque-maqueta"
+                        id="bloqueMaqueta1"
                     >
 
-                        <option value="">
-                            Cargando maquetas...
-                        </option>
+                        <div class="maqueta-titulo">
 
-                    </select>
+                            <strong>
+                                Maqueta 1
+                            </strong>
+
+                            <span class="badge-obligatoria">
+                                Obligatoria
+                            </span>
+
+                        </div>
 
 
-                    <small id="estadoMaqueta">
-                        Seleccione una fecha y horario para
-                        comprobar disponibilidad.
-                    </small>
+                        <select
+                            id="maquetaReserva"
+                            required
+                        >
+
+                            <option value="">
+                                Cargando maquetas...
+                            </option>
+
+                        </select>
+
+
+                        <small id="estadoMaqueta">
+                            Seleccione fecha y horario para
+                            comprobar disponibilidad.
+                        </small>
+
+                    </div>
+
+
+
+                    <!-- =====================================
+                         BOTÓN MAQUETA 2
+                    ====================================== -->
+
+                    <button
+                        type="button"
+                        id="btnAgregarMaqueta2"
+                        class="btn-agregar-maqueta"
+                    >
+                        ➕ Añadir segunda maqueta
+                    </button>
+
+
+
+                    <!-- =====================================
+                         MAQUETA 2
+                    ====================================== -->
+
+                    <div
+                        class="campo-reserva bloque-maqueta maqueta-opcional"
+                        id="bloqueMaqueta2"
+                        hidden
+                    >
+
+                        <div class="maqueta-titulo">
+
+                            <strong>
+                                Maqueta 2
+                            </strong>
+
+                            <span class="badge-opcional">
+                                Opcional
+                            </span>
+
+                        </div>
+
+
+                        <select id="maquetaReserva2">
+
+                            <option value="">
+                                Seleccione una maqueta
+                            </option>
+
+                        </select>
+
+
+                        <button
+                            type="button"
+                            id="btnQuitarMaqueta2"
+                            class="btn-quitar-maqueta"
+                        >
+                            Quitar segunda maqueta
+                        </button>
+
+                    </div>
+
+
+
+                    <!-- =====================================
+                         BOTÓN MAQUETA 3
+                    ====================================== -->
+
+                    <button
+                        type="button"
+                        id="btnAgregarMaqueta3"
+                        class="btn-agregar-maqueta"
+                        hidden
+                    >
+                        ➕ Añadir tercera maqueta
+                    </button>
+
+
+
+                    <!-- =====================================
+                         MAQUETA 3
+                    ====================================== -->
+
+                    <div
+                        class="campo-reserva bloque-maqueta maqueta-opcional"
+                        id="bloqueMaqueta3"
+                        hidden
+                    >
+
+                        <div class="maqueta-titulo">
+
+                            <strong>
+                                Maqueta 3
+                            </strong>
+
+                            <span class="badge-opcional">
+                                Opcional
+                            </span>
+
+                        </div>
+
+
+                        <select id="maquetaReserva3">
+
+                            <option value="">
+                                Seleccione una maqueta
+                            </option>
+
+                        </select>
+
+
+                        <button
+                            type="button"
+                            id="btnQuitarMaqueta3"
+                            class="btn-quitar-maqueta"
+                        >
+                            Quitar tercera maqueta
+                        </button>
+
+                    </div>
 
                 </div>
 
 
 
                 <!-- =========================================
-                     ÁREA DE TALLER
+                     ÁREA
                 ========================================== -->
 
                 <div class="campo-reserva">
@@ -290,10 +449,6 @@
 
                     </select>
 
-
-                    <!-- =====================================
-                         INFORMACIÓN DE ÁREAS LIBRES
-                    ====================================== -->
 
                     <div
                         id="informacionAreasLibres"
@@ -316,8 +471,7 @@
                         <p id="listaAreasLibres">
 
                             Seleccione una fecha y un horario
-                            para conocer las áreas especialmente
-                            disponibles para práctica.
+                            para conocer las áreas disponibles.
 
                         </p>
 
@@ -338,7 +492,7 @@
 
 
                 <!-- =========================================
-                     AVISO DE DISPONIBILIDAD
+                     AVISO
                 ========================================== -->
 
                 <div class="aviso-disponibilidad">
@@ -348,10 +502,10 @@
                     </strong>
 
                     <p>
-                        Una maqueta o área que ya haya sido
-                        reservada para la misma fecha y horario
-                        dejará de estar disponible para los
-                        demás docentes.
+                        Las maquetas seleccionadas y el área
+                        quedarán reservadas para la misma fecha
+                        y horario. Una maqueta ya ocupada no
+                        podrá ser seleccionada por otro docente.
                     </p>
 
                 </div>
@@ -359,7 +513,7 @@
 
 
                 <!-- =========================================
-                     BOTÓN REGISTRAR
+                     REGISTRAR
                 ========================================== -->
 
                 <div class="reserva-boton-container">
@@ -442,10 +596,6 @@
 
 
 
-            <!-- =============================================
-                 LEYENDA
-            ============================================== -->
-
             <div class="leyenda-reservas">
 
                 <div class="leyenda-item">
@@ -468,10 +618,6 @@
             </div>
 
 
-
-            <!-- =============================================
-                 TABLA
-            ============================================== -->
 
             <div class="tabla-semana-container">
 
@@ -515,65 +661,11 @@
 
                     <tbody>
 
-                        <!-- 09:00 - 12:00 -->
-
                         <tr>
 
-                            <th>
-                                09:00 - 12:00
-                            </th>
-
-                            <td>Cargando...</td>
-
-                            <td>Cargando...</td>
-
-                            <td>Cargando...</td>
-
-                            <td>Cargando...</td>
-
-                            <td>Cargando...</td>
-
-                        </tr>
-
-
-                        <!-- 14:00 - 17:00 -->
-
-                        <tr>
-
-                            <th>
-                                14:00 - 17:00
-                            </th>
-
-                            <td>Cargando...</td>
-
-                            <td>Cargando...</td>
-
-                            <td>Cargando...</td>
-
-                            <td>Cargando...</td>
-
-                            <td>Cargando...</td>
-
-                        </tr>
-
-
-                        <!-- 19:00 - 21:30 -->
-
-                        <tr>
-
-                            <th>
-                                19:00 - 21:30
-                            </th>
-
-                            <td>Cargando...</td>
-
-                            <td>Cargando...</td>
-
-                            <td>Cargando...</td>
-
-                            <td>Cargando...</td>
-
-                            <td>Cargando...</td>
+                            <td colspan="6">
+                                Cargando reservas...
+                            </td>
 
                         </tr>
 
@@ -586,10 +678,6 @@
         </section>
 
 
-
-        <!-- =================================================
-             PIE DE PÁGINA
-        ================================================== -->
 
         <footer class="docente-footer">
 
@@ -606,15 +694,13 @@
 
 
 
-    <!-- =====================================================
-         SUPABASE
-    ====================================================== -->
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
 
     <script src="js/config.js"></script>
 
-    <script src="js/docente.js?v=6"></script>
+    <script src="js/docente.js?v=7"></script>
 
 
 </body>
