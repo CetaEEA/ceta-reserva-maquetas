@@ -217,8 +217,6 @@
             </div>
 
 
-            <!-- Contenedor de tarjetas -->
-
             <div
                 id="tablaMaquetas"
                 class="maquetas-grid"
@@ -235,7 +233,7 @@
 
 
         <!-- =================================================
-             RESERVAS
+             RESERVAS SEMANALES
         ================================================== -->
 
         <section class="admin-section">
@@ -249,12 +247,12 @@
                     </span>
 
                     <h2>
-                        📅 Reservas
+                        📅 Reservas de la semana
                     </h2>
 
                     <p>
-                        Consulta todas las reservas
-                        registradas en el sistema.
+                        Consulta la ocupación semanal de
+                        maquetas y áreas del taller.
                     </p>
 
                 </div>
@@ -262,36 +260,95 @@
             </div>
 
 
-            <div class="table-container">
+            <!-- =============================================
+                 NAVEGACIÓN ENTRE SEMANAS
+            ============================================== -->
 
-                <table>
+            <div class="semana-controles">
+
+                <button
+                    type="button"
+                    id="btnSemanaAnteriorAdmin"
+                    class="btn-semana"
+                >
+                    ← Semana anterior
+                </button>
+
+
+                <div class="semana-info">
+
+                    <span>
+                        Semana mostrada
+                    </span>
+
+                    <strong id="textoSemanaAdmin">
+                        Cargando...
+                    </strong>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    id="btnSemanaSiguienteAdmin"
+                    class="btn-semana"
+                >
+                    Semana siguiente →
+                </button>
+
+            </div>
+
+
+            <div class="semana-actual-contenedor">
+
+                <button
+                    type="button"
+                    id="btnSemanaActualAdmin"
+                    class="btn-semana-actual"
+                >
+                    Ir a semana actual
+                </button>
+
+            </div>
+
+
+            <!-- =============================================
+                 TABLA SEMANAL
+            ============================================== -->
+
+            <div class="table-container tabla-semanal-container">
+
+                <table
+                    id="tablaSemanaAdmin"
+                    class="tabla-semanal"
+                >
 
                     <thead>
 
                         <tr>
 
                             <th>
-                                Fecha
-                            </th>
-
-                            <th>
                                 Horario
                             </th>
 
                             <th>
-                                Maqueta
+                                LUNES
                             </th>
 
                             <th>
-                                Docente
+                                MARTES
                             </th>
 
                             <th>
-                                Grupo
+                                MIÉRCOLES
                             </th>
 
                             <th>
-                                Estado
+                                JUEVES
+                            </th>
+
+                            <th>
+                                VIERNES
                             </th>
 
                         </tr>
@@ -299,7 +356,7 @@
                     </thead>
 
 
-                    <tbody id="tablaReservas">
+                    <tbody>
 
                         <tr>
 
@@ -315,24 +372,48 @@
 
             </div>
 
+
+            <div class="admin-reserva-nota">
+
+                <strong>
+                    Vista administrativa
+                </strong>
+
+                <p>
+                    El administrador puede visualizar
+                    docente, grupo, maqueta, área de taller
+                    y título del tema de cada reserva.
+                </p>
+
+            </div>
+
         </section>
 
 
     </main>
-    
+
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
     <footer class="admin-footer">
 
-    <strong>Desarrollado por Andres Vega</strong>
+        <strong>
+            Desarrollado por Andres Vega
+        </strong>
 
-    <span>
-        Sistema de Reserva de Maquetas · CETA
-    </span>
+        <span>
+            Sistema de Reserva de Maquetas · CETA
+        </span>
 
     </footer>
 
 
+
     <!-- =====================================================
-         MODAL USUARIO
+         MODAL CREAR USUARIO
     ====================================================== -->
 
     <div
@@ -358,6 +439,7 @@
 
 
                 <button
+                    type="button"
                     class="btnCerrarModal"
                     data-modal="modalUsuario"
                 >
@@ -444,6 +526,147 @@
 
 
     <!-- =====================================================
+         MODAL EDITAR USUARIO
+    ====================================================== -->
+
+    <div
+        id="modalEditarUsuario"
+        class="modal"
+    >
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <div>
+
+                    <span class="modal-label">
+                        Administración
+                    </span>
+
+                    <h2>
+                        Editar usuario
+                    </h2>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="btnCerrarModal"
+                    data-modal="modalEditarUsuario"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <form id="formEditarUsuario">
+
+                <!-- ID interno del usuario -->
+
+                <input
+                    type="hidden"
+                    id="editarUsuarioId"
+                >
+
+
+                <label for="editarNombre">
+                    Nombre completo
+                </label>
+
+                <input
+                    type="text"
+                    id="editarNombre"
+                    required
+                >
+
+
+                <label for="editarUsuario">
+                    Usuario
+                </label>
+
+                <input
+                    type="text"
+                    id="editarUsuario"
+                    required
+                >
+
+
+                <label for="editarRol">
+                    Rol
+                </label>
+
+                <select id="editarRol">
+
+                    <option value="docente">
+                        Docente
+                    </option>
+
+                    <option value="administrador">
+                        Administrador
+                    </option>
+
+                </select>
+
+
+                <label for="editarEstado">
+                    Estado
+                </label>
+
+                <select id="editarEstado">
+
+                    <option value="true">
+                        Activo
+                    </option>
+
+                    <option value="false">
+                        Desactivado
+                    </option>
+
+                </select>
+
+
+                <label for="editarPassword">
+                    Nueva contraseña
+                </label>
+
+                <input
+                    type="password"
+                    id="editarPassword"
+                    placeholder="Dejar vacío para conservar la actual"
+                >
+
+
+                <p class="campo-ayuda">
+                    La contraseña solamente se cambiará
+                    si escribe una nueva.
+                </p>
+
+
+                <button
+                    type="submit"
+                    class="btn-primary btn-form"
+                >
+                    Guardar cambios
+                </button>
+
+
+                <p
+                    id="mensajeEditarUsuario"
+                    class="mensaje-form"
+                ></p>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
          MODAL MAQUETA
     ====================================================== -->
 
@@ -470,6 +693,7 @@
 
 
                 <button
+                    type="button"
                     class="btnCerrarModal"
                     data-modal="modalMaqueta"
                 >
@@ -546,7 +770,7 @@
 
     <script src="js/config.js"></script>
 
-    <script src="js/admin.js"></script>
+    <script src="js/admin.js?v=2"></script>
 
 
 </body>
