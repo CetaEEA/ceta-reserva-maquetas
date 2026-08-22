@@ -643,7 +643,7 @@ async function cargarMaquetasDisponibles(
 
                 .eq(
                     "estado",
-                    "reservada"
+                    "activa"
                 );
 
 
@@ -864,7 +864,7 @@ async function cargarAreasDisponibles(
 
                 .eq(
                     "estado",
-                    "reservada"
+                    "activa"
                 );
 
 
@@ -1285,7 +1285,7 @@ formReserva.addEventListener(
 
                     .eq(
                         "estado",
-                        "reservada"
+                        "activa"
                     )
 
                     .limit(1);
@@ -1345,7 +1345,7 @@ formReserva.addEventListener(
 
                     .eq(
                         "estado",
-                        "reservada"
+                        "activa"
                     )
 
                     .limit(1);
@@ -1409,7 +1409,7 @@ formReserva.addEventListener(
                             titulo,
 
                         estado:
-                            "reservada"
+                            "activa"
 
                     });
 
@@ -1586,7 +1586,7 @@ async function cargarTablaSemanal() {
 
                 .eq(
                     "estado",
-                    "reservada"
+                    "activa"
                 )
 
                 .order(
