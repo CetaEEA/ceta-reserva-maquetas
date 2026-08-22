@@ -5,7 +5,7 @@
 
 
 // =========================================================
-// INICIALIZAR SUPABASE
+// SUPABASE
 // =========================================================
 
 const supabaseClient = supabase.createClient(
@@ -15,12 +15,21 @@ const supabaseClient = supabase.createClient(
 
 
 // =========================================================
-// VARIABLES GLOBALES
+// VARIABLES
 // =========================================================
 
-let inicioSemanaAdmin = obtenerLunesAdmin(
-    new Date()
-);
+let inicioSemanaAdmin =
+    obtenerLunesAdmin(
+        new Date()
+    );
+
+let reservasSemanaPDF = [];
+
+let mapaPerfilesPDF =
+    new Map();
+
+let mapaMaquetasPDF =
+    new Map();
 
 
 // =========================================================
@@ -33,7 +42,9 @@ async function comprobarAdministrador() {
         data: { user },
         error
     } =
-        await supabaseClient.auth.getUser();
+        await supabaseClient
+            .auth
+            .getUser();
 
 
     if (
@@ -69,7 +80,8 @@ async function comprobarAdministrador() {
     if (
         errorPerfil ||
         !perfil ||
-        perfil.rol !== "administrador" ||
+        perfil.rol !==
+            "administrador" ||
         !perfil.activo
     ) {
 
@@ -142,7 +154,7 @@ function escapeHTML(text) {
 
 
 // =========================================================
-// CARGAR USUARIOS
+// USUARIOS
 // =========================================================
 
 async function cargarUsuarios() {
@@ -187,7 +199,7 @@ async function cargarUsuarios() {
         tabla.innerHTML = `
             <tr>
                 <td colspan="5">
-                    Error al cargar los usuarios.
+                    Error al cargar usuarios.
                 </td>
             </tr>
         `;
@@ -199,13 +211,13 @@ async function cargarUsuarios() {
 
     if (
         !data ||
-        !data.length
+        data.length === 0
     ) {
 
         tabla.innerHTML = `
             <tr>
                 <td colspan="5">
-                    No existen usuarios registrados.
+                    No existen usuarios.
                 </td>
             </tr>
         `;
@@ -219,7 +231,24 @@ async function cargarUsuarios() {
         data.map(
             usuario => {
 
+                const estado =
+                    usuario.activo
+
+                        ? `
+                            <span class="badge-activo">
+                                Activo
+                            </span>
+                        `
+
+                        : `
+                            <span class="badge-inactivo">
+                                Desactivado
+                            </span>
+                        `;
+
+
                 return `
+
                     <tr>
 
                         <td>
@@ -241,20 +270,19 @@ async function cargarUsuarios() {
                         </td>
 
                         <td>
-
-                            ${
-                                usuario.activo
-                                    ? "Activo"
-                                    : "Desactivado"
-                            }
-
+                            ${estado}
                         </td>
 
                         <td>
-                            Próximamente
+
+                            <span class="acciones-pendientes">
+                                Gestión próximamente
+                            </span>
+
                         </td>
 
                     </tr>
+
                 `;
 
             }
@@ -263,7 +291,7 @@ async function cargarUsuarios() {
 
 
 // =========================================================
-// CARGAR MAQUETAS
+// MAQUETAS
 // =========================================================
 
 async function cargarMaquetas() {
@@ -316,7 +344,7 @@ async function cargarMaquetas() {
 
     if (
         !data ||
-        !data.length
+        data.length === 0
     ) {
 
         contenedor.innerHTML = `
@@ -356,24 +384,28 @@ async function cargarMaquetas() {
                         ? `
                             <button
                                 class="btn-desactivar-maqueta"
+
                                 data-id="${maqueta.id}"
+
                                 data-nombre="${escapeHTML(
                                     maqueta.nombre
                                 )}"
                             >
-                                🔴 Marcar no disponible
+                                🔴 No disponible
                             </button>
                         `
 
                         : `
                             <button
                                 class="btn-activar-maqueta"
+
                                 data-id="${maqueta.id}"
+
                                 data-nombre="${escapeHTML(
                                     maqueta.nombre
                                 )}"
                             >
-                                🟢 Habilitar maqueta
+                                🟢 Habilitar
                             </button>
                         `;
 
@@ -407,11 +439,7 @@ async function cargarMaquetas() {
                             </div>
 
 
-                            <div>
-
-                                ${estado}
-
-                            </div>
+                            ${estado}
 
                         </div>
 
@@ -445,7 +473,7 @@ async function cargarMaquetas() {
                                     maqueta.descripcion || ""
                                 )}"
                             >
-                                ✏️ Editar maqueta
+                                ✏️ Editar
                             </button>
 
 
@@ -460,10 +488,6 @@ async function cargarMaquetas() {
             }
         ).join("");
 
-
-    // =====================================================
-    // EDITAR MAQUETA
-    // =====================================================
 
     document
         .querySelectorAll(
@@ -495,10 +519,6 @@ async function cargarMaquetas() {
         );
 
 
-    // =====================================================
-    // DESACTIVAR MAQUETA
-    // =====================================================
-
     document
         .querySelectorAll(
             ".btn-desactivar-maqueta"
@@ -526,10 +546,6 @@ async function cargarMaquetas() {
             }
         );
 
-
-    // =====================================================
-    // ACTIVAR MAQUETA
-    // =====================================================
 
     document
         .querySelectorAll(
@@ -561,7 +577,7 @@ async function cargarMaquetas() {
 
 
 // =========================================================
-// ABRIR EDICIÓN MAQUETA
+// EDITAR MAQUETA
 // =========================================================
 
 function abrirEditarMaqueta(
@@ -577,39 +593,9 @@ function abrirEditarMaqueta(
         );
 
 
-    const titulo =
-        modal?.querySelector(
-            ".modal-header h2"
-        );
-
-
     const form =
         document.getElementById(
             "formMaqueta"
-        );
-
-
-    const inputCodigo =
-        document.getElementById(
-            "codigoMaqueta"
-        );
-
-
-    const inputNombre =
-        document.getElementById(
-            "nombreMaqueta"
-        );
-
-
-    const inputDescripcion =
-        document.getElementById(
-            "descripcionMaqueta"
-        );
-
-
-    const mensaje =
-        document.getElementById(
-            "mensajeMaqueta"
         );
 
 
@@ -626,24 +612,36 @@ function abrirEditarMaqueta(
         id;
 
 
+    document.getElementById(
+        "codigoMaqueta"
+    ).value =
+        codigo || "";
+
+
+    document.getElementById(
+        "nombreMaqueta"
+    ).value =
+        nombre || "";
+
+
+    document.getElementById(
+        "descripcionMaqueta"
+    ).value =
+        descripcion || "";
+
+
+    const titulo =
+        modal.querySelector(
+            ".modal-header h2"
+        );
+
+
     if (titulo) {
 
         titulo.textContent =
             "Editar maqueta";
 
     }
-
-
-    inputCodigo.value =
-        codigo || "";
-
-
-    inputNombre.value =
-        nombre || "";
-
-
-    inputDescripcion.value =
-        descripcion || "";
 
 
     const boton =
@@ -660,12 +658,10 @@ function abrirEditarMaqueta(
     }
 
 
-    if (mensaje) {
-
-        mensaje.textContent =
-            "";
-
-    }
+    document.getElementById(
+        "mensajeMaqueta"
+    ).textContent =
+        "";
 
 
     modal.classList.add(
@@ -675,7 +671,7 @@ function abrirEditarMaqueta(
 
 
 // =========================================================
-// CAMBIAR ESTADO MAQUETA
+// ESTADO MAQUETA
 // =========================================================
 
 async function cambiarEstadoMaqueta(
@@ -687,12 +683,12 @@ async function cambiarEstadoMaqueta(
     const accion =
         disponible
             ? "habilitar"
-            : "marcar como no disponible";
+            : "deshabilitar";
 
 
     if (
         !confirm(
-            `¿Deseas ${accion} la maqueta "${nombre}"?`
+            `¿Deseas ${accion} "${nombre}"?`
         )
     ) {
 
@@ -703,9 +699,7 @@ async function cambiarEstadoMaqueta(
     try {
 
         const {
-            data: {
-                session
-            }
+            data: { session }
         } =
             await supabaseClient
                 .auth
@@ -718,10 +712,8 @@ async function cambiarEstadoMaqueta(
                 "La sesión ha expirado."
             );
 
-
             window.location.href =
                 "index.html";
-
 
             return;
         }
@@ -775,15 +767,8 @@ async function cambiarEstadoMaqueta(
                 "No se pudo cambiar el estado."
             );
 
-
             return;
         }
-
-
-        alert(
-            resultado.message ||
-            "Estado actualizado correctamente."
-        );
 
 
         await cargarMaquetas();
@@ -797,7 +782,7 @@ async function cambiarEstadoMaqueta(
 
 
         alert(
-            "Error de conexión con el servidor."
+            "Error de conexión."
         );
     }
 }
@@ -817,13 +802,14 @@ if (formMaqueta) {
 
     formMaqueta.addEventListener(
         "submit",
-        async (event) => {
+        async event => {
 
             event.preventDefault();
 
 
             const idEditando =
-                formMaqueta.dataset.editandoId;
+                formMaqueta.dataset
+                    .editandoId;
 
 
             const codigo =
@@ -860,17 +846,13 @@ if (formMaqueta) {
 
 
             mensaje.textContent =
-                idEditando
-                    ? "Guardando cambios..."
-                    : "Creando maqueta...";
+                "Guardando...";
 
 
             try {
 
                 const {
-                    data: {
-                        session
-                    }
+                    data: { session }
                 } =
                     await supabaseClient
                         .auth
@@ -880,7 +862,7 @@ if (formMaqueta) {
                 if (!session) {
 
                     mensaje.textContent =
-                        "La sesión ha expirado.";
+                        "Sesión expirada.";
 
                     return;
                 }
@@ -888,7 +870,9 @@ if (formMaqueta) {
 
                 const funcion =
                     idEditando
+
                         ? "editar-maqueta"
+
                         : "crear-maqueta";
 
 
@@ -902,27 +886,21 @@ if (formMaqueta) {
                                     idEditando
                                 ),
 
-                            codigo:
-                                codigo,
+                            codigo,
 
-                            nombre:
-                                nombre,
+                            nombre,
 
-                            descripcion:
-                                descripcion
+                            descripcion
 
                         }
 
                         : {
 
-                            codigo:
-                                codigo,
+                            codigo,
 
-                            nombre:
-                                nombre,
+                            nombre,
 
-                            descripcion:
-                                descripcion
+                            descripcion
 
                         };
 
@@ -947,7 +925,6 @@ if (formMaqueta) {
 
                             },
 
-
                             body:
                                 JSON.stringify(
                                     datos
@@ -964,58 +941,24 @@ if (formMaqueta) {
 
                 if (!respuesta.ok) {
 
-                    console.error(
-                        resultado
-                    );
-
-
                     mensaje.textContent =
                         resultado.error ||
-                        "No se pudo guardar la maqueta.";
-
+                        "No se pudo guardar.";
 
                     return;
                 }
 
 
                 mensaje.textContent =
-                    idEditando
-                        ? "Maqueta actualizada correctamente."
-                        : "Maqueta creada correctamente.";
+                    "Guardado correctamente.";
 
 
                 formMaqueta.reset();
 
 
-                delete formMaqueta.dataset.editandoId;
-
-
-                const boton =
-                    formMaqueta.querySelector(
-                        'button[type="submit"]'
-                    );
-
-
-                if (boton) {
-
-                    boton.textContent =
-                        "Agregar maqueta";
-
-                }
-
-
-                const titulo =
-                    document.querySelector(
-                        "#modalMaqueta .modal-header h2"
-                    );
-
-
-                if (titulo) {
-
-                    titulo.textContent =
-                        "Nueva maqueta";
-
-                }
+                delete formMaqueta
+                    .dataset
+                    .editandoId;
 
 
                 await cargarMaquetas();
@@ -1024,26 +967,17 @@ if (formMaqueta) {
                 setTimeout(
                     () => {
 
-                        const modal =
-                            document.getElementById(
+                        document
+                            .getElementById(
                                 "modalMaqueta"
-                            );
-
-
-                        if (modal) {
-
-                            modal.classList.remove(
+                            )
+                            ?.classList
+                            .remove(
                                 "active"
                             );
 
-                        }
-
-
-                        mensaje.textContent =
-                            "";
-
                     },
-                    1200
+                    800
                 );
 
 
@@ -1055,7 +989,7 @@ if (formMaqueta) {
 
 
                 mensaje.textContent =
-                    "Error de conexión con el servidor.";
+                    "Error de conexión.";
             }
 
         }
@@ -1077,7 +1011,7 @@ if (formUsuario) {
 
     formUsuario.addEventListener(
         "submit",
-        async (event) => {
+        async event => {
 
             event.preventDefault();
 
@@ -1130,9 +1064,7 @@ if (formUsuario) {
             try {
 
                 const {
-                    data: {
-                        session
-                    }
+                    data: { session }
                 } =
                     await supabaseClient
                         .auth
@@ -1142,7 +1074,7 @@ if (formUsuario) {
                 if (!session) {
 
                     mensaje.textContent =
-                        "La sesión ha expirado.";
+                        "Sesión expirada.";
 
                     return;
                 }
@@ -1172,17 +1104,13 @@ if (formUsuario) {
                             body:
                                 JSON.stringify({
 
-                                    nombre:
-                                        nombre,
+                                    nombre,
 
-                                    usuario:
-                                        usuario,
+                                    usuario,
 
-                                    password:
-                                        password,
+                                    password,
 
-                                    rol:
-                                        rol
+                                    rol
 
                                 })
 
@@ -1199,8 +1127,7 @@ if (formUsuario) {
 
                     mensaje.textContent =
                         resultado.error ||
-                        "No se pudo crear el usuario.";
-
+                        "No se pudo crear.";
 
                     return;
                 }
@@ -1219,26 +1146,17 @@ if (formUsuario) {
                 setTimeout(
                     () => {
 
-                        const modal =
-                            document.getElementById(
+                        document
+                            .getElementById(
                                 "modalUsuario"
-                            );
-
-
-                        if (modal) {
-
-                            modal.classList.remove(
+                            )
+                            ?.classList
+                            .remove(
                                 "active"
                             );
 
-                        }
-
-
-                        mensaje.textContent =
-                            "";
-
                     },
-                    1200
+                    800
                 );
 
 
@@ -1250,7 +1168,7 @@ if (formUsuario) {
 
 
                 mensaje.textContent =
-                    "Error de conexión con el servidor.";
+                    "Error de conexión.";
             }
 
         }
@@ -1259,53 +1177,35 @@ if (formUsuario) {
 
 
 // =========================================================
-// NUEVO USUARIO
+// BOTONES NUEVO
 // =========================================================
 
-const btnNuevoUsuario =
-    document.getElementById(
+document
+    .getElementById(
         "btnNuevoUsuario"
-    );
-
-
-if (btnNuevoUsuario) {
-
-    btnNuevoUsuario.addEventListener(
+    )
+    ?.addEventListener(
         "click",
         () => {
 
-            const modal =
-                document.getElementById(
+            document
+                .getElementById(
                     "modalUsuario"
-                );
-
-
-            if (modal) {
-
-                modal.classList.add(
+                )
+                ?.classList
+                .add(
                     "active"
                 );
 
-            }
-
         }
     );
-}
 
 
-// =========================================================
-// NUEVA MAQUETA
-// =========================================================
-
-const btnNuevaMaqueta =
-    document.getElementById(
+document
+    .getElementById(
         "btnNuevaMaqueta"
-    );
-
-
-if (btnNuevaMaqueta) {
-
-    btnNuevaMaqueta.addEventListener(
+    )
+    ?.addEventListener(
         "click",
         () => {
 
@@ -1315,64 +1215,31 @@ if (btnNuevaMaqueta) {
                 );
 
 
-            const modal =
-                document.getElementById(
-                    "modalMaqueta"
-                );
-
-
             if (form) {
 
                 form.reset();
 
-
-                delete form.dataset.editandoId;
-
-
-                const boton =
-                    form.querySelector(
-                        'button[type="submit"]'
-                    );
-
-
-                if (boton) {
-
-                    boton.textContent =
-                        "Agregar maqueta";
-
-                }
+                delete form
+                    .dataset
+                    .editandoId;
             }
 
 
-            const titulo =
-                document.querySelector(
-                    "#modalMaqueta .modal-header h2"
-                );
-
-
-            if (titulo) {
-
-                titulo.textContent =
-                    "Nueva maqueta";
-
-            }
-
-
-            if (modal) {
-
-                modal.classList.add(
+            document
+                .getElementById(
+                    "modalMaqueta"
+                )
+                ?.classList
+                .add(
                     "active"
                 );
 
-            }
-
         }
     );
-}
 
 
 // =========================================================
-// CERRAR MODALES
+// MODALES
 // =========================================================
 
 document
@@ -1386,19 +1253,14 @@ document
                 "click",
                 () => {
 
-                    const modal =
-                        document.getElementById(
+                    document
+                        .getElementById(
                             button.dataset.modal
-                        );
-
-
-                    if (modal) {
-
-                        modal.classList.remove(
+                        )
+                        ?.classList
+                        .remove(
                             "active"
                         );
-
-                    }
 
                 }
             );
@@ -1411,15 +1273,11 @@ document
 // CERRAR SESIÓN
 // =========================================================
 
-const btnCerrarSesion =
-    document.getElementById(
+document
+    .getElementById(
         "btnCerrarSesion"
-    );
-
-
-if (btnCerrarSesion) {
-
-    btnCerrarSesion.addEventListener(
+    )
+    ?.addEventListener(
         "click",
         async () => {
 
@@ -1433,14 +1291,15 @@ if (btnCerrarSesion) {
 
         }
     );
-}
 
 
 // =========================================================
-// FUNCIONES DE FECHA PARA LA TABLA SEMANAL
+// FECHAS
 // =========================================================
 
-function obtenerLunesAdmin(fecha) {
+function obtenerLunesAdmin(
+    fecha
+) {
 
     const resultado =
         new Date(
@@ -1454,15 +1313,16 @@ function obtenerLunesAdmin(fecha) {
         resultado.getDay();
 
 
-    const diferencia =
-        dia === 0
-            ? -6
-            : 1 - dia;
-
-
     resultado.setDate(
+
         resultado.getDate() +
-        diferencia
+
+        (
+            dia === 0
+                ? -6
+                : 1 - dia
+        )
+
     );
 
 
@@ -1484,9 +1344,7 @@ function sumarDiasAdmin(
 ) {
 
     const resultado =
-        new Date(
-            fecha
-        );
+        new Date(fecha);
 
 
     resultado.setDate(
@@ -1536,7 +1394,6 @@ function formatearFechaAdmin(
     return fecha.toLocaleDateString(
         "es-BO",
         {
-
             day:
                 "2-digit",
 
@@ -1545,14 +1402,13 @@ function formatearFechaAdmin(
 
             year:
                 "numeric"
-
         }
     );
 }
 
 
 // =========================================================
-// ACTUALIZAR ENCABEZADOS DE LA TABLA
+// ENCABEZADOS SEMANA
 // =========================================================
 
 function actualizarEncabezadosAdmin(
@@ -1605,32 +1461,25 @@ function actualizarEncabezadosAdmin(
             );
 
 
-        if (
-            encabezados[
-                i + 1
-            ]
-        ) {
+        encabezados[
+            i + 1
+        ].innerHTML = `
 
-            encabezados[
-                i + 1
-            ].innerHTML = `
+            ${nombres[i]}
 
-                ${nombres[i]}
+            <br>
 
-                <br>
+            <small>
+                ${formatearFechaAdmin(fecha)}
+            </small>
 
-                <small>
-                    ${formatearFechaAdmin(fecha)}
-                </small>
-
-            `;
-        }
+        `;
     }
 }
 
 
 // =========================================================
-// CARGAR RESERVAS SEMANALES
+// CARGAR RESERVAS
 // =========================================================
 
 async function cargarReservasAdmin() {
@@ -1651,10 +1500,6 @@ async function cargarReservasAdmin() {
         !tabla ||
         !textoSemana
     ) {
-
-        console.error(
-            "No se encontró la tabla semanal del administrador."
-        );
 
         return;
     }
@@ -1715,13 +1560,9 @@ async function cargarReservasAdmin() {
 
     try {
 
-        // =================================================
-        // RESERVAS ACTIVAS
-        // =================================================
-
         const {
             data: reservas,
-            error: errorReservas
+            error
         } =
             await supabaseClient
 
@@ -1755,19 +1596,14 @@ async function cargarReservasAdmin() {
                 )
 
                 .order(
-                    "fecha",
-                    {
-                        ascending:
-                            true
-                    }
+                    "fecha"
                 );
 
 
-        if (errorReservas) {
+        if (error) {
 
             console.error(
-                "Error cargando reservas:",
-                errorReservas
+                error
             );
 
 
@@ -1776,13 +1612,12 @@ async function cargarReservasAdmin() {
                 <tr>
 
                     <td colspan="6">
-                        Error al cargar las reservas.
+                        Error al cargar.
                     </td>
 
                 </tr>
 
             `;
-
 
             return;
         }
@@ -1792,10 +1627,6 @@ async function cargarReservasAdmin() {
             reservas || [];
 
 
-        // =================================================
-        // PERFILES
-        // =================================================
-
         const idsUsuarios =
             [
                 ...new Set(
@@ -1803,8 +1634,8 @@ async function cargarReservasAdmin() {
                     listaReservas
 
                         .map(
-                            reserva =>
-                                reserva.usuario_id
+                            r =>
+                                r.usuario_id
                         )
 
                         .filter(
@@ -1815,17 +1646,36 @@ async function cargarReservasAdmin() {
             ];
 
 
-        let perfiles =
-            [];
+        const idsMaquetas =
+            [
+                ...new Set(
+
+                    listaReservas
+
+                        .map(
+                            r =>
+                                r.maqueta_id
+                        )
+
+                        .filter(
+                            Boolean
+                        )
+
+                )
+            ];
+
+
+        let perfiles = [];
+
+        let maquetas = [];
 
 
         if (
-            idsUsuarios.length > 0
+            idsUsuarios.length
         ) {
 
             const {
-                data,
-                error
+                data
             } =
                 await supabaseClient
 
@@ -1841,56 +1691,17 @@ async function cargarReservasAdmin() {
                     );
 
 
-            if (error) {
-
-                console.error(
-                    "Error cargando docentes:",
-                    error
-                );
-
-            } else {
-
-                perfiles =
-                    data || [];
-
-            }
+            perfiles =
+                data || [];
         }
 
 
-        // =================================================
-        // MAQUETAS
-        // =================================================
-
-        const idsMaquetas =
-            [
-                ...new Set(
-
-                    listaReservas
-
-                        .map(
-                            reserva =>
-                                reserva.maqueta_id
-                        )
-
-                        .filter(
-                            Boolean
-                        )
-
-                )
-            ];
-
-
-        let maquetas =
-            [];
-
-
         if (
-            idsMaquetas.length > 0
+            idsMaquetas.length
         ) {
 
             const {
-                data,
-                error
+                data
             } =
                 await supabaseClient
 
@@ -1906,39 +1717,24 @@ async function cargarReservasAdmin() {
                     );
 
 
-            if (error) {
-
-                console.error(
-                    "Error cargando maquetas de reservas:",
-                    error
-                );
-
-            } else {
-
-                maquetas =
-                    data || [];
-
-            }
+            maquetas =
+                data || [];
         }
 
-
-        // =================================================
-        // MAPA DE DOCENTES
-        // =================================================
 
         const mapaPerfiles =
             new Map();
 
 
         perfiles.forEach(
-            perfil => {
+            p => {
 
                 mapaPerfiles.set(
 
-                    perfil.id,
+                    p.id,
 
-                    perfil.nombre ||
-                    perfil.usuario ||
+                    p.nombre ||
+                    p.usuario ||
                     "Docente"
 
                 );
@@ -1947,30 +1743,24 @@ async function cargarReservasAdmin() {
         );
 
 
-        // =================================================
-        // MAPA DE MAQUETAS
-        // =================================================
-
         const mapaMaquetas =
             new Map();
 
 
         maquetas.forEach(
-            maqueta => {
-
-                const codigo =
-                    maqueta.codigo
-                        ? `${maqueta.codigo} - `
-                        : "";
-
+            m => {
 
                 mapaMaquetas.set(
 
                     String(
-                        maqueta.id
+                        m.id
                     ),
 
-                    `${codigo}${maqueta.nombre}`
+                    `${
+                        m.codigo
+                            ? m.codigo + " - "
+                            : ""
+                    }${m.nombre}`
 
                 );
 
@@ -1978,9 +1768,17 @@ async function cargarReservasAdmin() {
         );
 
 
-        // =================================================
-        // DIBUJAR TABLA
-        // =================================================
+        reservasSemanaPDF =
+            listaReservas;
+
+
+        mapaPerfilesPDF =
+            mapaPerfiles;
+
+
+        mapaMaquetasPDF =
+            mapaMaquetas;
+
 
         renderizarTablaAdmin(
 
@@ -1998,7 +1796,6 @@ async function cargarReservasAdmin() {
     } catch (error) {
 
         console.error(
-            "Error inesperado cargando tabla semanal:",
             error
         );
 
@@ -2008,7 +1805,7 @@ async function cargarReservasAdmin() {
             <tr>
 
                 <td colspan="6">
-                    Error inesperado al cargar reservas.
+                    Error inesperado.
                 </td>
 
             </tr>
@@ -2019,7 +1816,7 @@ async function cargarReservasAdmin() {
 
 
 // =========================================================
-// RENDERIZAR TABLA SEMANAL ADMIN
+// RENDERIZAR TABLA
 // =========================================================
 
 function renderizarTablaAdmin(
@@ -2029,22 +1826,14 @@ function renderizarTablaAdmin(
     lunes
 ) {
 
-    const tabla =
-        document.getElementById(
-            "tablaSemanaAdmin"
-        );
-
-
-    if (!tabla) {
-
-        return;
-    }
-
-
     const tbody =
-        tabla.querySelector(
-            "tbody"
-        );
+        document
+            .getElementById(
+                "tablaSemanaAdmin"
+            )
+            .querySelector(
+                "tbody"
+            );
 
 
     const horarios = [
@@ -2058,7 +1847,7 @@ function renderizarTablaAdmin(
     ];
 
 
-    const horariosVisibles = {
+    const visibles = {
 
         "09:00-12:00":
             "09:00 - 12:00",
@@ -2085,26 +1874,22 @@ function renderizarTablaAdmin(
                 );
 
 
-            const celdaHorario =
+            const th =
                 document.createElement(
                     "th"
                 );
 
 
-            celdaHorario.textContent =
-                horariosVisibles[
+            th.textContent =
+                visibles[
                     horario
                 ];
 
 
             fila.appendChild(
-                celdaHorario
+                th
             );
 
-
-            // =================================================
-            // LUNES A VIERNES
-            // =================================================
 
             for (
                 let dia = 0;
@@ -2131,45 +1916,32 @@ function renderizarTablaAdmin(
                     );
 
 
-                const reservasCelda =
+                const lista =
                     reservas.filter(
-                        reserva =>
+                        r =>
 
-                            reserva.fecha ===
+                            r.fecha ===
                                 fechaISO &&
 
-                            reserva.horario ===
+                            r.horario ===
                                 horario
                     );
 
 
-                // =================================================
-                // SIN RESERVAS
-                // =================================================
-
                 if (
-                    reservasCelda.length === 0
+                    lista.length === 0
                 ) {
 
                     celda.innerHTML = `
-
                         <span class="reserva-libre">
                             Sin reservas
                         </span>
-
                     `;
 
-                }
+                } else {
 
-
-                // =================================================
-                // CON RESERVAS
-                // =================================================
-
-                else {
-
-                    reservasCelda.forEach(
-                        reserva => {
+                    lista.forEach(
+                        r => {
 
                             const tarjeta =
                                 document.createElement(
@@ -2183,7 +1955,7 @@ function renderizarTablaAdmin(
 
                             const docente =
                                 mapaPerfiles.get(
-                                    reserva.usuario_id
+                                    r.usuario_id
                                 ) ||
                                 "Docente";
 
@@ -2191,68 +1963,47 @@ function renderizarTablaAdmin(
                             const maqueta =
                                 mapaMaquetas.get(
                                     String(
-                                        reserva.maqueta_id
+                                        r.maqueta_id
                                     )
                                 ) ||
                                 "Maqueta";
 
 
-                            const grupo =
-                                reserva.grupo ||
-                                "-";
-
-
-                            const area =
-                                reserva.area_codigo ||
-                                "-";
-
-
-                            const tema =
-                                reserva.titulo_tema ||
-                                "Sin tema registrado";
-
-
                             tarjeta.innerHTML = `
 
                                 <strong>
-                                    ${escapeHTML(maqueta)}
+                                    ${escapeHTML(
+                                        maqueta
+                                    )}
                                 </strong>
 
-
                                 <span>
-
                                     👤
-                                    ${escapeHTML(docente)}
-
+                                    ${escapeHTML(
+                                        docente
+                                    )}
                                 </span>
 
-
                                 <span>
-
                                     👥 Grupo:
-                                    ${escapeHTML(grupo)}
-
+                                    ${escapeHTML(
+                                        r.grupo || "-"
+                                    )}
                                 </span>
-
 
                                 <span>
-
                                     📍 Área:
-                                    ${escapeHTML(area)}
-
+                                    ${escapeHTML(
+                                        r.area_codigo || "-"
+                                    )}
                                 </span>
 
-
-                                <span
-                                    class="reserva-tema-admin"
-                                >
-
+                                <span class="reserva-tema-admin">
                                     📚 Tema:
-
-                                    <strong>
-                                        ${escapeHTML(tema)}
-                                    </strong>
-
+                                    ${escapeHTML(
+                                        r.titulo_tema ||
+                                        "Sin tema"
+                                    )}
                                 </span>
 
                             `;
@@ -2283,18 +2034,14 @@ function renderizarTablaAdmin(
 
 
 // =========================================================
-// SEMANA ANTERIOR
+// NAVEGACIÓN SEMANAS
 // =========================================================
 
-const btnSemanaAnteriorAdmin =
-    document.getElementById(
+document
+    .getElementById(
         "btnSemanaAnteriorAdmin"
-    );
-
-
-if (btnSemanaAnteriorAdmin) {
-
-    btnSemanaAnteriorAdmin.addEventListener(
+    )
+    ?.addEventListener(
         "click",
         async () => {
 
@@ -2309,22 +2056,13 @@ if (btnSemanaAnteriorAdmin) {
 
         }
     );
-}
 
 
-// =========================================================
-// SEMANA ACTUAL
-// =========================================================
-
-const btnSemanaActualAdmin =
-    document.getElementById(
+document
+    .getElementById(
         "btnSemanaActualAdmin"
-    );
-
-
-if (btnSemanaActualAdmin) {
-
-    btnSemanaActualAdmin.addEventListener(
+    )
+    ?.addEventListener(
         "click",
         async () => {
 
@@ -2338,22 +2076,13 @@ if (btnSemanaActualAdmin) {
 
         }
     );
-}
 
 
-// =========================================================
-// SEMANA SIGUIENTE
-// =========================================================
-
-const btnSemanaSiguienteAdmin =
-    document.getElementById(
+document
+    .getElementById(
         "btnSemanaSiguienteAdmin"
-    );
-
-
-if (btnSemanaSiguienteAdmin) {
-
-    btnSemanaSiguienteAdmin.addEventListener(
+    )
+    ?.addEventListener(
         "click",
         async () => {
 
@@ -2368,11 +2097,558 @@ if (btnSemanaSiguienteAdmin) {
 
         }
     );
+
+
+// =========================================================
+// CARGAR IMAGEN COMO DATA URL
+// =========================================================
+
+async function cargarImagenDataURL(
+    ruta
+) {
+
+    return new Promise(
+        (resolve, reject) => {
+
+            const img =
+                new Image();
+
+
+            img.crossOrigin =
+                "anonymous";
+
+
+            img.onload =
+                () => {
+
+                    try {
+
+                        const canvas =
+                            document.createElement(
+                                "canvas"
+                            );
+
+
+                        canvas.width =
+                            img.naturalWidth;
+
+
+                        canvas.height =
+                            img.naturalHeight;
+
+
+                        const ctx =
+                            canvas.getContext(
+                                "2d"
+                            );
+
+
+                        ctx.drawImage(
+                            img,
+                            0,
+                            0
+                        );
+
+
+                        resolve(
+                            canvas.toDataURL(
+                                "image/png"
+                            )
+                        );
+
+
+                    } catch (error) {
+
+                        reject(
+                            error
+                        );
+                    }
+
+                };
+
+
+            img.onerror =
+                reject;
+
+
+            img.src =
+                `${ruta}?v=${Date.now()}`;
+
+        }
+    );
 }
 
 
 // =========================================================
-// INICIAR PANEL
+// PDF
+// =========================================================
+
+document
+    .getElementById(
+        "btnDescargarPDF"
+    )
+    ?.addEventListener(
+        "click",
+        descargarTablaPDF
+    );
+
+
+async function descargarTablaPDF() {
+
+    if (
+        !window.jspdf ||
+        !window.jspdf.jsPDF
+    ) {
+
+        alert(
+            "No se pudo cargar el generador PDF."
+        );
+
+        return;
+    }
+
+
+    const {
+        jsPDF
+    } =
+        window.jspdf;
+
+
+    const doc =
+        new jsPDF({
+
+            orientation:
+                "landscape",
+
+            unit:
+                "mm",
+
+            format:
+                "a4"
+
+        });
+
+
+    const lunes =
+        new Date(
+            inicioSemanaAdmin
+        );
+
+
+    const viernes =
+        sumarDiasAdmin(
+            lunes,
+            4
+        );
+
+
+    // =====================================================
+    // LOGO
+    // =====================================================
+
+    try {
+
+        const logo =
+            await cargarImagenDataURL(
+                "img/logo-ceta-transparente.png"
+            );
+
+
+        doc.addImage(
+            logo,
+            "PNG",
+            12,
+            8,
+            25,
+            25
+        );
+
+
+    } catch (error) {
+
+        console.warn(
+            "No se pudo incluir el logo en el PDF.",
+            error
+        );
+    }
+
+
+    // =====================================================
+    // CABECERA
+    // =====================================================
+
+    doc.setFontSize(
+        18
+    );
+
+
+    doc.text(
+        "INSTITUTO CETA",
+        148,
+        14,
+        {
+            align:
+                "center"
+        }
+    );
+
+
+    doc.setFontSize(
+        14
+    );
+
+
+    doc.text(
+        "Sistema de Reserva de Maquetas",
+        148,
+        21,
+        {
+            align:
+                "center"
+        }
+    );
+
+
+    doc.setFontSize(
+        10
+    );
+
+
+    doc.text(
+        "Reporte semanal de reservas",
+        148,
+        27,
+        {
+            align:
+                "center"
+        }
+    );
+
+
+    doc.text(
+        `Semana: ${formatearFechaAdmin(lunes)} al ${formatearFechaAdmin(viernes)}`,
+        148,
+        32,
+        {
+            align:
+                "center"
+        }
+    );
+
+
+    // =====================================================
+    // DÍAS
+    // =====================================================
+
+    const dias = [
+
+        "LUNES",
+
+        "MARTES",
+
+        "MIÉRCOLES",
+
+        "JUEVES",
+
+        "VIERNES"
+
+    ];
+
+
+    const fechasDias =
+        dias.map(
+            (_, i) =>
+                sumarDiasAdmin(
+                    lunes,
+                    i
+                )
+        );
+
+
+    const horarios = [
+
+        "09:00-12:00",
+
+        "14:00-17:00",
+
+        "19:00-21:30"
+
+    ];
+
+
+    const horariosVisibles = {
+
+        "09:00-12:00":
+            "09:00 - 12:00",
+
+        "14:00-17:00":
+            "14:00 - 17:00",
+
+        "19:00-21:30":
+            "19:00 - 21:30"
+
+    };
+
+
+    const head = [[
+
+        "Horario",
+
+        ...fechasDias.map(
+            (fecha, i) =>
+
+                `${dias[i]}\n${formatearFechaAdmin(fecha)}`
+        )
+
+    ]];
+
+
+    const body =
+        horarios.map(
+            horario => {
+
+                const fila = [
+
+                    horariosVisibles[
+                        horario
+                    ]
+
+                ];
+
+
+                fechasDias.forEach(
+                    fecha => {
+
+                        const fechaISO =
+                            fechaLocalISOAdmin(
+                                fecha
+                            );
+
+
+                        const reservas =
+                            reservasSemanaPDF
+                                .filter(
+                                    r =>
+
+                                        r.fecha ===
+                                            fechaISO &&
+
+                                        r.horario ===
+                                            horario
+                                );
+
+
+                        if (
+                            reservas.length ===
+                            0
+                        ) {
+
+                            fila.push(
+                                "Sin reservas"
+                            );
+
+                            return;
+                        }
+
+
+                        const contenido =
+                            reservas
+
+                                .map(
+                                    r => {
+
+                                        const docente =
+                                            mapaPerfilesPDF
+                                                .get(
+                                                    r.usuario_id
+                                                ) ||
+                                            "Docente";
+
+
+                                        const maqueta =
+                                            mapaMaquetasPDF
+                                                .get(
+                                                    String(
+                                                        r.maqueta_id
+                                                    )
+                                                ) ||
+                                            "Maqueta";
+
+
+                                        return [
+
+                                            `Maqueta: ${maqueta}`,
+
+                                            `Docente: ${docente}`,
+
+                                            `Grupo: ${r.grupo || "-"}`,
+
+                                            `Área: ${r.area_codigo || "-"}`,
+
+                                            `Tema: ${r.titulo_tema || "Sin tema"}`
+
+                                        ].join(
+                                            "\n"
+                                        );
+
+                                    }
+                                )
+
+                                .join(
+                                    "\n\n"
+                                );
+
+
+                        fila.push(
+                            contenido
+                        );
+
+                    }
+                );
+
+
+                return fila;
+
+            }
+        );
+
+
+    doc.autoTable({
+
+        head,
+
+        body,
+
+        startY:
+            39,
+
+        theme:
+            "grid",
+
+        styles: {
+
+            fontSize:
+                7,
+
+            cellPadding:
+                2,
+
+            valign:
+                "top",
+
+            overflow:
+                "linebreak"
+
+        },
+
+        headStyles: {
+
+            halign:
+                "center",
+
+            fontStyle:
+                "bold"
+
+        },
+
+        columnStyles: {
+
+            0: {
+
+                cellWidth:
+                    25,
+
+                halign:
+                    "center",
+
+                fontStyle:
+                    "bold"
+
+            }
+
+        },
+
+        margin: {
+
+            left:
+                8,
+
+            right:
+                8
+
+        }
+
+    });
+
+
+    // =====================================================
+    // FOOTER PDF
+    // =====================================================
+
+    const paginas =
+        doc.internal
+            .getNumberOfPages();
+
+
+    for (
+        let pagina = 1;
+        pagina <= paginas;
+        pagina++
+    ) {
+
+        doc.setPage(
+            pagina
+        );
+
+
+        const altura =
+            doc.internal
+                .pageSize
+                .height;
+
+
+        doc.setFontSize(
+            8
+        );
+
+
+        doc.text(
+            "Desarrollado por Andres Vega",
+            10,
+            altura - 6
+        );
+
+
+        doc.text(
+
+            `Página ${pagina} de ${paginas}`,
+
+            287,
+
+            altura - 6,
+
+            {
+                align:
+                    "right"
+            }
+
+        );
+    }
+
+
+    const archivo =
+
+        `CETA_Reservas_${fechaLocalISOAdmin(lunes)}_${fechaLocalISOAdmin(viernes)}.pdf`;
+
+
+    doc.save(
+        archivo
+    );
+}
+
+
+// =========================================================
+// INICIAR
 // =========================================================
 
 (async () => {
@@ -2394,9 +2670,7 @@ if (btnSemanaSiguienteAdmin) {
 
     await cargarUsuarios();
 
-
     await cargarMaquetas();
-
 
     await cargarReservasAdmin();
 
