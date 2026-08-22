@@ -1947,3 +1947,5 @@ body.docente-page::before {
         min-width: 850px;
     }
 }
+/* Agregar al FINAL de css/estilos.css */
+.acciones-usuario{display:flex;flex-wrap:wrap;gap:8px}.btn-editar-usuario,.btn-eliminar-usuario,.btn-cancelar-reserva{border:0;border-radius:10px;padding:9px 12px;font:inherit;font-weight:700;cursor:pointer}.btn-editar-usuario{background:#e0f2fe;color:#075985}.btn-eliminar-usuario,.btn-cancelar-reserva{background:#fee2e2;color:#991b1b}.reserva-card .btn-cancelar-reserva{width:100%;margin-top:8px}@media(max-width:700px){.acciones-usuario{flex-direction:column}.btn-editar-usuario,.btn-eliminar-usuario{width:100%}}
