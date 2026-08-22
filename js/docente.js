@@ -2082,7 +2082,7 @@ btnCerrarSesionDocente.addEventListener(
 
             console.error(
     "Error registrando reserva:",
-    JSON.stringify(error, null, 2)
+    error
 );
         }
     }
