@@ -1646,15 +1646,17 @@ async function cargarReservasAdmin() {
                 .from("reservas")
 
                 .select(`
-                    id,
-                    usuario_id,
-                    grupo,
-                    fecha,
-                    horario,
-                    maqueta_id,
-                    area_codigo,
-                    titulo_tema,
-                    estado
+                id,
+                usuario_id,
+                grupo,
+                fecha,
+                horario,
+                maqueta_id,
+                maqueta_id_2,
+                maqueta_id_3,
+                area_codigo,
+                titulo_tema,
+                estado
                 `)
 
                 .gte(
@@ -1724,22 +1726,25 @@ async function cargarReservasAdmin() {
 
 
         const idsMaquetas =
-            [
-                ...new Set(
+    [
+        ...new Set(
 
-                    listaReservas
+            listaReservas
 
-                        .map(
-                            r =>
-                                r.maqueta_id
-                        )
-
-                        .filter(
-                            Boolean
-                        )
-
+                .flatMap(
+                    r => [
+                        r.maqueta_id,
+                        r.maqueta_id_2,
+                        r.maqueta_id_3
+                    ]
                 )
-            ];
+
+                .filter(
+                    Boolean
+                )
+
+        )
+    ];
 
 
         let perfiles = [];
@@ -1896,6 +1901,10 @@ async function cargarReservasAdmin() {
 // RENDERIZAR TABLA
 // =========================================================
 
+// =========================================================
+// RENDERIZAR TABLA
+// =========================================================
+
 function renderizarTablaAdmin(
     reservas,
     mapaPerfiles,
@@ -2005,17 +2014,30 @@ function renderizarTablaAdmin(
                     );
 
 
+                // =========================================
+                // SIN RESERVAS
+                // =========================================
+
                 if (
                     lista.length === 0
                 ) {
 
                     celda.innerHTML = `
+
                         <span class="reserva-libre">
                             Sin reservas
                         </span>
+
                     `;
 
-                } else {
+                }
+
+
+                // =========================================
+                // CON RESERVAS
+                // =========================================
+
+                else {
 
                     lista.forEach(
                         r => {
@@ -2030,6 +2052,10 @@ function renderizarTablaAdmin(
                                 "reserva-card";
 
 
+                            // =================================
+                            // DOCENTE
+                            // =================================
+
                             const docente =
                                 mapaPerfiles.get(
                                     r.usuario_id
@@ -2037,61 +2063,155 @@ function renderizarTablaAdmin(
                                 "Docente";
 
 
-                            const maqueta =
-                                mapaMaquetas.get(
-                                    String(
-                                        r.maqueta_id
-                                    )
-                                ) ||
-                                "Maqueta";
+                            // =================================
+                            // MAQUETAS DE ESTA RESERVA
+                            // =================================
 
+                            const idsMaquetasReserva =
+                                [
+
+                                    r.maqueta_id,
+
+                                    r.maqueta_id_2,
+
+                                    r.maqueta_id_3
+
+                                ]
+                                .filter(
+                                    Boolean
+                                );
+
+
+                            const nombresMaquetas =
+                                idsMaquetasReserva
+                                    .map(
+                                        id =>
+
+                                            mapaMaquetas.get(
+                                                String(id)
+                                            ) ||
+                                            "Maqueta"
+                                    );
+
+
+                            const listaMaquetasHTML =
+                                nombresMaquetas
+
+                                    .map(
+                                        (
+                                            nombre,
+                                            indice
+                                        ) => `
+
+                                            <strong
+                                                class="maqueta-reservada-item"
+                                            >
+                                                🔧 ${indice + 1}.
+                                                ${escapeHTML(nombre)}
+                                            </strong>
+
+                                        `
+                                    )
+
+                                    .join("");
+
+
+                            // =================================
+                            // TARJETA
+                            // =================================
 
                             tarjeta.innerHTML = `
 
-                                <strong>
-                                    ${escapeHTML(
-                                        maqueta
-                                    )}
-                                </strong>
+                                <div
+                                    class="lista-maquetas-reserva"
+                                >
+
+                                    ${listaMaquetasHTML}
+
+                                </div>
+
 
                                 <span>
+
                                     👤
                                     ${escapeHTML(
                                         docente
                                     )}
+
                                 </span>
 
+
                                 <span>
+
                                     👥 Grupo:
                                     ${escapeHTML(
                                         r.grupo || "-"
                                     )}
+
                                 </span>
 
+
                                 <span>
+
                                     📍 Área:
                                     ${escapeHTML(
                                         r.area_codigo || "-"
                                     )}
+
                                 </span>
 
-                                <span class="reserva-tema-admin">
+
+                                <span
+                                    class="reserva-tema-admin"
+                                >
+
                                     📚 Tema:
+
                                     ${escapeHTML(
                                         r.titulo_tema ||
                                         "Sin tema"
                                     )}
+
                                 </span>
 
                             `;
 
 
-                            const botonCancelar = document.createElement("button");
-                            botonCancelar.type = "button";
-                            botonCancelar.className = "btn-cancelar-reserva";
-                            botonCancelar.textContent = "✖ Cancelar reserva";
-                            botonCancelar.addEventListener("click", () => cancelarReservaAdmin(r.id));
-                            tarjeta.appendChild(botonCancelar);
+                            // =================================
+                            // CANCELAR
+                            // =================================
+
+                            const botonCancelar =
+                                document.createElement(
+                                    "button"
+                                );
+
+
+                            botonCancelar.type =
+                                "button";
+
+
+                            botonCancelar.className =
+                                "btn-cancelar-reserva";
+
+
+                            botonCancelar.textContent =
+                                "✖ Cancelar reserva";
+
+
+                            botonCancelar.addEventListener(
+                                "click",
+                                () =>
+                                    cancelarReservaAdmin(
+                                        r.id
+                                    )
+                            );
+
+
+                            tarjeta.appendChild(
+                                botonCancelar
+                            );
+
 
                             celda.appendChild(
                                 tarjeta
@@ -2116,13 +2236,18 @@ function renderizarTablaAdmin(
     );
 }
 
-
 // =========================================================
 // CANCELAR RESERVA - ADMINISTRADOR
 // =========================================================
 
 async function cancelarReservaAdmin(reservaId) {
-    if (!confirm("¿Desea cancelar esta reserva? La maqueta y el área volverán a quedar disponibles.")) return;
+    if (
+    !confirm(
+        "¿Desea cancelar esta reserva? Todas las maquetas seleccionadas y el área volverán a quedar disponibles."
+    )
+) {
+    return;
+}
     try {
         const { data, error } = await supabaseClient.from("reservas")
             .update({ estado: "cancelada", updated_at: new Date().toISOString() })
@@ -2566,31 +2691,66 @@ async function descargarTablaPDF() {
                                             "Docente";
 
 
-                                        const maqueta =
-                                            mapaMaquetasPDF
-                                                .get(
-                                                    String(
-                                                        r.maqueta_id
-                                                    )
-                                                ) ||
-                                            "Maqueta";
+                                        const idsMaquetasReserva =
+                                            [
+
+                                                r.maqueta_id,
+
+                                                r.maqueta_id_2,
+
+                                                r.maqueta_id_3
+    
+                                                ]
+                                                .filter(
+                                                Boolean
+                                                    );
 
 
-                                        return [
+                                            const nombresMaquetas =
+                                                idsMaquetasReserva
 
-                                            `Maqueta: ${maqueta}`,
+                                                    .map(
+                                                        id =>
 
-                                            `Docente: ${docente}`,
+                                                    mapaMaquetasPDF
+                                                    .get(
+                                                    String(id)
+                                                        ) ||
+                                                    "Maqueta"
+                                                    );
 
-                                            `Grupo: ${r.grupo || "-"}`,
 
-                                            `Área: ${r.area_codigo || "-"}`,
+                                                    const textoMaquetas =
+                                                    nombresMaquetas
 
-                                            `Tema: ${r.titulo_tema || "Sin tema"}`
+                                                    .map(
+                                                    (
+                                                    nombre,
+                                                    indice
+                                                        ) =>
+                                                    `Maqueta ${indice + 1}: ${nombre}`
+                                                        )
 
-                                        ].join(
-                                            "\n"
-                                        );
+                                                    .join(
+                                                    "\n"
+                                                            );
+
+
+                                                        return [
+
+                                                        textoMaquetas,
+
+                                                    `Docente: ${docente}`,
+
+                                                    `Grupo: ${r.grupo || "-"}`,
+
+                                                    `Área: ${r.area_codigo || "-"}`,
+
+                                                    `Tema: ${r.titulo_tema || "Sin tema"}`
+
+                                                    ].join(
+                                                        "\n"
+                                                        );
 
                                     }
                                 )
