@@ -1,35 +1,192 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>CETA - Reserva de Maquetas</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <link rel="stylesheet" href="css/estilos.css">
+
+    <!-- =====================================================
+         INFORMACIÓN GENERAL DE LA PÁGINA
+    ====================================================== -->
+
+    <title>CETA | Reserva de Maquetas</title>
+
+    <meta
+        name="description"
+        content="Sistema de reserva de maquetas y áreas de taller de Electricidad y Electrónica Automotriz del Instituto CETA."
+    >
+
+    <meta
+        name="author"
+        content="Andres Vega"
+    >
+
+
+    <!-- =====================================================
+         ICONO DE LA PESTAÑA
+    ====================================================== -->
+
+    <link
+        rel="icon"
+        type="image/png"
+        href="img/logo-ceta-transparente.png"
+    >
+
+
+    <!-- =====================================================
+         OPEN GRAPH
+         WhatsApp / Facebook / Telegram / Discord
+    ====================================================== -->
+
+    <meta
+        property="og:type"
+        content="website"
+    >
+
+    <meta
+        property="og:title"
+        content="CETA | Reserva de Maquetas"
+    >
+
+    <meta
+        property="og:description"
+        content="Sistema de reserva de maquetas y áreas de taller de Electricidad y Electrónica Automotriz del Instituto CETA."
+    >
+
+    <meta
+        property="og:url"
+        content="https://cetaeea.github.io/ceta-reserva-maquetas/"
+    >
+
+    <meta
+        property="og:image"
+        content="https://cetaeea.github.io/ceta-reserva-maquetas/img/ceta-compartir.png"
+    >
+
+    <meta
+        property="og:image:secure_url"
+        content="https://cetaeea.github.io/ceta-reserva-maquetas/img/ceta-compartir.png"
+    >
+
+    <meta
+        property="og:image:type"
+        content="image/png"
+    >
+
+    <meta
+        property="og:image:width"
+        content="1200"
+    >
+
+    <meta
+        property="og:image:height"
+        content="630"
+    >
+
+    <meta
+        property="og:image:alt"
+        content="CETA - Sistema de Reserva de Maquetas"
+    >
+
+    <meta
+        property="og:site_name"
+        content="CETA"
+    >
+
+    <meta
+        property="og:locale"
+        content="es_BO"
+    >
+
+
+    <!-- =====================================================
+         X / TWITTER
+    ====================================================== -->
+
+    <meta
+        name="twitter:card"
+        content="summary_large_image"
+    >
+
+    <meta
+        name="twitter:title"
+        content="CETA | Reserva de Maquetas"
+    >
+
+    <meta
+        name="twitter:description"
+        content="Sistema de reserva de maquetas y áreas de taller de Electricidad y Electrónica Automotriz del Instituto CETA."
+    >
+
+    <meta
+        name="twitter:image"
+        content="https://cetaeea.github.io/ceta-reserva-maquetas/img/ceta-compartir.png"
+    >
+
+
+    <!-- =====================================================
+         CSS
+    ====================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="css/estilos.css"
+    >
+
 </head>
+
 
 <body>
 
+
+    <!-- =====================================================
+         LOGIN
+    ====================================================== -->
+
     <main class="login-container">
 
+
         <section class="login-card">
+
+
+            <!-- LOGO -->
 
             <div class="logo">
                 CETA
             </div>
 
-            <h1>Reserva de Maquetas</h1>
+
+            <!-- TÍTULO -->
+
+            <h1>
+                Reserva de Maquetas
+            </h1>
+
 
             <p class="subtitle">
                 Electricidad y Electrónica Automotriz
             </p>
 
+
+            <!-- =================================================
+                 FORMULARIO DE ACCESO
+            ================================================== -->
+
             <form id="loginForm">
+
+
+                <!-- USUARIO -->
 
                 <label for="usuario">
                     Usuario
                 </label>
+
 
                 <input
                     type="text"
@@ -39,9 +196,13 @@
                     required
                 >
 
+
+                <!-- CONTRASEÑA -->
+
                 <label for="password">
                     Contraseña
                 </label>
+
 
                 <input
                     type="password"
@@ -51,20 +212,54 @@
                     required
                 >
 
+
+                <!-- BOTÓN -->
+
                 <button type="submit">
                     INICIAR SESIÓN
                 </button>
 
-                <p id="mensaje" class="mensaje"></p>
+
+                <!-- MENSAJES -->
+
+                <p
+                    id="mensaje"
+                    class="mensaje"
+                ></p>
+
 
             </form>
 
+
         </section>
 
+
     </main>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+    <!-- =====================================================
+         SUPABASE
+    ====================================================== -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
+
+    <!-- =====================================================
+         CONFIGURACIÓN
+    ====================================================== -->
+
     <script src="js/config.js"></script>
+
+
+    <!-- =====================================================
+         LOGIN
+    ====================================================== -->
+
     <script src="js/login.js"></script>
 
+
 </body>
+
 </html>
