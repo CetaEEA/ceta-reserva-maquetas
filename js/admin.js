@@ -3655,23 +3655,11 @@ async function descargarTablaPDF() {
 // MÓDULO: GESTIÓN ACADÉMICA
 // =========================================================
 // =========================================================
+// MÓDULO: GESTIÓN ACADÉMICA
+// =========================================================
+// =========================================================
 
 let gestionAcademicaActiva = null;
-
-
-// =========================================================
-// CARGAR MÓDULO DE GESTIONES
-// =========================================================
-
-async function cargarModuloGestiones() {
-
-    console.log(
-        "Cargando módulo de gestión académica..."
-    );
-
-    await cargarGestionesAcademicas();
-
-}
 
 
 // =========================================================
@@ -3680,19 +3668,24 @@ async function cargarModuloGestiones() {
 
 async function cargarGestionesAcademicas() {
 
-    const selector =
+    const selectorGestion =
         document.getElementById(
-            "gestionAreas"
+            "configGestion"
         );
 
-    const contenedor =
+    const listaGestiones =
         document.getElementById(
             "listaGestiones"
         );
 
-    const textoGestionActiva =
+    const gestionActivaTexto =
         document.getElementById(
             "gestionActivaTexto"
+        );
+
+    const gestionActivaFechas =
+        document.getElementById(
+            "gestionActivaFechas"
         );
 
 
@@ -3702,9 +3695,7 @@ async function cargarGestionesAcademicas() {
     } =
         await supabaseClient
 
-            .from(
-                "gestiones_academicas"
-            )
+            .from("gestiones_academicas")
 
             .select(`
                 id,
@@ -3730,15 +3721,18 @@ async function cargarGestionesAcademicas() {
             error
         );
 
-        if (textoGestionActiva) {
 
-            textoGestionActiva.textContent =
-                "Error al cargar gestión.";
-
+        if (gestionActivaTexto) {
+            gestionActivaTexto.textContent =
+                "Error al cargar gestión";
         }
 
         return;
     }
+
+
+    const gestiones =
+        data || [];
 
 
     // =====================================================
@@ -3746,26 +3740,39 @@ async function cargarGestionesAcademicas() {
     // =====================================================
 
     gestionAcademicaActiva =
-        data?.find(
+        gestiones.find(
             gestion =>
                 gestion.activa === true
         ) || null;
 
 
-    if (textoGestionActiva) {
+    if (gestionActivaTexto) {
+
+        gestionActivaTexto.textContent =
+            gestionAcademicaActiva
+                ? gestionAcademicaActiva.nombre
+                : "No existe una gestión activa";
+
+    }
+
+
+    if (gestionActivaFechas) {
 
         if (gestionAcademicaActiva) {
 
-            textoGestionActiva.textContent =
-                gestionAcademicaActiva.nombre;
+            gestionActivaFechas.textContent =
+                `${formatearFechaGestion(
+                    gestionAcademicaActiva.fecha_inicio
+                )} al ${formatearFechaGestion(
+                    gestionAcademicaActiva.fecha_fin
+                )}`;
 
         } else {
 
-            textoGestionActiva.textContent =
-                "No existe una gestión activa";
+            gestionActivaFechas.textContent =
+                "";
 
         }
-
     }
 
 
@@ -3773,27 +3780,25 @@ async function cargarGestionesAcademicas() {
     // SELECTOR DE GESTIÓN
     // =====================================================
 
-    if (selector) {
+    if (selectorGestion) {
 
-        selector.innerHTML = "";
+        selectorGestion.innerHTML =
+            "";
 
 
         if (
-            !data ||
-            data.length === 0
+            gestiones.length === 0
         ) {
 
-            selector.innerHTML = `
-
+            selectorGestion.innerHTML = `
                 <option value="">
                     No existen gestiones
                 </option>
-
             `;
 
         } else {
 
-            data.forEach(
+            gestiones.forEach(
                 gestion => {
 
                     const option =
@@ -3808,13 +3813,11 @@ async function cargarGestionesAcademicas() {
 
                     option.textContent =
                         gestion.activa
-
                             ? `${gestion.nombre} — ACTIVA`
-
                             : gestion.nombre;
 
 
-                    selector.appendChild(
+                    selectorGestion.appendChild(
                         option
                     );
 
@@ -3824,7 +3827,7 @@ async function cargarGestionesAcademicas() {
 
             if (gestionAcademicaActiva) {
 
-                selector.value =
+                selectorGestion.value =
                     String(
                         gestionAcademicaActiva.id
                     );
@@ -3832,7 +3835,6 @@ async function cargarGestionesAcademicas() {
             }
 
         }
-
     }
 
 
@@ -3840,112 +3842,104 @@ async function cargarGestionesAcademicas() {
     // LISTA VISUAL DE GESTIONES
     // =====================================================
 
-    if (contenedor) {
+    if (listaGestiones) {
 
         if (
-            !data ||
-            data.length === 0
+            gestiones.length === 0
         ) {
 
-            contenedor.innerHTML = `
-
+            listaGestiones.innerHTML = `
                 <div class="gestion-vacia">
-
                     No existen gestiones académicas.
-
                 </div>
-
             `;
 
         } else {
 
-            contenedor.innerHTML =
-                data.map(
-                    gestion => {
+            listaGestiones.innerHTML =
+                gestiones
+                    .map(
+                        gestion => {
 
-                        const estado =
-                            gestion.activa
+                            const estado =
+                                gestion.activa
 
-                                ? `
-                                    <span class="badge-gestion-activa">
-                                        ✓ GESTIÓN ACTIVA
-                                    </span>
-                                `
+                                    ? `
+                                        <span class="badge-gestion-activa">
+                                            ✓ Gestión activa
+                                        </span>
+                                    `
 
-                                : `
-                                    <span class="badge-gestion-inactiva">
-                                        Inactiva
-                                    </span>
-                                `;
-
-
-                        const botonActivar =
-                            gestion.activa
-
-                                ? ""
-
-                                : `
-                                    <button
-                                        type="button"
-                                        class="btn-activar-gestion"
-                                        data-id="${gestion.id}"
-                                        data-nombre="${escapeHTML(
-                                            gestion.nombre
-                                        )}"
-                                    >
-                                        Activar gestión
-                                    </button>
-                                `;
+                                    : `
+                                        <span class="badge-gestion-inactiva">
+                                            Inactiva
+                                        </span>
+                                    `;
 
 
-                        return `
+                            const botonActivar =
+                                gestion.activa
 
-                            <div class="gestion-card">
+                                    ? ""
 
-                                <div class="gestion-card-info">
+                                    : `
+                                        <button
+                                            type="button"
+                                            class="btn-activar-gestion"
+                                            data-id="${gestion.id}"
+                                            data-nombre="${escapeHTML(
+                                                gestion.nombre
+                                            )}"
+                                        >
+                                            Activar gestión
+                                        </button>
+                                    `;
 
-                                    <strong>
-                                        ${escapeHTML(
-                                            gestion.nombre
-                                        )}
-                                    </strong>
 
-                                    <span>
-                                        ${formatearFechaGestion(
-                                            gestion.fecha_inicio
-                                        )}
-                                        —
-                                        ${formatearFechaGestion(
-                                            gestion.fecha_fin
-                                        )}
-                                    </span>
+                            return `
 
-                                    ${estado}
+                                <div class="gestion-card">
+
+                                    <div class="gestion-card-info">
+
+                                        <strong>
+                                            ${escapeHTML(
+                                                gestion.nombre
+                                            )}
+                                        </strong>
+
+                                        <span>
+                                            ${formatearFechaGestion(
+                                                gestion.fecha_inicio
+                                            )}
+                                            —
+                                            ${formatearFechaGestion(
+                                                gestion.fecha_fin
+                                            )}
+                                        </span>
+
+                                        ${estado}
+
+                                    </div>
+
+                                    <div class="gestion-card-acciones">
+                                        ${botonActivar}
+                                    </div>
 
                                 </div>
 
+                            `;
 
-                                <div class="gestion-card-acciones">
-
-                                    ${botonActivar}
-
-                                </div>
-
-                            </div>
-
-                        `;
-
-                    }
-                )
-                .join("");
+                        }
+                    )
+                    .join("");
 
         }
-
     }
 
 
     // =====================================================
-    // EVENTOS BOTÓN ACTIVAR
+    // EVENTOS PARA ACTIVAR GESTIÓN
     // =====================================================
 
     document
@@ -3960,8 +3954,11 @@ async function cargarGestionesAcademicas() {
                     async () => {
 
                         await activarGestionAcademica(
+
                             boton.dataset.id,
+
                             boton.dataset.nombre
+
                         );
 
                     }
@@ -3972,23 +3969,23 @@ async function cargarGestionesAcademicas() {
 
 
     // =====================================================
-    // CARGAR CONFIGURACIÓN DE ÁREAS
+    // GENERAR ÁREAS T-A1 A T-A9
     // =====================================================
 
-    if (
-        selector &&
-        selector.value
-    ) {
+    generarChecksAreasGestion();
 
-        await cargarAreasLibresGestion();
 
-    }
+    // =====================================================
+    // CARGAR CONFIGURACIÓN GUARDADA
+    // =====================================================
+
+    await cargarAreasLibresGestion();
 
 }
 
 
 // =========================================================
-// FORMATEAR FECHA DE GESTIÓN
+// FORMATEAR FECHA
 // =========================================================
 
 function formatearFechaGestion(
@@ -4010,14 +4007,74 @@ function formatearFechaGestion(
     ) {
 
         return fecha;
-
     }
 
 
-    return (
-        `${partes[2]}/${partes[1]}/${partes[0]}`
-    );
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+}
 
+
+// =========================================================
+// GENERAR CHECKBOXES T-A1 A T-A9
+// =========================================================
+
+function generarChecksAreasGestion() {
+
+    const contenedor =
+        document.getElementById(
+            "areasGestionChecks"
+        );
+
+
+    if (!contenedor) {
+        return;
+    }
+
+
+    contenedor.innerHTML =
+        "";
+
+
+    for (
+        let numero = 1;
+        numero <= 9;
+        numero++
+    ) {
+
+        const codigo =
+            `T-A${numero}`;
+
+
+        const label =
+            document.createElement(
+                "label"
+            );
+
+
+        label.className =
+            "area-check-card";
+
+
+        label.innerHTML = `
+
+            <input
+                type="checkbox"
+                class="check-area-gestion"
+                value="${codigo}"
+            >
+
+            <span>
+                ${codigo}
+            </span>
+
+        `;
+
+
+        contenedor.appendChild(
+            label
+        );
+
+    }
 }
 
 
@@ -4035,7 +4092,7 @@ async function crearGestionAcademica(
     const nombre =
         document
             .getElementById(
-                "nombreGestion"
+                "gestionNombre"
             )
             ?.value
             .trim();
@@ -4044,7 +4101,7 @@ async function crearGestionAcademica(
     const fechaInicio =
         document
             .getElementById(
-                "fechaInicioGestion"
+                "gestionFechaInicio"
             )
             ?.value;
 
@@ -4052,7 +4109,7 @@ async function crearGestionAcademica(
     const fechaFin =
         document
             .getElementById(
-                "fechaFinGestion"
+                "gestionFechaFin"
             )
             ?.value;
 
@@ -4072,7 +4129,7 @@ async function crearGestionAcademica(
         if (mensaje) {
 
             mensaje.textContent =
-                "Complete todos los datos de la gestión.";
+                "Complete todos los datos.";
 
             mensaje.style.color =
                 "#b91c1c";
@@ -4123,8 +4180,7 @@ async function crearGestionAcademica(
 
             .insert({
 
-                nombre:
-                    nombre,
+                nombre,
 
                 fecha_inicio:
                     fechaInicio,
@@ -4148,20 +4204,10 @@ async function crearGestionAcademica(
 
         if (mensaje) {
 
-            if (
+            mensaje.textContent =
                 error.code === "23505"
-            ) {
-
-                mensaje.textContent =
-                    "Ya existe una gestión con ese nombre.";
-
-            } else {
-
-                mensaje.textContent =
-                    "No se pudo crear la gestión.";
-
-            }
-
+                    ? "Ya existe una gestión con ese nombre."
+                    : "No se pudo crear la gestión.";
 
             mensaje.style.color =
                 "#b91c1c";
@@ -4183,15 +4229,15 @@ async function crearGestionAcademica(
     }
 
 
-    const formulario =
+    const form =
         document.getElementById(
-            "formGestionAcademica"
+            "formNuevaGestion"
         );
 
 
-    if (formulario) {
+    if (form) {
 
-        formulario.reset();
+        form.reset();
 
     }
 
@@ -4210,14 +4256,12 @@ async function activarGestionAcademica(
     nombre
 ) {
 
-    const confirmar =
-        window.confirm(
-            `¿Desea establecer "${nombre}" como gestión académica activa?\n\n` +
-            "La configuración anterior se conservará."
-        );
+    if (
+        !confirm(
+            `¿Desea activar la gestión "${nombre}"?`
+        )
+    ) {
 
-
-    if (!confirmar) {
         return;
     }
 
@@ -4243,7 +4287,6 @@ async function activarGestionAcademica(
             error
         );
 
-
         alert(
             "No se pudo activar la gestión."
         );
@@ -4263,7 +4306,7 @@ async function activarGestionAcademica(
 
 
 // =========================================================
-// CARGAR ÁREAS LIBRES DE LA GESTIÓN
+// CARGAR ÁREAS LIBRES GUARDADAS
 // =========================================================
 
 async function cargarAreasLibresGestion() {
@@ -4271,7 +4314,7 @@ async function cargarAreasLibresGestion() {
     const gestionId =
         document
             .getElementById(
-                "gestionAreas"
+                "configGestion"
             )
             ?.value;
 
@@ -4279,7 +4322,7 @@ async function cargarAreasLibresGestion() {
     const dia =
         document
             .getElementById(
-                "diaAreasGestion"
+                "configDia"
             )
             ?.value;
 
@@ -4287,7 +4330,7 @@ async function cargarAreasLibresGestion() {
     const horario =
         document
             .getElementById(
-                "horarioAreasGestion"
+                "configHorario"
             )
             ?.value;
 
@@ -4299,7 +4342,6 @@ async function cargarAreasLibresGestion() {
     ) {
 
         return;
-
     }
 
 
@@ -4336,7 +4378,7 @@ async function cargarAreasLibresGestion() {
     if (error) {
 
         console.error(
-            "Error cargando áreas de gestión:",
+            "Error cargando áreas libres:",
             error
         );
 
@@ -4344,14 +4386,13 @@ async function cargarAreasLibresGestion() {
     }
 
 
-    const areasSeleccionadas =
+    const seleccionadas =
         new Set(
-            (
-                data || []
-            ).map(
-                item =>
-                    item.area_codigo
-            )
+            (data || [])
+                .map(
+                    fila =>
+                        fila.area_codigo
+                )
         );
 
 
@@ -4363,7 +4404,7 @@ async function cargarAreasLibresGestion() {
             checkbox => {
 
                 checkbox.checked =
-                    areasSeleccionadas.has(
+                    seleccionadas.has(
                         checkbox.value
                     );
 
@@ -4374,20 +4415,15 @@ async function cargarAreasLibresGestion() {
 
 
 // =========================================================
-// GUARDAR ÁREAS LIBRES DE LA GESTIÓN
+// GUARDAR CONFIGURACIÓN DE ÁREAS
 // =========================================================
 
-async function guardarAreasLibresGestion(
-    event
-) {
-
-    event.preventDefault();
-
+async function guardarAreasLibresGestion() {
 
     const gestionId =
         document
             .getElementById(
-                "gestionAreas"
+                "configGestion"
             )
             ?.value;
 
@@ -4395,7 +4431,7 @@ async function guardarAreasLibresGestion(
     const dia =
         document
             .getElementById(
-                "diaAreasGestion"
+                "configDia"
             )
             ?.value;
 
@@ -4403,7 +4439,7 @@ async function guardarAreasLibresGestion(
     const horario =
         document
             .getElementById(
-                "horarioAreasGestion"
+                "configHorario"
             )
             ?.value;
 
@@ -4434,17 +4470,16 @@ async function guardarAreasLibresGestion(
     }
 
 
-    const seleccionadas =
-        Array
-            .from(
-                document.querySelectorAll(
-                    ".check-area-gestion:checked"
-                )
+    const areasSeleccionadas =
+        Array.from(
+            document.querySelectorAll(
+                ".check-area-gestion:checked"
             )
-            .map(
-                checkbox =>
-                    checkbox.value
-            );
+        )
+        .map(
+            checkbox =>
+                checkbox.value
+        );
 
 
     if (mensaje) {
@@ -4492,7 +4527,7 @@ async function guardarAreasLibresGestion(
     if (errorEliminar) {
 
         console.error(
-            "Error eliminando configuración anterior:",
+            "Error borrando configuración:",
             errorEliminar
         );
 
@@ -4512,17 +4547,17 @@ async function guardarAreasLibresGestion(
 
 
     // =====================================================
-    // SI NO SELECCIONÓ NINGUNA, TERMINAMOS
+    // SI NO HAY ÁREAS SELECCIONADAS
     // =====================================================
 
     if (
-        seleccionadas.length === 0
+        areasSeleccionadas.length === 0
     ) {
 
         if (mensaje) {
 
             mensaje.textContent =
-                "Configuración guardada. No existen áreas libres para este horario.";
+                "Configuración guardada: no hay áreas libres.";
 
             mensaje.style.color =
                 "#15803d";
@@ -4534,12 +4569,12 @@ async function guardarAreasLibresGestion(
 
 
     // =====================================================
-    // PREPARAR REGISTROS
+    // INSERTAR CONFIGURACIÓN NUEVA
     // =====================================================
 
     const registros =
-        seleccionadas.map(
-            areaCodigo => ({
+        areasSeleccionadas.map(
+            codigo => ({
 
                 gestion_id:
                     Number(
@@ -4549,19 +4584,14 @@ async function guardarAreasLibresGestion(
                 dia_semana:
                     dia,
 
-                horario:
-                    horario,
+                horario,
 
                 area_codigo:
-                    areaCodigo
+                    codigo
 
             })
         );
 
-
-    // =====================================================
-    // INSERTAR NUEVA CONFIGURACIÓN
-    // =====================================================
 
     const {
         error: errorInsertar
@@ -4580,7 +4610,7 @@ async function guardarAreasLibresGestion(
     if (errorInsertar) {
 
         console.error(
-            "Error guardando áreas:",
+            "Error insertando áreas:",
             errorInsertar
         );
 
@@ -4602,7 +4632,7 @@ async function guardarAreasLibresGestion(
     if (mensaje) {
 
         mensaje.textContent =
-            "Configuración de áreas guardada correctamente.";
+            "Configuración guardada correctamente.";
 
         mensaje.style.color =
             "#15803d";
@@ -4613,20 +4643,20 @@ async function guardarAreasLibresGestion(
 
 
 // =========================================================
-// EVENTOS DEL MÓDULO DE GESTIÓN
+// EVENTOS DEL MÓDULO
 // =========================================================
 
 function iniciarEventosGestionAcademica() {
 
-    const formGestion =
+    const formNuevaGestion =
         document.getElementById(
-            "formGestionAcademica"
+            "formNuevaGestion"
         );
 
 
-    if (formGestion) {
+    if (formNuevaGestion) {
 
-        formGestion.addEventListener(
+        formNuevaGestion.addEventListener(
             "submit",
             crearGestionAcademica
         );
@@ -4634,74 +4664,50 @@ function iniciarEventosGestionAcademica() {
     }
 
 
-    const formAreas =
-        document.getElementById(
-            "formAreasGestion"
+    document
+        .getElementById(
+            "configGestion"
+        )
+        ?.addEventListener(
+            "change",
+            cargarAreasLibresGestion
         );
 
 
-    if (formAreas) {
+    document
+        .getElementById(
+            "configDia"
+        )
+        ?.addEventListener(
+            "change",
+            cargarAreasLibresGestion
+        );
 
-        formAreas.addEventListener(
-            "submit",
+
+    document
+        .getElementById(
+            "configHorario"
+        )
+        ?.addEventListener(
+            "change",
+            cargarAreasLibresGestion
+        );
+
+
+    document
+        .getElementById(
+            "btnGuardarAreasGestion"
+        )
+        ?.addEventListener(
+            "click",
             guardarAreasLibresGestion
         );
-
-    }
-
-
-    const gestionAreas =
-        document.getElementById(
-            "gestionAreas"
-        );
-
-
-    const diaAreas =
-        document.getElementById(
-            "diaAreasGestion"
-        );
-
-
-    const horarioAreas =
-        document.getElementById(
-            "horarioAreasGestion"
-        );
-
-
-    if (gestionAreas) {
-
-        gestionAreas.addEventListener(
-            "change",
-            cargarAreasLibresGestion
-        );
-
-    }
-
-
-    if (diaAreas) {
-
-        diaAreas.addEventListener(
-            "change",
-            cargarAreasLibresGestion
-        );
-
-    }
-
-
-    if (horarioAreas) {
-
-        horarioAreas.addEventListener(
-            "change",
-            cargarAreasLibresGestion
-        );
-
-    }
 
 }
 
 
 // =========================================================
-// INICIALIZAR GESTIÓN ACADÉMICA
+// INICIAR MÓDULO
 // =========================================================
 
 document.addEventListener(
@@ -4710,7 +4716,7 @@ document.addEventListener(
 
         iniciarEventosGestionAcademica();
 
-        await cargarModuloGestiones();
+        await cargarGestionesAcademicas();
 
     }
 );
