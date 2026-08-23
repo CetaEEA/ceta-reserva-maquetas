@@ -156,7 +156,6 @@ function escapeHTML(text) {
 // =========================================================
 // USUARIOS
 // =========================================================
-
 async function cargarUsuarios() {
 
     const tabla =
@@ -169,6 +168,10 @@ async function cargarUsuarios() {
         return;
     }
 
+
+    // =====================================================
+    // CARGAR USUARIOS
+    // =====================================================
 
     const {
         data,
@@ -184,7 +187,8 @@ async function cargarUsuarios() {
                 nombre,
                 rol,
                 activo,
-                eliminado
+                eliminado,
+                es_superadmin
             `)
 
             .eq(
@@ -238,9 +242,17 @@ async function cargarUsuarios() {
     }
 
 
+    // =====================================================
+    // GENERAR TABLA
+    // =====================================================
+
     tabla.innerHTML =
         data.map(
             usuario => {
+
+                // =================================================
+                // ESTADO
+                // =================================================
 
                 const estado =
                     usuario.activo
@@ -258,75 +270,152 @@ async function cargarUsuarios() {
                         `;
 
 
+                // =================================================
+                // ROL VISIBLE
+                // =================================================
+
+                const rolVisible =
+                    usuario.es_superadmin === true
+
+                        ? `
+                            <span class="badge-superadmin">
+                                🔒 SUPERADMIN
+                            </span>
+                        `
+
+                        : escapeHTML(
+                            usuario.rol
+                        );
+
+
+                // =================================================
+                // ACCIONES
+                // =================================================
+
+                let acciones = "";
+
+
+                // -------------------------------------------------
+                // SUPERADMIN
+                // -------------------------------------------------
+
+                if (
+                    usuario.es_superadmin === true
+                ) {
+
+                    acciones = `
+
+                        <div class="acciones-usuario">
+
+                            <span class="cuenta-protegida">
+                                🔒 Cuenta protegida
+                            </span>
+
+                        </div>
+
+                    `;
+
+                }
+
+
+                // -------------------------------------------------
+                // USUARIO NORMAL / ADMINISTRADOR
+                // -------------------------------------------------
+
+                else {
+
+                    acciones = `
+
+                        <div class="acciones-usuario">
+
+                            <button
+                                type="button"
+                                class="btn-editar-usuario"
+
+                                data-id="${usuario.id}"
+
+                                data-usuario="${escapeHTML(
+                                    usuario.usuario
+                                )}"
+
+                                data-nombre="${escapeHTML(
+                                    usuario.nombre
+                                )}"
+
+                                data-rol="${escapeHTML(
+                                    usuario.rol
+                                )}"
+
+                                data-activo="${usuario.activo}"
+                            >
+                                ✏️ Editar
+                            </button>
+
+
+                            <button
+                                type="button"
+                                class="btn-eliminar-usuario"
+
+                                data-id="${usuario.id}"
+
+                                data-nombre="${escapeHTML(
+                                    usuario.nombre ||
+                                    usuario.usuario
+                                )}"
+                            >
+                                🗑️ Eliminar
+                            </button>
+
+                        </div>
+
+                    `;
+
+                }
+
+
+                // =================================================
+                // FILA
+                // =================================================
+
                 return `
 
                     <tr>
 
                         <td>
+
                             ${escapeHTML(
                                 usuario.usuario
                             )}
+
                         </td>
 
+
                         <td>
+
                             ${escapeHTML(
                                 usuario.nombre
                             )}
+
                         </td>
 
-                        <td>
-                            ${escapeHTML(
-                                usuario.rol
-                            )}
-                        </td>
 
                         <td>
+
+                            ${rolVisible}
+
+                        </td>
+
+
+                        <td>
+
                             ${estado}
+
                         </td>
+
 
                         <td>
 
-                            <div class="acciones-usuario">
-
-                                <button
-                                    type="button"
-                                    class="btn-editar-usuario"
-
-                                    data-id="${usuario.id}"
-
-                                    data-usuario="${escapeHTML(
-                                        usuario.usuario
-                                    )}"
-
-                                    data-nombre="${escapeHTML(
-                                        usuario.nombre
-                                    )}"
-
-                                    data-rol="${escapeHTML(
-                                        usuario.rol
-                                    )}"
-
-                                    data-activo="${usuario.activo}"
-                                >
-                                    ✏️ Editar
-                                </button>
-
-
-                                <button
-                                    type="button"
-                                    class="btn-eliminar-usuario"
-
-                                    data-id="${usuario.id}"
-
-                                    data-nombre="${escapeHTML(
-                                        usuario.nombre ||
-                                        usuario.usuario
-                                    )}"
-                                >
-                                    🗑️ Eliminar
-                                </button>
-
-                            </div>
+                            ${acciones}
 
                         </td>
 
@@ -394,7 +483,6 @@ async function cargarUsuarios() {
             }
         );
 }
-
 
 // =========================================================
 // ABRIR EDITAR USUARIO
