@@ -3650,3 +3650,1067 @@ async function descargarTablaPDF() {
     );
 
 })();
+// =========================================================
+// =========================================================
+// MÓDULO: GESTIÓN ACADÉMICA
+// =========================================================
+// =========================================================
+
+let gestionAcademicaActiva = null;
+
+
+// =========================================================
+// CARGAR MÓDULO DE GESTIONES
+// =========================================================
+
+async function cargarModuloGestiones() {
+
+    console.log(
+        "Cargando módulo de gestión académica..."
+    );
+
+    await cargarGestionesAcademicas();
+
+}
+
+
+// =========================================================
+// CARGAR GESTIONES ACADÉMICAS
+// =========================================================
+
+async function cargarGestionesAcademicas() {
+
+    const selector =
+        document.getElementById(
+            "gestionAreas"
+        );
+
+    const contenedor =
+        document.getElementById(
+            "listaGestiones"
+        );
+
+    const textoGestionActiva =
+        document.getElementById(
+            "gestionActivaTexto"
+        );
+
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+
+            .from(
+                "gestiones_academicas"
+            )
+
+            .select(`
+                id,
+                nombre,
+                fecha_inicio,
+                fecha_fin,
+                activa,
+                created_at
+            `)
+
+            .order(
+                "fecha_inicio",
+                {
+                    ascending: false
+                }
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Error cargando gestiones:",
+            error
+        );
+
+        if (textoGestionActiva) {
+
+            textoGestionActiva.textContent =
+                "Error al cargar gestión.";
+
+        }
+
+        return;
+    }
+
+
+    // =====================================================
+    // GESTIÓN ACTIVA
+    // =====================================================
+
+    gestionAcademicaActiva =
+        data?.find(
+            gestion =>
+                gestion.activa === true
+        ) || null;
+
+
+    if (textoGestionActiva) {
+
+        if (gestionAcademicaActiva) {
+
+            textoGestionActiva.textContent =
+                gestionAcademicaActiva.nombre;
+
+        } else {
+
+            textoGestionActiva.textContent =
+                "No existe una gestión activa";
+
+        }
+
+    }
+
+
+    // =====================================================
+    // SELECTOR DE GESTIÓN
+    // =====================================================
+
+    if (selector) {
+
+        selector.innerHTML = "";
+
+
+        if (
+            !data ||
+            data.length === 0
+        ) {
+
+            selector.innerHTML = `
+
+                <option value="">
+                    No existen gestiones
+                </option>
+
+            `;
+
+        } else {
+
+            data.forEach(
+                gestion => {
+
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
+
+
+                    option.value =
+                        gestion.id;
+
+
+                    option.textContent =
+                        gestion.activa
+
+                            ? `${gestion.nombre} — ACTIVA`
+
+                            : gestion.nombre;
+
+
+                    selector.appendChild(
+                        option
+                    );
+
+                }
+            );
+
+
+            if (gestionAcademicaActiva) {
+
+                selector.value =
+                    String(
+                        gestionAcademicaActiva.id
+                    );
+
+            }
+
+        }
+
+    }
+
+
+    // =====================================================
+    // LISTA VISUAL DE GESTIONES
+    // =====================================================
+
+    if (contenedor) {
+
+        if (
+            !data ||
+            data.length === 0
+        ) {
+
+            contenedor.innerHTML = `
+
+                <div class="gestion-vacia">
+
+                    No existen gestiones académicas.
+
+                </div>
+
+            `;
+
+        } else {
+
+            contenedor.innerHTML =
+                data.map(
+                    gestion => {
+
+                        const estado =
+                            gestion.activa
+
+                                ? `
+                                    <span class="badge-gestion-activa">
+                                        ✓ GESTIÓN ACTIVA
+                                    </span>
+                                `
+
+                                : `
+                                    <span class="badge-gestion-inactiva">
+                                        Inactiva
+                                    </span>
+                                `;
+
+
+                        const botonActivar =
+                            gestion.activa
+
+                                ? ""
+
+                                : `
+                                    <button
+                                        type="button"
+                                        class="btn-activar-gestion"
+                                        data-id="${gestion.id}"
+                                        data-nombre="${escapeHTML(
+                                            gestion.nombre
+                                        )}"
+                                    >
+                                        Activar gestión
+                                    </button>
+                                `;
+
+
+                        return `
+
+                            <div class="gestion-card">
+
+                                <div class="gestion-card-info">
+
+                                    <strong>
+                                        ${escapeHTML(
+                                            gestion.nombre
+                                        )}
+                                    </strong>
+
+                                    <span>
+                                        ${formatearFechaGestion(
+                                            gestion.fecha_inicio
+                                        )}
+                                        —
+                                        ${formatearFechaGestion(
+                                            gestion.fecha_fin
+                                        )}
+                                    </span>
+
+                                    ${estado}
+
+                                </div>
+
+
+                                <div class="gestion-card-acciones">
+
+                                    ${botonActivar}
+
+                                </div>
+
+                            </div>
+
+                        `;
+
+                    }
+                )
+                .join("");
+
+        }
+
+    }
+
+
+    // =====================================================
+    // EVENTOS BOTÓN ACTIVAR
+    // =====================================================
+
+    document
+        .querySelectorAll(
+            ".btn-activar-gestion"
+        )
+        .forEach(
+            boton => {
+
+                boton.addEventListener(
+                    "click",
+                    async () => {
+
+                        await activarGestionAcademica(
+                            boton.dataset.id,
+                            boton.dataset.nombre
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+    // =====================================================
+    // CARGAR CONFIGURACIÓN DE ÁREAS
+    // =====================================================
+
+    if (
+        selector &&
+        selector.value
+    ) {
+
+        await cargarAreasLibresGestion();
+
+    }
+
+}
+
+
+// =========================================================
+// FORMATEAR FECHA DE GESTIÓN
+// =========================================================
+
+function formatearFechaGestion(
+    fecha
+) {
+
+    if (!fecha) {
+        return "";
+    }
+
+
+    const partes =
+        String(fecha)
+            .split("-");
+
+
+    if (
+        partes.length !== 3
+    ) {
+
+        return fecha;
+
+    }
+
+
+    return (
+        `${partes[2]}/${partes[1]}/${partes[0]}`
+    );
+
+}
+
+
+// =========================================================
+// CREAR NUEVA GESTIÓN
+// =========================================================
+
+async function crearGestionAcademica(
+    event
+) {
+
+    event.preventDefault();
+
+
+    const nombre =
+        document
+            .getElementById(
+                "nombreGestion"
+            )
+            ?.value
+            .trim();
+
+
+    const fechaInicio =
+        document
+            .getElementById(
+                "fechaInicioGestion"
+            )
+            ?.value;
+
+
+    const fechaFin =
+        document
+            .getElementById(
+                "fechaFinGestion"
+            )
+            ?.value;
+
+
+    const mensaje =
+        document.getElementById(
+            "mensajeGestion"
+        );
+
+
+    if (
+        !nombre ||
+        !fechaInicio ||
+        !fechaFin
+    ) {
+
+        if (mensaje) {
+
+            mensaje.textContent =
+                "Complete todos los datos de la gestión.";
+
+            mensaje.style.color =
+                "#b91c1c";
+
+        }
+
+        return;
+    }
+
+
+    if (
+        fechaFin < fechaInicio
+    ) {
+
+        if (mensaje) {
+
+            mensaje.textContent =
+                "La fecha final no puede ser anterior a la fecha inicial.";
+
+            mensaje.style.color =
+                "#b91c1c";
+
+        }
+
+        return;
+    }
+
+
+    if (mensaje) {
+
+        mensaje.textContent =
+            "Creando gestión...";
+
+        mensaje.style.color =
+            "#374151";
+
+    }
+
+
+    const {
+        error
+    } =
+        await supabaseClient
+
+            .from(
+                "gestiones_academicas"
+            )
+
+            .insert({
+
+                nombre:
+                    nombre,
+
+                fecha_inicio:
+                    fechaInicio,
+
+                fecha_fin:
+                    fechaFin,
+
+                activa:
+                    false
+
+            });
+
+
+    if (error) {
+
+        console.error(
+            "Error creando gestión:",
+            error
+        );
+
+
+        if (mensaje) {
+
+            if (
+                error.code === "23505"
+            ) {
+
+                mensaje.textContent =
+                    "Ya existe una gestión con ese nombre.";
+
+            } else {
+
+                mensaje.textContent =
+                    "No se pudo crear la gestión.";
+
+            }
+
+
+            mensaje.style.color =
+                "#b91c1c";
+
+        }
+
+        return;
+    }
+
+
+    if (mensaje) {
+
+        mensaje.textContent =
+            "Gestión creada correctamente.";
+
+        mensaje.style.color =
+            "#15803d";
+
+    }
+
+
+    const formulario =
+        document.getElementById(
+            "formGestionAcademica"
+        );
+
+
+    if (formulario) {
+
+        formulario.reset();
+
+    }
+
+
+    await cargarGestionesAcademicas();
+
+}
+
+
+// =========================================================
+// ACTIVAR GESTIÓN
+// =========================================================
+
+async function activarGestionAcademica(
+    gestionId,
+    nombre
+) {
+
+    const confirmar =
+        window.confirm(
+            `¿Desea establecer "${nombre}" como gestión académica activa?\n\n` +
+            "La configuración anterior se conservará."
+        );
+
+
+    if (!confirmar) {
+        return;
+    }
+
+
+    const {
+        error
+    } =
+        await supabaseClient.rpc(
+            "activar_gestion_academica",
+            {
+                p_gestion_id:
+                    Number(
+                        gestionId
+                    )
+            }
+        );
+
+
+    if (error) {
+
+        console.error(
+            "Error activando gestión:",
+            error
+        );
+
+
+        alert(
+            "No se pudo activar la gestión."
+        );
+
+        return;
+    }
+
+
+    alert(
+        `La gestión ${nombre} ahora está activa.`
+    );
+
+
+    await cargarGestionesAcademicas();
+
+}
+
+
+// =========================================================
+// CARGAR ÁREAS LIBRES DE LA GESTIÓN
+// =========================================================
+
+async function cargarAreasLibresGestion() {
+
+    const gestionId =
+        document
+            .getElementById(
+                "gestionAreas"
+            )
+            ?.value;
+
+
+    const dia =
+        document
+            .getElementById(
+                "diaAreasGestion"
+            )
+            ?.value;
+
+
+    const horario =
+        document
+            .getElementById(
+                "horarioAreasGestion"
+            )
+            ?.value;
+
+
+    if (
+        !gestionId ||
+        !dia ||
+        !horario
+    ) {
+
+        return;
+
+    }
+
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+
+            .from(
+                "areas_libres_gestion"
+            )
+
+            .select(
+                "area_codigo"
+            )
+
+            .eq(
+                "gestion_id",
+                gestionId
+            )
+
+            .eq(
+                "dia_semana",
+                dia
+            )
+
+            .eq(
+                "horario",
+                horario
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Error cargando áreas de gestión:",
+            error
+        );
+
+        return;
+    }
+
+
+    const areasSeleccionadas =
+        new Set(
+            (
+                data || []
+            ).map(
+                item =>
+                    item.area_codigo
+            )
+        );
+
+
+    document
+        .querySelectorAll(
+            ".check-area-gestion"
+        )
+        .forEach(
+            checkbox => {
+
+                checkbox.checked =
+                    areasSeleccionadas.has(
+                        checkbox.value
+                    );
+
+            }
+        );
+
+}
+
+
+// =========================================================
+// GUARDAR ÁREAS LIBRES DE LA GESTIÓN
+// =========================================================
+
+async function guardarAreasLibresGestion(
+    event
+) {
+
+    event.preventDefault();
+
+
+    const gestionId =
+        document
+            .getElementById(
+                "gestionAreas"
+            )
+            ?.value;
+
+
+    const dia =
+        document
+            .getElementById(
+                "diaAreasGestion"
+            )
+            ?.value;
+
+
+    const horario =
+        document
+            .getElementById(
+                "horarioAreasGestion"
+            )
+            ?.value;
+
+
+    const mensaje =
+        document.getElementById(
+            "mensajeAreasGestion"
+        );
+
+
+    if (
+        !gestionId ||
+        !dia ||
+        !horario
+    ) {
+
+        if (mensaje) {
+
+            mensaje.textContent =
+                "Seleccione gestión, día y horario.";
+
+            mensaje.style.color =
+                "#b91c1c";
+
+        }
+
+        return;
+    }
+
+
+    const seleccionadas =
+        Array
+            .from(
+                document.querySelectorAll(
+                    ".check-area-gestion:checked"
+                )
+            )
+            .map(
+                checkbox =>
+                    checkbox.value
+            );
+
+
+    if (mensaje) {
+
+        mensaje.textContent =
+            "Guardando configuración...";
+
+        mensaje.style.color =
+            "#374151";
+
+    }
+
+
+    // =====================================================
+    // BORRAR CONFIGURACIÓN ANTERIOR
+    // =====================================================
+
+    const {
+        error: errorEliminar
+    } =
+        await supabaseClient
+
+            .from(
+                "areas_libres_gestion"
+            )
+
+            .delete()
+
+            .eq(
+                "gestion_id",
+                gestionId
+            )
+
+            .eq(
+                "dia_semana",
+                dia
+            )
+
+            .eq(
+                "horario",
+                horario
+            );
+
+
+    if (errorEliminar) {
+
+        console.error(
+            "Error eliminando configuración anterior:",
+            errorEliminar
+        );
+
+
+        if (mensaje) {
+
+            mensaje.textContent =
+                "No se pudo actualizar la configuración.";
+
+            mensaje.style.color =
+                "#b91c1c";
+
+        }
+
+        return;
+    }
+
+
+    // =====================================================
+    // SI NO SELECCIONÓ NINGUNA, TERMINAMOS
+    // =====================================================
+
+    if (
+        seleccionadas.length === 0
+    ) {
+
+        if (mensaje) {
+
+            mensaje.textContent =
+                "Configuración guardada. No existen áreas libres para este horario.";
+
+            mensaje.style.color =
+                "#15803d";
+
+        }
+
+        return;
+    }
+
+
+    // =====================================================
+    // PREPARAR REGISTROS
+    // =====================================================
+
+    const registros =
+        seleccionadas.map(
+            areaCodigo => ({
+
+                gestion_id:
+                    Number(
+                        gestionId
+                    ),
+
+                dia_semana:
+                    dia,
+
+                horario:
+                    horario,
+
+                area_codigo:
+                    areaCodigo
+
+            })
+        );
+
+
+    // =====================================================
+    // INSERTAR NUEVA CONFIGURACIÓN
+    // =====================================================
+
+    const {
+        error: errorInsertar
+    } =
+        await supabaseClient
+
+            .from(
+                "areas_libres_gestion"
+            )
+
+            .insert(
+                registros
+            );
+
+
+    if (errorInsertar) {
+
+        console.error(
+            "Error guardando áreas:",
+            errorInsertar
+        );
+
+
+        if (mensaje) {
+
+            mensaje.textContent =
+                "No se pudieron guardar las áreas.";
+
+            mensaje.style.color =
+                "#b91c1c";
+
+        }
+
+        return;
+    }
+
+
+    if (mensaje) {
+
+        mensaje.textContent =
+            "Configuración de áreas guardada correctamente.";
+
+        mensaje.style.color =
+            "#15803d";
+
+    }
+
+}
+
+
+// =========================================================
+// EVENTOS DEL MÓDULO DE GESTIÓN
+// =========================================================
+
+function iniciarEventosGestionAcademica() {
+
+    const formGestion =
+        document.getElementById(
+            "formGestionAcademica"
+        );
+
+
+    if (formGestion) {
+
+        formGestion.addEventListener(
+            "submit",
+            crearGestionAcademica
+        );
+
+    }
+
+
+    const formAreas =
+        document.getElementById(
+            "formAreasGestion"
+        );
+
+
+    if (formAreas) {
+
+        formAreas.addEventListener(
+            "submit",
+            guardarAreasLibresGestion
+        );
+
+    }
+
+
+    const gestionAreas =
+        document.getElementById(
+            "gestionAreas"
+        );
+
+
+    const diaAreas =
+        document.getElementById(
+            "diaAreasGestion"
+        );
+
+
+    const horarioAreas =
+        document.getElementById(
+            "horarioAreasGestion"
+        );
+
+
+    if (gestionAreas) {
+
+        gestionAreas.addEventListener(
+            "change",
+            cargarAreasLibresGestion
+        );
+
+    }
+
+
+    if (diaAreas) {
+
+        diaAreas.addEventListener(
+            "change",
+            cargarAreasLibresGestion
+        );
+
+    }
+
+
+    if (horarioAreas) {
+
+        horarioAreas.addEventListener(
+            "change",
+            cargarAreasLibresGestion
+        );
+
+    }
+
+}
+
+
+// =========================================================
+// INICIALIZAR GESTIÓN ACADÉMICA
+// =========================================================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    async () => {
+
+        iniciarEventosGestionAcademica();
+
+        await cargarModuloGestiones();
+
+    }
+);
