@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://cetaeea.github.io/ceta-reserva-maquetas/sitemap.xml
