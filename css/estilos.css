@@ -2155,3 +2155,48 @@ body.docente-page::before {
 
     white-space: nowrap;
 }\n\n/* =========================================================\n   GESTIÓN ACADÉMICA\n========================================================= */\n\n.gestion-activa-card {\n    width: 100%;\n    margin-bottom: 22px;\n    padding: 18px;\n    border-left: 5px solid #15803d;\n    border-radius: 10px;\n    background: #f0fdf4;\n}\n\n.gestion-activa-card span,\n.gestion-activa-card small {\n    display: block;\n    color: #4b5563;\n}\n\n.gestion-activa-card strong {\n    display: block;\n    margin: 5px 0;\n    color: #166534;\n    font-size: 22px;\n}\n\n.gestion-grid {\n    display: grid;\n    grid-template-columns: 1fr;\n    gap: 18px;\n    margin-bottom: 22px;\n}\n\n.gestion-bloque,\n.config-areas-panel {\n    padding: 18px;\n    border: 1px solid #e5e7eb;\n    border-radius: 10px;\n    background: #f9fafb;\n}\n\n.gestion-bloque h3,\n.config-areas-panel h3 {\n    margin-bottom: 15px;\n}\n\n.form-gestion {\n    display: flex;\n    flex-direction: column;\n}\n\n.form-gestion input {\n    margin-bottom: 14px;\n}\n\n.lista-gestiones {\n    display: flex;\n    flex-direction: column;\n    gap: 10px;\n    max-height: 310px;\n    overflow-y: auto;\n}\n\n.gestion-item {\n    display: flex;\n    flex-direction: column;\n    gap: 10px;\n    padding: 13px;\n    border: 1px solid #e5e7eb;\n    border-radius: 9px;\n    background: white;\n}\n\n.gestion-item > div {\n    display: flex;\n    flex-direction: column;\n    gap: 4px;\n}\n\n.gestion-item span {\n    color: #6b7280;\n    font-size: 13px;\n}\n\n.gestion-item-activa {\n    border-color: #86efac;\n    background: #f0fdf4;\n}\n\n.badge-gestion-activa {\n    display: inline-flex;\n    width: fit-content;\n    padding: 6px 10px;\n    border-radius: 20px;\n    background: #dcfce7;\n    color: #166534 !important;\n    font-weight: bold;\n}\n\n.btn-activar-gestion {\n    width: 100%;\n    padding: 10px 12px;\n    background: #374151;\n    color: white;\n}\n\n.config-areas-header p {\n    margin-top: -7px;\n    margin-bottom: 18px;\n    color: #6b7280;\n    line-height: 1.5;\n}\n\n.config-selectores {\n    display: grid;\n    grid-template-columns: 1fr;\n    gap: 14px;\n    margin-bottom: 18px;\n}\n\n.areas-check-grid {\n    display: grid;\n    grid-template-columns: repeat(2, minmax(0, 1fr));\n    gap: 10px;\n    margin-bottom: 18px;\n}\n\n.area-check-item {\n    display: flex;\n    align-items: center;\n    gap: 9px;\n    margin: 0;\n    padding: 12px;\n    border: 1px solid #d1d5db;\n    border-radius: 8px;\n    background: white;\n    cursor: pointer;\n}\n\n.area-check-item input {\n    width: 18px;\n    height: 18px;\n    margin: 0;\n}\n\n.area-check-item span {\n    font-weight: bold;\n}\n\n.btn-guardar-areas {\n    max-width: 360px;\n}\n\n.config-cargando {\n    grid-column: 1 / -1;\n    color: #6b7280;\n}\n\n.config-error {\n    color: #b91c1c;\n    font-weight: bold;\n}\n\n@media (min-width: 700px) {\n    .gestion-grid {\n        grid-template-columns: repeat(2, minmax(0, 1fr));\n    }\n\n    .gestion-item {\n        flex-direction: row;\n        align-items: center;\n        justify-content: space-between;\n    }\n\n    .btn-activar-gestion {\n        width: auto;\n        min-width: 100px;\n    }\n\n    .config-selectores {\n        grid-template-columns: repeat(3, minmax(0, 1fr));\n    }\n\n    .areas-check-grid {\n        grid-template-columns: repeat(3, minmax(0, 1fr));\n    }\n}\n\n@media (min-width: 1000px) {\n    .areas-check-grid {\n        grid-template-columns: repeat(5, minmax(0, 1fr));\n    }\n
+/* =========================================================
+   ALINEACIÓN DE CASILLAS - ÁREAS DE GESTIÓN
+========================================================= */
+
+.area-check-card {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+
+    gap: 10px;
+
+    padding: 12px 14px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+
+    background: #ffffff;
+
+    cursor: pointer;
+}
+
+.area-check-card input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+
+    margin: 0;
+    padding: 0;
+
+    flex: 0 0 auto;
+
+    accent-color: #1f2937;
+}
+
+.area-check-card span {
+    display: inline-flex;
+    align-items: center;
+
+    margin: 0;
+
+    line-height: 1;
+
+    font-weight: 700;
+
+    color: #1f2937;
+}
