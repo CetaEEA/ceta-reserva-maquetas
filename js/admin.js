@@ -3655,11 +3655,61 @@ async function descargarTablaPDF() {
 // MÓDULO: GESTIÓN ACADÉMICA
 // =========================================================
 // =========================================================
+// =========================================================
 // MÓDULO: GESTIÓN ACADÉMICA
 // =========================================================
 // =========================================================
 
 let gestionAcademicaActiva = null;
+
+
+// =========================================================
+// MENSAJE AMIGABLE DE ERROR
+// =========================================================
+
+function obtenerMensajeErrorGestion(error) {
+
+    const mensaje =
+        String(
+            error?.message ||
+            ""
+        )
+        .toLowerCase();
+
+
+    if (
+        mensaje.includes(
+            "superponen"
+        ) ||
+        mensaje.includes(
+            "solap"
+        )
+    ) {
+
+        return (
+            "Las fechas seleccionadas se superponen " +
+            "con otra gestión académica registrada."
+        );
+
+    }
+
+
+    if (
+        error?.code === "23505"
+    ) {
+
+        return (
+            "Ya existe una gestión con ese nombre."
+        );
+
+    }
+
+
+    return (
+        error?.message ||
+        "No se pudo completar la operación."
+    );
+}
 
 
 // =========================================================
@@ -3673,15 +3723,18 @@ async function cargarGestionesAcademicas() {
             "configGestion"
         );
 
+
     const listaGestiones =
         document.getElementById(
             "listaGestiones"
         );
 
+
     const gestionActivaTexto =
         document.getElementById(
             "gestionActivaTexto"
         );
+
 
     const gestionActivaFechas =
         document.getElementById(
@@ -3695,7 +3748,9 @@ async function cargarGestionesAcademicas() {
     } =
         await supabaseClient
 
-            .from("gestiones_academicas")
+            .from(
+                "gestiones_academicas"
+            )
 
             .select(`
                 id,
@@ -3722,10 +3777,15 @@ async function cargarGestionesAcademicas() {
         );
 
 
-        if (gestionActivaTexto) {
+        if (
+            gestionActivaTexto
+        ) {
+
             gestionActivaTexto.textContent =
                 "Error al cargar gestión";
+
         }
+
 
         return;
     }
@@ -3746,7 +3806,9 @@ async function cargarGestionesAcademicas() {
         ) || null;
 
 
-    if (gestionActivaTexto) {
+    if (
+        gestionActivaTexto
+    ) {
 
         gestionActivaTexto.textContent =
             gestionAcademicaActiva
@@ -3756,9 +3818,13 @@ async function cargarGestionesAcademicas() {
     }
 
 
-    if (gestionActivaFechas) {
+    if (
+        gestionActivaFechas
+    ) {
 
-        if (gestionAcademicaActiva) {
+        if (
+            gestionAcademicaActiva
+        ) {
 
             gestionActivaFechas.textContent =
                 `${formatearFechaGestion(
@@ -3773,6 +3839,7 @@ async function cargarGestionesAcademicas() {
                 "";
 
         }
+
     }
 
 
@@ -3780,7 +3847,13 @@ async function cargarGestionesAcademicas() {
     // SELECTOR DE GESTIÓN
     // =====================================================
 
-    if (selectorGestion) {
+    if (
+        selectorGestion
+    ) {
+
+        const valorAnterior =
+            selectorGestion.value;
+
 
         selectorGestion.innerHTML =
             "";
@@ -3791,9 +3864,11 @@ async function cargarGestionesAcademicas() {
         ) {
 
             selectorGestion.innerHTML = `
+
                 <option value="">
                     No existen gestiones
                 </option>
+
             `;
 
         } else {
@@ -3813,7 +3888,9 @@ async function cargarGestionesAcademicas() {
 
                     option.textContent =
                         gestion.activa
+
                             ? `${gestion.nombre} — ACTIVA`
+
                             : gestion.nombre;
 
 
@@ -3825,7 +3902,28 @@ async function cargarGestionesAcademicas() {
             );
 
 
-            if (gestionAcademicaActiva) {
+            const existeValorAnterior =
+                gestiones.some(
+                    gestion =>
+                        String(
+                            gestion.id
+                        ) ===
+                        String(
+                            valorAnterior
+                        )
+                );
+
+
+            if (
+                existeValorAnterior
+            ) {
+
+                selectorGestion.value =
+                    valorAnterior;
+
+            } else if (
+                gestionAcademicaActiva
+            ) {
 
                 selectorGestion.value =
                     String(
@@ -3835,6 +3933,7 @@ async function cargarGestionesAcademicas() {
             }
 
         }
+
     }
 
 
@@ -3842,16 +3941,20 @@ async function cargarGestionesAcademicas() {
     // LISTA VISUAL DE GESTIONES
     // =====================================================
 
-    if (listaGestiones) {
+    if (
+        listaGestiones
+    ) {
 
         if (
             gestiones.length === 0
         ) {
 
             listaGestiones.innerHTML = `
+
                 <div class="gestion-vacia">
                     No existen gestiones académicas.
                 </div>
+
             `;
 
         } else {
@@ -3865,13 +3968,17 @@ async function cargarGestionesAcademicas() {
                                 gestion.activa
 
                                     ? `
-                                        <span class="badge-gestion-activa">
+                                        <span
+                                            class="badge-gestion-activa"
+                                        >
                                             ✓ Gestión activa
                                         </span>
                                     `
 
                                     : `
-                                        <span class="badge-gestion-inactiva">
+                                        <span
+                                            class="badge-gestion-inactiva"
+                                        >
                                             Inactiva
                                         </span>
                                     `;
@@ -3886,44 +3993,84 @@ async function cargarGestionesAcademicas() {
                                         <button
                                             type="button"
                                             class="btn-activar-gestion"
+
                                             data-id="${gestion.id}"
+
                                             data-nombre="${escapeHTML(
                                                 gestion.nombre
                                             )}"
                                         >
-                                            Activar gestión
+                                            ✓ Activar gestión
                                         </button>
                                     `;
 
 
                             return `
 
-                                <div class="gestion-card">
+                                <div
+                                    class="gestion-item
+                                    ${
+                                        gestion.activa
+                                            ? "gestion-item-activa"
+                                            : ""
+                                    }"
+                                >
 
-                                    <div class="gestion-card-info">
+                                    <div>
 
                                         <strong>
+
                                             ${escapeHTML(
                                                 gestion.nombre
                                             )}
+
                                         </strong>
 
+
                                         <span>
+
                                             ${formatearFechaGestion(
                                                 gestion.fecha_inicio
                                             )}
+
                                             —
+
                                             ${formatearFechaGestion(
                                                 gestion.fecha_fin
                                             )}
+
                                         </span>
+
 
                                         ${estado}
 
                                     </div>
 
-                                    <div class="gestion-card-acciones">
+
+                                    <div
+                                        class="gestion-card-acciones"
+                                    >
+
+                                        <button
+                                            type="button"
+                                            class="btn-editar-gestion"
+
+                                            data-id="${gestion.id}"
+
+                                            data-nombre="${escapeHTML(
+                                                gestion.nombre
+                                            )}"
+
+                                            data-inicio="${gestion.fecha_inicio}"
+
+                                            data-fin="${gestion.fecha_fin}"
+                                        >
+                                            ✏️ Editar fechas
+                                        </button>
+
+
                                         ${botonActivar}
+
                                     </div>
 
                                 </div>
@@ -3935,11 +4082,12 @@ async function cargarGestionesAcademicas() {
                     .join("");
 
         }
+
     }
 
 
     // =====================================================
-    // EVENTOS PARA ACTIVAR GESTIÓN
+    // BOTONES ACTIVAR
     // =====================================================
 
     document
@@ -3969,15 +4117,45 @@ async function cargarGestionesAcademicas() {
 
 
     // =====================================================
-    // GENERAR ÁREAS T-A1 A T-A9
+    // BOTONES EDITAR FECHAS
     // =====================================================
+
+    document
+        .querySelectorAll(
+            ".btn-editar-gestion"
+        )
+        .forEach(
+            boton => {
+
+                boton.addEventListener(
+                    "click",
+                    () => {
+
+                        abrirModalEditarGestion({
+
+                            id:
+                                boton.dataset.id,
+
+                            nombre:
+                                boton.dataset.nombre,
+
+                            fechaInicio:
+                                boton.dataset.inicio,
+
+                            fechaFin:
+                                boton.dataset.fin
+
+                        });
+
+                    }
+                );
+
+            }
+        );
+
 
     generarChecksAreasGestion();
 
-
-    // =====================================================
-    // CARGAR CONFIGURACIÓN GUARDADA
-    // =====================================================
 
     await cargarAreasLibresGestion();
 
@@ -3992,14 +4170,20 @@ function formatearFechaGestion(
     fecha
 ) {
 
-    if (!fecha) {
+    if (
+        !fecha
+    ) {
+
         return "";
+
     }
 
 
     const partes =
-        String(fecha)
-            .split("-");
+        String(
+            fecha
+        )
+        .split("-");
 
 
     if (
@@ -4007,10 +4191,13 @@ function formatearFechaGestion(
     ) {
 
         return fecha;
+
     }
 
 
-    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+    return (
+        `${partes[2]}/${partes[1]}/${partes[0]}`
+    );
 }
 
 
@@ -4026,8 +4213,12 @@ function generarChecksAreasGestion() {
         );
 
 
-    if (!contenedor) {
+    if (
+        !contenedor
+    ) {
+
         return;
+
     }
 
 
@@ -4075,6 +4266,7 @@ function generarChecksAreasGestion() {
         );
 
     }
+
 }
 
 
@@ -4126,7 +4318,9 @@ async function crearGestionAcademica(
         !fechaFin
     ) {
 
-        if (mensaje) {
+        if (
+            mensaje
+        ) {
 
             mensaje.textContent =
                 "Complete todos los datos.";
@@ -4136,6 +4330,7 @@ async function crearGestionAcademica(
 
         }
 
+
         return;
     }
 
@@ -4144,7 +4339,9 @@ async function crearGestionAcademica(
         fechaFin < fechaInicio
     ) {
 
-        if (mensaje) {
+        if (
+            mensaje
+        ) {
 
             mensaje.textContent =
                 "La fecha final no puede ser anterior a la fecha inicial.";
@@ -4154,11 +4351,14 @@ async function crearGestionAcademica(
 
         }
 
+
         return;
     }
 
 
-    if (mensaje) {
+    if (
+        mensaje
+    ) {
 
         mensaje.textContent =
             "Creando gestión...";
@@ -4194,7 +4394,9 @@ async function crearGestionAcademica(
             });
 
 
-    if (error) {
+    if (
+        error
+    ) {
 
         console.error(
             "Error creando gestión:",
@@ -4202,23 +4404,28 @@ async function crearGestionAcademica(
         );
 
 
-        if (mensaje) {
+        if (
+            mensaje
+        ) {
 
             mensaje.textContent =
-                error.code === "23505"
-                    ? "Ya existe una gestión con ese nombre."
-                    : "No se pudo crear la gestión.";
+                obtenerMensajeErrorGestion(
+                    error
+                );
 
             mensaje.style.color =
                 "#b91c1c";
 
         }
 
+
         return;
     }
 
 
-    if (mensaje) {
+    if (
+        mensaje
+    ) {
 
         mensaje.textContent =
             "Gestión creada correctamente.";
@@ -4235,7 +4442,9 @@ async function crearGestionAcademica(
         );
 
 
-    if (form) {
+    if (
+        form
+    ) {
 
         form.reset();
 
@@ -4272,24 +4481,30 @@ async function activarGestionAcademica(
         await supabaseClient.rpc(
             "activar_gestion_academica",
             {
+
                 p_gestion_id:
                     Number(
                         gestionId
                     )
+
             }
         );
 
 
-    if (error) {
+    if (
+        error
+    ) {
 
         console.error(
             "Error activando gestión:",
             error
         );
 
+
         alert(
             "No se pudo activar la gestión."
         );
+
 
         return;
     }
@@ -4301,6 +4516,417 @@ async function activarGestionAcademica(
 
 
     await cargarGestionesAcademicas();
+
+}
+
+
+// =========================================================
+// CREAR MODAL EDITAR GESTIÓN
+// =========================================================
+
+function crearModalEditarGestion() {
+
+    if (
+        document.getElementById(
+            "modalEditarGestion"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    const modal =
+        document.createElement(
+            "div"
+        );
+
+
+    modal.id =
+        "modalEditarGestion";
+
+
+    modal.className =
+        "modal";
+
+
+    modal.innerHTML = `
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <div>
+
+                    <span class="modal-label">
+                        Gestión académica
+                    </span>
+
+                    <h2>
+                        Editar fechas
+                    </h2>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    id="btnCerrarEditarGestion"
+                    class="btnCerrarModal"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <form id="formEditarGestion">
+
+                <input
+                    type="hidden"
+                    id="editarGestionId"
+                >
+
+
+                <label>
+                    Gestión
+                </label>
+
+
+                <input
+                    type="text"
+                    id="editarGestionNombre"
+                    readonly
+                >
+
+
+                <label for="editarGestionInicio">
+                    Fecha de inicio
+                </label>
+
+
+                <input
+                    type="date"
+                    id="editarGestionInicio"
+                    required
+                >
+
+
+                <label for="editarGestionFin">
+                    Fecha de finalización
+                </label>
+
+
+                <input
+                    type="date"
+                    id="editarGestionFin"
+                    required
+                >
+
+
+                <p class="campo-ayuda">
+
+                    Las fechas no pueden superponerse
+                    con otra gestión académica registrada.
+
+                </p>
+
+
+                <button
+                    type="submit"
+                    class="btn-primary btn-form"
+                >
+                    Guardar nuevas fechas
+                </button>
+
+
+                <p
+                    id="mensajeEditarGestion"
+                    class="mensaje-form"
+                ></p>
+
+            </form>
+
+        </div>
+
+    `;
+
+
+    document.body.appendChild(
+        modal
+    );
+
+
+    document
+        .getElementById(
+            "btnCerrarEditarGestion"
+        )
+        ?.addEventListener(
+            "click",
+            () => {
+
+                modal.classList.remove(
+                    "active"
+                );
+
+            }
+        );
+
+
+    modal.addEventListener(
+        "click",
+        event => {
+
+            if (
+                event.target === modal
+            ) {
+
+                modal.classList.remove(
+                    "active"
+                );
+
+            }
+
+        }
+    );
+
+
+    document
+        .getElementById(
+            "formEditarGestion"
+        )
+        ?.addEventListener(
+            "submit",
+            guardarEdicionGestion
+        );
+
+}
+
+
+// =========================================================
+// ABRIR MODAL EDITAR GESTIÓN
+// =========================================================
+
+function abrirModalEditarGestion(
+    gestion
+) {
+
+    crearModalEditarGestion();
+
+
+    document.getElementById(
+        "editarGestionId"
+    ).value =
+        gestion.id;
+
+
+    document.getElementById(
+        "editarGestionNombre"
+    ).value =
+        gestion.nombre;
+
+
+    document.getElementById(
+        "editarGestionInicio"
+    ).value =
+        gestion.fechaInicio;
+
+
+    document.getElementById(
+        "editarGestionFin"
+    ).value =
+        gestion.fechaFin;
+
+
+    const mensaje =
+        document.getElementById(
+            "mensajeEditarGestion"
+        );
+
+
+    if (
+        mensaje
+    ) {
+
+        mensaje.textContent =
+            "";
+
+    }
+
+
+    document
+        .getElementById(
+            "modalEditarGestion"
+        )
+        ?.classList
+        .add(
+            "active"
+        );
+
+}
+
+
+// =========================================================
+// GUARDAR EDICIÓN DE FECHAS
+// =========================================================
+
+async function guardarEdicionGestion(
+    event
+) {
+
+    event.preventDefault();
+
+
+    const id =
+        document
+            .getElementById(
+                "editarGestionId"
+            )
+            .value;
+
+
+    const fechaInicio =
+        document
+            .getElementById(
+                "editarGestionInicio"
+            )
+            .value;
+
+
+    const fechaFin =
+        document
+            .getElementById(
+                "editarGestionFin"
+            )
+            .value;
+
+
+    const mensaje =
+        document.getElementById(
+            "mensajeEditarGestion"
+        );
+
+
+    if (
+        !id ||
+        !fechaInicio ||
+        !fechaFin
+    ) {
+
+        mensaje.textContent =
+            "Complete ambas fechas.";
+
+        mensaje.style.color =
+            "#b91c1c";
+
+
+        return;
+    }
+
+
+    if (
+        fechaFin < fechaInicio
+    ) {
+
+        mensaje.textContent =
+            "La fecha final no puede ser anterior a la fecha inicial.";
+
+        mensaje.style.color =
+            "#b91c1c";
+
+
+        return;
+    }
+
+
+    mensaje.textContent =
+        "Guardando cambios...";
+
+    mensaje.style.color =
+        "#374151";
+
+
+    const {
+        error
+    } =
+        await supabaseClient
+
+            .from(
+                "gestiones_academicas"
+            )
+
+            .update({
+
+                fecha_inicio:
+                    fechaInicio,
+
+                fecha_fin:
+                    fechaFin,
+
+                updated_at:
+                    new Date()
+                        .toISOString()
+
+            })
+
+            .eq(
+                "id",
+                Number(
+                    id
+                )
+            );
+
+
+    if (
+        error
+    ) {
+
+        console.error(
+            "Error editando gestión:",
+            error
+        );
+
+
+        mensaje.textContent =
+            obtenerMensajeErrorGestion(
+                error
+            );
+
+
+        mensaje.style.color =
+            "#b91c1c";
+
+
+        return;
+    }
+
+
+    mensaje.textContent =
+        "Fechas actualizadas correctamente.";
+
+    mensaje.style.color =
+        "#15803d";
+
+
+    await cargarGestionesAcademicas();
+
+
+    setTimeout(
+        () => {
+
+            document
+                .getElementById(
+                    "modalEditarGestion"
+                )
+                ?.classList
+                .remove(
+                    "active"
+                );
+
+        },
+        700
+    );
 
 }
 
@@ -4375,12 +5001,15 @@ async function cargarAreasLibresGestion() {
             );
 
 
-    if (error) {
+    if (
+        error
+    ) {
 
         console.error(
             "Error cargando áreas libres:",
             error
         );
+
 
         return;
     }
@@ -4456,7 +5085,9 @@ async function guardarAreasLibresGestion() {
         !horario
     ) {
 
-        if (mensaje) {
+        if (
+            mensaje
+        ) {
 
             mensaje.textContent =
                 "Seleccione gestión, día y horario.";
@@ -4465,6 +5096,7 @@ async function guardarAreasLibresGestion() {
                 "#b91c1c";
 
         }
+
 
         return;
     }
@@ -4482,7 +5114,9 @@ async function guardarAreasLibresGestion() {
         );
 
 
-    if (mensaje) {
+    if (
+        mensaje
+    ) {
 
         mensaje.textContent =
             "Guardando configuración...";
@@ -4492,10 +5126,6 @@ async function guardarAreasLibresGestion() {
 
     }
 
-
-    // =====================================================
-    // BORRAR CONFIGURACIÓN ANTERIOR
-    // =====================================================
 
     const {
         error: errorEliminar
@@ -4524,7 +5154,9 @@ async function guardarAreasLibresGestion() {
             );
 
 
-    if (errorEliminar) {
+    if (
+        errorEliminar
+    ) {
 
         console.error(
             "Error borrando configuración:",
@@ -4532,7 +5164,9 @@ async function guardarAreasLibresGestion() {
         );
 
 
-        if (mensaje) {
+        if (
+            mensaje
+        ) {
 
             mensaje.textContent =
                 "No se pudo actualizar la configuración.";
@@ -4542,19 +5176,18 @@ async function guardarAreasLibresGestion() {
 
         }
 
+
         return;
     }
 
-
-    // =====================================================
-    // SI NO HAY ÁREAS SELECCIONADAS
-    // =====================================================
 
     if (
         areasSeleccionadas.length === 0
     ) {
 
-        if (mensaje) {
+        if (
+            mensaje
+        ) {
 
             mensaje.textContent =
                 "Configuración guardada: no hay áreas libres.";
@@ -4564,13 +5197,10 @@ async function guardarAreasLibresGestion() {
 
         }
 
+
         return;
     }
 
-
-    // =====================================================
-    // INSERTAR CONFIGURACIÓN NUEVA
-    // =====================================================
 
     const registros =
         areasSeleccionadas.map(
@@ -4607,7 +5237,9 @@ async function guardarAreasLibresGestion() {
             );
 
 
-    if (errorInsertar) {
+    if (
+        errorInsertar
+    ) {
 
         console.error(
             "Error insertando áreas:",
@@ -4615,7 +5247,9 @@ async function guardarAreasLibresGestion() {
         );
 
 
-        if (mensaje) {
+        if (
+            mensaje
+        ) {
 
             mensaje.textContent =
                 "No se pudieron guardar las áreas.";
@@ -4625,11 +5259,14 @@ async function guardarAreasLibresGestion() {
 
         }
 
+
         return;
     }
 
 
-    if (mensaje) {
+    if (
+        mensaje
+    ) {
 
         mensaje.textContent =
             "Configuración guardada correctamente.";
@@ -4654,7 +5291,9 @@ function iniciarEventosGestionAcademica() {
         );
 
 
-    if (formNuevaGestion) {
+    if (
+        formNuevaGestion
+    ) {
 
         formNuevaGestion.addEventListener(
             "submit",
