@@ -2111,3 +2111,47 @@ body.docente-page::before {
 
     display: none !important;
 }
+/* =========================================================
+   SUPERADMIN
+========================================================= */
+
+.badge-superadmin {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 6px 12px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    letter-spacing: 0.4px;
+
+    background: #1e293b;
+    color: #ffffff;
+
+    white-space: nowrap;
+}
+
+
+.cuenta-protegida {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 7px 12px;
+
+    border-radius: 8px;
+
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+
+    color: #475569;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    white-space: nowrap;
+}
