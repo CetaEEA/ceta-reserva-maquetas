@@ -1064,11 +1064,104 @@ async function cargarMaquetasDisponibles(
 // ÁREAS
 // =========================================================
 
+// =========================================================
+// ÁREAS SEGÚN GESTIÓN ACADÉMICA
+// =========================================================
+
 async function cargarAreasDisponibles(
     fecha,
     horario,
     dia
 ) {
+
+    // =====================================================
+    // 1. BUSCAR LA GESTIÓN CORRESPONDIENTE A LA FECHA
+    // =====================================================
+
+    const {
+        data: gestion,
+        error: errorGestion
+    } =
+        await supabaseClient
+
+            .from("gestiones_academicas")
+
+            .select(`
+                id,
+                nombre,
+                fecha_inicio,
+                fecha_fin,
+                activa
+            `)
+
+            .lte(
+                "fecha_inicio",
+                fecha
+            )
+
+            .gte(
+                "fecha_fin",
+                fecha
+            )
+
+            .order(
+                "fecha_inicio",
+                {
+                    ascending: false
+                }
+            )
+
+            .limit(1)
+
+            .maybeSingle();
+
+
+    if (errorGestion) {
+
+        console.error(
+            "Error buscando gestión académica:",
+            errorGestion
+        );
+
+        areaReserva.innerHTML = `
+            <option value="">
+                Error al consultar la gestión
+            </option>
+        `;
+
+        listaAreasLibres.textContent =
+            "No fue posible consultar la gestión académica.";
+
+        return;
+    }
+
+
+    // =====================================================
+    // NO EXISTE GESTIÓN PARA ESA FECHA
+    // =====================================================
+
+    if (!gestion) {
+
+        areaReserva.innerHTML = `
+            <option value="">
+                Fecha fuera de una gestión académica
+            </option>
+        `;
+
+        listaAreasLibres.innerHTML = `
+            <strong>
+                ⚠ No existe una gestión académica configurada
+                para esta fecha.
+            </strong>
+        `;
+
+        return;
+    }
+
+
+    // =====================================================
+    // 2. CARGAR TODAS LAS ÁREAS ACTIVAS
+    // =====================================================
 
     const {
         data: areas,
@@ -1095,12 +1188,23 @@ async function cargarAreasDisponibles(
     if (errorAreas) {
 
         console.error(
+            "Error cargando áreas:",
             errorAreas
         );
+
+        areaReserva.innerHTML = `
+            <option value="">
+                Error al cargar áreas
+            </option>
+        `;
 
         return;
     }
 
+
+    // =====================================================
+    // 3. ÁREAS LIBRES DE ESA GESTIÓN
+    // =====================================================
 
     const {
         data: libres,
@@ -1108,10 +1212,17 @@ async function cargarAreasDisponibles(
     } =
         await supabaseClient
 
-            .from("areas_libres")
+            .from(
+                "areas_libres_gestion"
+            )
 
             .select(
                 "area_codigo"
+            )
+
+            .eq(
+                "gestion_id",
+                gestion.id
             )
 
             .eq(
@@ -1128,12 +1239,26 @@ async function cargarAreasDisponibles(
     if (errorLibres) {
 
         console.error(
+            "Error cargando áreas libres de la gestión:",
             errorLibres
         );
+
+        areaReserva.innerHTML = `
+            <option value="">
+                Error al cargar configuración
+            </option>
+        `;
+
+        listaAreasLibres.textContent =
+            "No fue posible cargar las áreas libres configuradas.";
 
         return;
     }
 
+
+    // =====================================================
+    // 4. CONSULTAR ÁREAS YA RESERVADAS
+    // =====================================================
 
     const {
         data: reservas,
@@ -1166,12 +1291,17 @@ async function cargarAreasDisponibles(
     if (errorReservas) {
 
         console.error(
+            "Error consultando áreas reservadas:",
             errorReservas
         );
 
         return;
     }
 
+
+    // =====================================================
+    // 5. CONSTRUIR LISTAS
+    // =====================================================
 
     const areasLibres =
         new Set(
@@ -1196,32 +1326,73 @@ async function cargarAreasDisponibles(
 
     const libresDisponibles =
         [...areasLibres]
+
             .filter(
                 codigo =>
-                    !areasOcupadas
-                        .has(codigo)
+                    !areasOcupadas.has(
+                        codigo
+                    )
             )
+
             .sort();
 
 
+    // =====================================================
+    // 6. INFORMACIÓN VISUAL
+    // =====================================================
+
     if (
-        libresDisponibles.length
+        libresDisponibles.length > 0
     ) {
 
-        listaAreasLibres.innerHTML =
-            libresDisponibles
+        listaAreasLibres.innerHTML = `
+
+            <span>
+                Gestión:
+                <strong>
+                    ${escaparHTML(
+                        gestion.nombre
+                    )}
+                </strong>
+            </span>
+
+            <br><br>
+
+            ${libresDisponibles
                 .map(
                     codigo =>
-                        `<strong>${codigo}</strong>`
+                        `<strong>${escaparHTML(codigo)}</strong>`
                 )
-                .join(" • ");
+                .join(" • ")}
+
+        `;
 
     } else {
 
-        listaAreasLibres.textContent =
-            "Las áreas libres para práctica de este horario ya están reservadas.";
+        listaAreasLibres.innerHTML = `
+
+            <span>
+                Gestión:
+                <strong>
+                    ${escaparHTML(
+                        gestion.nombre
+                    )}
+                </strong>
+            </span>
+
+            <br><br>
+
+            Las áreas libres para práctica
+            de este horario ya están reservadas
+            o no existen áreas especiales configuradas.
+
+        `;
     }
 
+
+    // =====================================================
+    // 7. CONSTRUIR SELECTOR DE ÁREAS
+    // =====================================================
 
     areaReserva.innerHTML = `
         <option value="">
@@ -1231,6 +1402,7 @@ async function cargarAreasDisponibles(
 
 
     [...(areas || [])]
+
         .sort(
             (a, b) => {
 
@@ -1269,6 +1441,7 @@ async function cargarAreasDisponibles(
                     );
             }
         )
+
         .forEach(
             area => {
 
@@ -1282,11 +1455,14 @@ async function cargarAreasDisponibles(
                     area.codigo;
 
 
+                // =========================================
+                // ÁREA YA RESERVADA
+                // =========================================
+
                 if (
-                    areasOcupadas
-                        .has(
-                            area.codigo
-                        )
+                    areasOcupadas.has(
+                        area.codigo
+                    )
                 ) {
 
                     option.textContent =
@@ -1295,26 +1471,37 @@ async function cargarAreasDisponibles(
                     option.disabled =
                         true;
 
+
+                // =========================================
+                // ÁREA LIBRE ESPECIAL DE LA GESTIÓN
+                // =========================================
+
                 } else if (
-                    areasLibres
-                        .has(
-                            area.codigo
-                        )
+                    areasLibres.has(
+                        area.codigo
+                    )
                 ) {
 
                     option.textContent =
                         `⭐ ${area.codigo} — Área libre para práctica`;
 
+
+                // =========================================
+                // RESTO DE ÁREAS
+                // =========================================
+
                 } else {
 
                     option.textContent =
                         `${area.codigo} — Disponible`;
+
                 }
 
 
                 areaReserva.appendChild(
                     option
                 );
+
             }
         );
 }
