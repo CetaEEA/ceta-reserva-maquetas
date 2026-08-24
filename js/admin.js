@@ -3577,7 +3577,7 @@ async function descargarTablaPDF() {
 
         doc.text(
 
-            "Desarrollado por Andres Vega",
+            "Electricidad y Electrónica automotriz",
 
             10,
 
