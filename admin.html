@@ -279,10 +279,6 @@
             </div>
 
 
-            <!-- =============================================
-                 SEMANA MOSTRADA
-            ============================================== -->
-
             <div class="semana-panel">
 
                 <div class="semana-info">
@@ -340,10 +336,6 @@
             </div>
 
 
-
-            <!-- =============================================
-                 TABLA SEMANAL
-            ============================================== -->
 
             <div class="tabla-semanal-container">
 
@@ -420,6 +412,7 @@
         </section>
 
 
+
         <!-- =================================================
              CONFIGURACIÓN ACADÉMICA
         ================================================== -->
@@ -427,98 +420,251 @@
         <section class="admin-section">
 
             <div class="section-header">
+
                 <div>
-                    <span class="section-number">04</span>
-                    <h2>🎓 Gestión académica</h2>
+
+                    <span class="section-number">
+                        04
+                    </span>
+
+                    <h2>
+                        🎓 Gestión académica
+                    </h2>
+
                     <p>
-                        Define la gestión activa y configura las áreas libres
-                        del taller para cada día y horario.
+                        Define la gestión activa y configura
+                        las áreas libres del taller para cada
+                        día y horario.
                     </p>
+
                 </div>
+
             </div>
 
+
             <div class="gestion-activa-card">
-                <span>Gestión activa</span>
-                <strong id="gestionActivaTexto">Cargando...</strong>
+
+                <span>
+                    Gestión activa
+                </span>
+
+                <strong id="gestionActivaTexto">
+                    Cargando...
+                </strong>
+
                 <small id="gestionActivaFechas"></small>
+
             </div>
+
 
             <div class="gestion-grid">
 
+
                 <div class="gestion-bloque">
-                    <h3>Crear nueva gestión</h3>
 
-                    <form id="formNuevaGestion" class="form-gestion">
-                        <label for="gestionNombre">Nombre</label>
-                        <input id="gestionNombre" type="text" placeholder="Ej: 1-2027" required>
+                    <h3>
+                        Crear nueva gestión
+                    </h3>
 
-                        <label for="gestionFechaInicio">Fecha de inicio</label>
-                        <input id="gestionFechaInicio" type="date" required>
 
-                        <label for="gestionFechaFin">Fecha de finalización</label>
-                        <input id="gestionFechaFin" type="date" required>
+                    <form
+                        id="formNuevaGestion"
+                        class="form-gestion"
+                    >
 
-                        <button type="submit" class="btn-primary">
+                        <label for="gestionNombre">
+                            Nombre
+                        </label>
+
+                        <input
+                            id="gestionNombre"
+                            type="text"
+                            placeholder="Ej: 1-2027"
+                            required
+                        >
+
+
+                        <label for="gestionFechaInicio">
+                            Fecha de inicio
+                        </label>
+
+                        <input
+                            id="gestionFechaInicio"
+                            type="date"
+                            required
+                        >
+
+
+                        <label for="gestionFechaFin">
+                            Fecha de finalización
+                        </label>
+
+                        <input
+                            id="gestionFechaFin"
+                            type="date"
+                            required
+                        >
+
+
+                        <button
+                            type="submit"
+                            class="btn-primary"
+                        >
                             + Crear gestión
                         </button>
 
-                        <p id="mensajeGestion" class="mensaje-form"></p>
+
+                        <p
+                            id="mensajeGestion"
+                            class="mensaje-form"
+                        ></p>
+
                     </form>
+
                 </div>
 
+
+
                 <div class="gestion-bloque">
-                    <h3>Gestiones registradas</h3>
-                    <div id="listaGestiones" class="lista-gestiones">
+
+                    <h3>
+                        Gestiones registradas
+                    </h3>
+
+                    <div
+                        id="listaGestiones"
+                        class="lista-gestiones"
+                    >
                         Cargando gestiones...
                     </div>
+
                 </div>
 
             </div>
 
+
+
             <div class="config-areas-panel">
+
                 <div class="config-areas-header">
+
                     <div>
-                        <h3>Áreas libres por gestión</h3>
-                        <p>Selecciona la gestión, el día y el horario para definir qué áreas quedan libres.</p>
+
+                        <h3>
+                            Áreas libres por gestión
+                        </h3>
+
+                        <p>
+                            Selecciona la gestión, el día
+                            y el horario para definir qué
+                            áreas quedan libres.
+                        </p>
+
                     </div>
+
                 </div>
+
 
                 <div class="config-selectores">
+
+
                     <div>
-                        <label for="configGestion">Gestión</label>
+
+                        <label for="configGestion">
+                            Gestión
+                        </label>
+
                         <select id="configGestion"></select>
+
                     </div>
 
+
                     <div>
-                        <label for="configDia">Día</label>
+
+                        <label for="configDia">
+                            Día
+                        </label>
+
                         <select id="configDia">
-                            <option value="lunes">Lunes</option>
-                            <option value="martes">Martes</option>
-                            <option value="miercoles">Miércoles</option>
-                            <option value="jueves">Jueves</option>
-                            <option value="viernes">Viernes</option>
+
+                            <option value="lunes">
+                                Lunes
+                            </option>
+
+                            <option value="martes">
+                                Martes
+                            </option>
+
+                            <option value="miercoles">
+                                Miércoles
+                            </option>
+
+                            <option value="jueves">
+                                Jueves
+                            </option>
+
+                            <option value="viernes">
+                                Viernes
+                            </option>
+
                         </select>
+
                     </div>
+
 
                     <div>
-                        <label for="configHorario">Horario</label>
+
+                        <label for="configHorario">
+                            Horario
+                        </label>
+
                         <select id="configHorario">
-                            <option value="09:00-12:00">09:00 - 12:00</option>
-                            <option value="14:00-17:00">14:00 - 17:00</option>
-                            <option value="19:00-21:30">19:00 - 21:30</option>
+
+                            <option value="09:00-12:00">
+                                09:00 - 12:00
+                            </option>
+
+                            <option value="14:00-17:00">
+                                14:00 - 17:00
+                            </option>
+
+                            <option value="19:00-21:30">
+                                19:00 - 21:30
+                            </option>
+
                         </select>
+
                     </div>
+
                 </div>
 
-                <div id="areasGestionChecks" class="areas-check-grid">
-                    <span class="config-cargando">Cargando áreas...</span>
+
+                <div
+                    id="areasGestionChecks"
+                    class="areas-check-grid"
+                >
+
+                    <span class="config-cargando">
+                        Cargando áreas...
+                    </span>
+
                 </div>
 
-                <button id="btnGuardarAreasGestion" type="button" class="btn-primary btn-guardar-areas">
+
+                <button
+                    id="btnGuardarAreasGestion"
+                    type="button"
+                    class="btn-primary btn-guardar-areas"
+                >
                     Guardar configuración de áreas
                 </button>
 
-                <p id="mensajeAreasGestion" class="mensaje-form"></p>
+
+                <p
+                    id="mensajeAreasGestion"
+                    class="mensaje-form"
+                ></p>
+
             </div>
 
         </section>
@@ -664,7 +810,6 @@
 
     <!-- =====================================================
          MODAL EDITAR USUARIO
-         Lo dejamos preparado para el siguiente paso
     ====================================================== -->
 
     <div
@@ -875,6 +1020,40 @@
                 ></textarea>
 
 
+                <!-- =========================================
+                     IMAGEN DE LA MAQUETA
+                ========================================== -->
+
+                <label for="imagenMaqueta">
+                    Imagen de la maqueta
+                </label>
+
+                <input
+                    type="file"
+                    id="imagenMaqueta"
+                    accept="image/jpeg,image/png,image/webp"
+                >
+
+                <p class="campo-ayuda">
+                    Formatos permitidos: JPG, PNG o WEBP.
+                    Tamaño máximo: 5 MB.
+                </p>
+
+
+                <div
+                    id="previewImagenMaqueta"
+                    class="preview-imagen-maqueta"
+                    hidden
+                >
+
+                    <img
+                        id="previewImagenMaquetaImg"
+                        alt="Vista previa de la maqueta"
+                    >
+
+                </div>
+
+
                 <button
                     type="submit"
                     class="btn-primary btn-form"
@@ -914,7 +1093,7 @@
 
     <script src="js/config.js"></script>
 
-    <script src="js/admin.js?v=7"></script>
+    <script src="js/admin.js?v=8"></script>
 
 
 </body>
