@@ -156,6 +156,7 @@ function escapeHTML(text) {
 // =========================================================
 // USUARIOS
 // =========================================================
+
 async function cargarUsuarios() {
 
     const tabla =
@@ -165,13 +166,10 @@ async function cargarUsuarios() {
 
 
     if (!tabla) {
+
         return;
     }
 
-
-    // =====================================================
-    // CARGAR USUARIOS
-    // =====================================================
 
     const {
         data,
@@ -212,12 +210,15 @@ async function cargarUsuarios() {
         tabla.innerHTML = `
 
             <tr>
+
                 <td colspan="5">
                     Error al cargar usuarios.
                 </td>
+
             </tr>
 
         `;
+
 
         return;
     }
@@ -231,28 +232,23 @@ async function cargarUsuarios() {
         tabla.innerHTML = `
 
             <tr>
+
                 <td colspan="5">
                     No existen usuarios.
                 </td>
+
             </tr>
 
         `;
+
 
         return;
     }
 
 
-    // =====================================================
-    // GENERAR TABLA
-    // =====================================================
-
     tabla.innerHTML =
         data.map(
             usuario => {
-
-                // =================================================
-                // ESTADO
-                // =================================================
 
                 const estado =
                     usuario.activo
@@ -270,10 +266,6 @@ async function cargarUsuarios() {
                         `;
 
 
-                // =================================================
-                // ROL VISIBLE
-                // =================================================
-
                 const rolVisible =
                     usuario.es_superadmin === true
 
@@ -288,16 +280,9 @@ async function cargarUsuarios() {
                         );
 
 
-                // =================================================
-                // ACCIONES
-                // =================================================
+                let acciones =
+                    "";
 
-                let acciones = "";
-
-
-                // -------------------------------------------------
-                // SUPERADMIN
-                // -------------------------------------------------
 
                 if (
                     usuario.es_superadmin === true
@@ -315,14 +300,7 @@ async function cargarUsuarios() {
 
                     `;
 
-                }
-
-
-                // -------------------------------------------------
-                // USUARIO NORMAL / ADMINISTRADOR
-                // -------------------------------------------------
-
-                else {
+                } else {
 
                     acciones = `
 
@@ -372,10 +350,6 @@ async function cargarUsuarios() {
 
                 }
 
-
-                // =================================================
-                // FILA
-                // =================================================
 
                 return `
 
@@ -428,10 +402,6 @@ async function cargarUsuarios() {
         .join("");
 
 
-    // =====================================================
-    // BOTONES EDITAR
-    // =====================================================
-
     document
         .querySelectorAll(
             ".btn-editar-usuario"
@@ -453,10 +423,6 @@ async function cargarUsuarios() {
             }
         );
 
-
-    // =====================================================
-    // BOTONES ELIMINAR
-    // =====================================================
 
     document
         .querySelectorAll(
@@ -483,6 +449,7 @@ async function cargarUsuarios() {
             }
         );
 }
+
 
 // =========================================================
 // ABRIR EDITAR USUARIO
@@ -829,7 +796,6 @@ async function eliminarUsuario(
     }
 }
 
-
 // =========================================================
 // MAQUETAS
 // =========================================================
@@ -843,6 +809,7 @@ async function cargarMaquetas() {
 
 
     if (!contenedor) {
+
         return;
     }
 
@@ -852,13 +819,13 @@ async function cargarMaquetas() {
         error
     } =
         await supabaseClient
-
             .from("maquetas")
-
             .select("*")
-
             .order(
-                "id"
+                "codigo",
+                {
+                    ascending: true
+                }
             );
 
 
@@ -873,10 +840,11 @@ async function cargarMaquetas() {
         contenedor.innerHTML = `
 
             <div class="loading-card">
-                Error al cargar las maquetas.
+                Error al cargar maquetas.
             </div>
 
         `;
+
 
         return;
     }
@@ -895,6 +863,7 @@ async function cargarMaquetas() {
 
         `;
 
+
         return;
     }
 
@@ -907,47 +876,15 @@ async function cargarMaquetas() {
                     maqueta.disponible
 
                         ? `
-                            <span class="estado-disponible">
-                                🟢 Disponible
+                            <span class="badge-activo">
+                                Disponible
                             </span>
                         `
 
                         : `
-                            <span class="estado-no-disponible">
-                                🔴 No disponible
+                            <span class="badge-inactivo">
+                                No disponible
                             </span>
-                        `;
-
-
-                const botonEstado =
-                    maqueta.disponible
-
-                        ? `
-                            <button
-                                class="btn-desactivar-maqueta"
-
-                                data-id="${maqueta.id}"
-
-                                data-nombre="${escapeHTML(
-                                    maqueta.nombre
-                                )}"
-                            >
-                                🔴 No disponible
-                            </button>
-                        `
-
-                        : `
-                            <button
-                                class="btn-activar-maqueta"
-
-                                data-id="${maqueta.id}"
-
-                                data-nombre="${escapeHTML(
-                                    maqueta.nombre
-                                )}"
-                            >
-                                🟢 Habilitar
-                            </button>
                         `;
 
 
@@ -955,18 +892,46 @@ async function cargarMaquetas() {
 
                     <div class="maqueta-card">
 
+
+                        ${
+                            maqueta.imagen_url
+
+                                ? `
+
+                                    <div class="maqueta-imagen-admin">
+
+                                        <img
+                                            src="${escapeHTML(
+                                                maqueta.imagen_url
+                                            )}"
+                                            alt="${escapeHTML(
+                                                maqueta.nombre
+                                            )}"
+                                            loading="lazy"
+                                        >
+
+                                    </div>
+
+                                `
+
+                                : ""
+                        }
+
+
                         <div class="maqueta-card-header">
 
                             <div>
 
-                                <div class="maqueta-codigo">
+                                <span class="maqueta-codigo">
 
-                                    ${escapeHTML(
-                                        maqueta.codigo ||
-                                        "SIN CÓDIGO"
-                                    )}
+                                    ${
+                                        escapeHTML(
+                                            maqueta.codigo ||
+                                            "Sin código"
+                                        )
+                                    }
 
-                                </div>
+                                </span>
 
 
                                 <h3>
@@ -985,25 +950,29 @@ async function cargarMaquetas() {
                         </div>
 
 
-                        <div class="maqueta-descripcion">
+                        <p class="maqueta-descripcion">
 
-                            ${escapeHTML(
-                                maqueta.descripcion ||
-                                "Sin descripción."
-                            )}
+                            ${
+                                escapeHTML(
+                                    maqueta.descripcion ||
+                                    "Sin descripción."
+                                )
+                            }
 
-                        </div>
+                        </p>
 
 
-                        <div class="maqueta-acciones">
+                        <div class="maqueta-actions">
 
                             <button
+                                type="button"
                                 class="btn-editar-maqueta"
 
                                 data-id="${maqueta.id}"
 
                                 data-codigo="${escapeHTML(
-                                    maqueta.codigo || ""
+                                    maqueta.codigo ||
+                                    ""
                                 )}"
 
                                 data-nombre="${escapeHTML(
@@ -1011,14 +980,37 @@ async function cargarMaquetas() {
                                 )}"
 
                                 data-descripcion="${escapeHTML(
-                                    maqueta.descripcion || ""
+                                    maqueta.descripcion ||
+                                    ""
+                                )}"
+
+                                data-imagen-url="${escapeHTML(
+                                    maqueta.imagen_url ||
+                                    ""
                                 )}"
                             >
                                 ✏️ Editar
                             </button>
 
 
-                            ${botonEstado}
+                            <button
+                                type="button"
+                                class="btn-disponibilidad-maqueta"
+
+                                data-id="${maqueta.id}"
+
+                                data-disponible="${maqueta.disponible}"
+                            >
+
+                                ${
+                                    maqueta.disponible
+
+                                        ? "⛔ Desactivar"
+
+                                        : "✅ Activar"
+                                }
+
+                            </button>
 
                         </div>
 
@@ -1032,7 +1024,7 @@ async function cargarMaquetas() {
 
 
     // =====================================================
-    // EDITAR
+    // BOTONES EDITAR
     // =====================================================
 
     document
@@ -1054,7 +1046,9 @@ async function cargarMaquetas() {
 
                             button.dataset.nombre,
 
-                            button.dataset.descripcion
+                            button.dataset.descripcion,
+
+                            button.dataset.imagenUrl
 
                         );
 
@@ -1066,59 +1060,37 @@ async function cargarMaquetas() {
 
 
     // =====================================================
-    // DESACTIVAR
+    // BOTONES DISPONIBILIDAD
     // =====================================================
 
     document
         .querySelectorAll(
-            ".btn-desactivar-maqueta"
+            ".btn-disponibilidad-maqueta"
         )
         .forEach(
             button => {
 
                 button.addEventListener(
                     "click",
-                    () => {
+                    async () => {
 
-                        cambiarEstadoMaqueta(
-
-                            button.dataset.id,
-
-                            false,
-
-                            button.dataset.nombre
-
-                        );
-
-                    }
-                );
-
-            }
-        );
+                        const id =
+                            Number(
+                                button.dataset.id
+                            );
 
 
-    // =====================================================
-    // ACTIVAR
-    // =====================================================
+                        const disponibleActual =
+                            button.dataset
+                                .disponible ===
+                            "true";
 
-    document
-        .querySelectorAll(
-            ".btn-activar-maqueta"
-        )
-        .forEach(
-            button => {
 
-                button.addEventListener(
-                    "click",
-                    () => {
+                        await cambiarDisponibilidadMaqueta(
 
-                        cambiarEstadoMaqueta(
+                            id,
 
-                            button.dataset.id,
-
-                            true,
-
-                            button.dataset.nombre
+                            !disponibleActual
 
                         );
 
@@ -1131,14 +1103,15 @@ async function cargarMaquetas() {
 
 
 // =========================================================
-// ABRIR EDITAR MAQUETA
+// ABRIR EDICIÓN DE MAQUETA
 // =========================================================
 
 function abrirEditarMaqueta(
     id,
     codigo,
     nombre,
-    descripcion
+    descripcion,
+    imagenUrl
 ) {
 
     const modal =
@@ -1162,8 +1135,16 @@ function abrirEditarMaqueta(
     }
 
 
+    // Guardar ID que estamos editando
+
     form.dataset.editandoId =
         id;
+
+
+    // Guardar imagen actual
+
+    form.dataset.imagenActual =
+        imagenUrl || "";
 
 
     document.getElementById(
@@ -1184,6 +1165,61 @@ function abrirEditarMaqueta(
         descripcion || "";
 
 
+    const inputImagen =
+        document.getElementById(
+            "imagenMaqueta"
+        );
+
+
+    if (inputImagen) {
+
+        inputImagen.value =
+            "";
+
+    }
+
+
+    // =====================================================
+    // MOSTRAR IMAGEN ACTUAL
+    // =====================================================
+
+    const preview =
+        document.getElementById(
+            "previewImagenMaqueta"
+        );
+
+
+    const previewImg =
+        document.getElementById(
+            "previewImagenMaquetaImg"
+        );
+
+
+    if (
+        imagenUrl &&
+        preview &&
+        previewImg
+    ) {
+
+        previewImg.src =
+            imagenUrl;
+
+
+        preview.hidden =
+            false;
+
+    } else if (preview) {
+
+        preview.hidden =
+            true;
+
+    }
+
+
+    // =====================================================
+    // CAMBIAR TÍTULO DEL MODAL
+    // =====================================================
+
     const titulo =
         modal.querySelector(
             ".modal-header h2"
@@ -1197,6 +1233,10 @@ function abrirEditarMaqueta(
 
     }
 
+
+    // =====================================================
+    // CAMBIAR TEXTO DEL BOTÓN
+    // =====================================================
 
     const boton =
         form.querySelector(
@@ -1212,10 +1252,18 @@ function abrirEditarMaqueta(
     }
 
 
-    document.getElementById(
-        "mensajeMaqueta"
-    ).textContent =
-        "";
+    const mensaje =
+        document.getElementById(
+            "mensajeMaqueta"
+        );
+
+
+    if (mensaje) {
+
+        mensaje.textContent =
+            "";
+
+    }
 
 
     modal.classList.add(
@@ -1225,122 +1273,277 @@ function abrirEditarMaqueta(
 
 
 // =========================================================
-// CAMBIAR ESTADO MAQUETA
+// CAMBIAR DISPONIBILIDAD DE MAQUETA
 // =========================================================
 
-async function cambiarEstadoMaqueta(
+async function cambiarDisponibilidadMaqueta(
     id,
-    disponible,
-    nombre
+    disponible
 ) {
 
     const accion =
         disponible
-            ? "habilitar"
-            : "deshabilitar";
+
+            ? "activar"
+
+            : "desactivar";
 
 
-    if (
-        !confirm(
-            `¿Deseas ${accion} "${nombre}"?`
-        )
-    ) {
+    const confirmar =
+        confirm(
+            `¿Desea ${accion} esta maqueta?`
+        );
+
+
+    if (!confirmar) {
 
         return;
     }
 
 
-    try {
+    const {
+        error
+    } =
+        await supabaseClient
 
-        const {
-            data: { session }
-        } =
-            await supabaseClient
-                .auth
-                .getSession();
+            .from("maquetas")
 
+            .update({
 
-        if (!session) {
+                disponible:
+                    disponible
 
-            alert(
-                "La sesión ha expirado."
+            })
+
+            .eq(
+                "id",
+                id
             );
 
 
-            window.location.href =
-                "index.html";
+    if (error) {
+
+        console.error(
+            "Error cambiando disponibilidad:",
+            error
+        );
 
 
-            return;
+        alert(
+            "No se pudo cambiar el estado de la maqueta."
+        );
+
+
+        return;
+    }
+
+
+    await cargarMaquetas();
+}
+
+
+// =========================================================
+// SUBIR IMAGEN DE MAQUETA
+// =========================================================
+
+async function subirImagenMaqueta(
+    archivo
+) {
+
+    if (!archivo) {
+
+        return null;
+
+    }
+
+
+    const tiposPermitidos = [
+
+        "image/jpeg",
+
+        "image/png",
+
+        "image/webp"
+
+    ];
+
+
+    // =====================================================
+    // VALIDAR FORMATO
+    // =====================================================
+
+    if (
+        !tiposPermitidos.includes(
+            archivo.type
+        )
+    ) {
+
+        throw new Error(
+            "La imagen debe ser JPG, PNG o WEBP."
+        );
+
+    }
+
+
+    // =====================================================
+    // VALIDAR TAMAÑO
+    // =====================================================
+
+    const maximoBytes =
+        5 * 1024 * 1024;
+
+
+    if (
+        archivo.size >
+        maximoBytes
+    ) {
+
+        throw new Error(
+            "La imagen no puede superar los 5 MB."
+        );
+
+    }
+
+
+    // =====================================================
+    // OBTENER EXTENSIÓN
+    // =====================================================
+
+    let extension =
+        archivo.name
+            .split(".")
+            .pop()
+            ?.toLowerCase();
+
+
+    if (
+        !extension ||
+        ![
+            "jpg",
+            "jpeg",
+            "png",
+            "webp"
+        ].includes(
+            extension
+        )
+    ) {
+
+        if (
+            archivo.type ===
+            "image/png"
+        ) {
+
+            extension =
+                "png";
+
+        } else if (
+            archivo.type ===
+            "image/webp"
+        ) {
+
+            extension =
+                "webp";
+
+        } else {
+
+            extension =
+                "jpg";
+
         }
 
+    }
 
-        const respuesta =
-            await fetch(
 
-                `${SUPABASE_URL}/functions/v1/cambiar-estado-maqueta`,
+    // =====================================================
+    // CREAR NOMBRE ÚNICO
+    // =====================================================
+
+    const nombreArchivo =
+        `maqueta-${Date.now()}-${crypto.randomUUID()}.${extension}`;
+
+
+    // =====================================================
+    // SUBIR AL BUCKET
+    // =====================================================
+
+    const {
+        error
+    } =
+        await supabaseClient
+
+            .storage
+
+            .from(
+                "maquetas"
+            )
+
+            .upload(
+
+                nombreArchivo,
+
+                archivo,
 
                 {
 
-                    method:
-                        "POST",
+                    cacheControl:
+                        "3600",
 
-                    headers: {
-
-                        "Content-Type":
-                            "application/json",
-
-                        "Authorization":
-                            `Bearer ${session.access_token}`
-
-                    },
-
-
-                    body:
-                        JSON.stringify({
-
-                            id:
-                                Number(id),
-
-                            disponible
-
-                        })
+                    upsert:
+                        false
 
                 }
 
             );
 
 
-        const resultado =
-            await respuesta.json();
-
-
-        if (!respuesta.ok) {
-
-            alert(
-                resultado.error ||
-                "No se pudo cambiar el estado."
-            );
-
-            return;
-        }
-
-
-        await cargarMaquetas();
-
-
-    } catch (error) {
+    if (error) {
 
         console.error(
-            "Error cambiando estado:",
+            "Error subiendo imagen:",
             error
         );
 
 
-        alert(
-            "Error de conexión."
+        throw new Error(
+            "No se pudo subir la imagen de la maqueta."
         );
+
     }
+
+
+    // =====================================================
+    // OBTENER URL PÚBLICA
+    // =====================================================
+
+    const {
+        data
+    } =
+        supabaseClient
+
+            .storage
+
+            .from(
+                "maquetas"
+            )
+
+            .getPublicUrl(
+                nombreArchivo
+            );
+
+
+    if (
+        !data ||
+        !data.publicUrl
+    ) {
+
+        throw new Error(
+            "No se pudo obtener la URL de la imagen."
+        );
+
+    }
+
+
+    return data.publicUrl;
 }
 
 
@@ -1396,10 +1599,36 @@ if (formMaqueta) {
                     .trim();
 
 
+            const inputImagen =
+                document.getElementById(
+                    "imagenMaqueta"
+                );
+
+
+            const archivoImagen =
+                inputImagen?.files?.[0] ||
+                null;
+
+
             const mensaje =
                 document.getElementById(
                     "mensajeMaqueta"
                 );
+
+
+            if (!mensaje) {
+
+                return;
+            }
+
+
+            if (!nombre) {
+
+                mensaje.textContent =
+                    "El nombre de la maqueta es obligatorio.";
+
+                return;
+            }
 
 
             mensaje.textContent =
@@ -1425,6 +1654,43 @@ if (formMaqueta) {
                 }
 
 
+                // =================================================
+                // IMAGEN ACTUAL
+                // =================================================
+
+                let imagenUrl =
+                    formMaqueta
+                        .dataset
+                        .imagenActual ||
+                    null;
+
+
+                // =================================================
+                // SI HAY NUEVA IMAGEN, SUBIRLA
+                // =================================================
+
+                if (archivoImagen) {
+
+                    mensaje.textContent =
+                        "Subiendo imagen...";
+
+
+                    imagenUrl =
+                        await subirImagenMaqueta(
+                            archivoImagen
+                        );
+
+                }
+
+
+                mensaje.textContent =
+                    "Guardando maqueta...";
+
+
+                // =================================================
+                // ELEGIR EDGE FUNCTION
+                // =================================================
+
                 const funcion =
                     idEditando
 
@@ -1432,6 +1698,10 @@ if (formMaqueta) {
 
                         : "crear-maqueta";
 
+
+                // =================================================
+                // ARMAR DATOS
+                // =================================================
 
                 const datos =
                     idEditando
@@ -1443,24 +1713,40 @@ if (formMaqueta) {
                                     idEditando
                                 ),
 
-                            codigo,
+                            codigo:
+                                codigo,
 
-                            nombre,
+                            nombre:
+                                nombre,
 
-                            descripcion
+                            descripcion:
+                                descripcion,
+
+                            imagen_url:
+                                imagenUrl
 
                         }
 
                         : {
 
-                            codigo,
+                            codigo:
+                                codigo,
 
-                            nombre,
+                            nombre:
+                                nombre,
 
-                            descripcion
+                            descripcion:
+                                descripcion,
+
+                            imagen_url:
+                                imagenUrl
 
                         };
 
+
+                // =================================================
+                // LLAMAR EDGE FUNCTION
+                // =================================================
 
                 const respuesta =
                     await fetch(
@@ -1500,15 +1786,23 @@ if (formMaqueta) {
 
                     mensaje.textContent =
                         resultado.error ||
-                        "No se pudo guardar.";
+                        "No se pudo guardar la maqueta.";
 
                     return;
                 }
 
 
                 mensaje.textContent =
-                    "Guardado correctamente.";
+                    idEditando
 
+                        ? "Maqueta actualizada correctamente."
+
+                        : "Maqueta creada correctamente.";
+
+
+                // =================================================
+                // LIMPIAR FORMULARIO
+                // =================================================
 
                 formMaqueta.reset();
 
@@ -1518,8 +1812,53 @@ if (formMaqueta) {
                     .editandoId;
 
 
+                delete formMaqueta
+                    .dataset
+                    .imagenActual;
+
+
+                // =================================================
+                // OCULTAR PREVISUALIZACIÓN
+                // =================================================
+
+                const preview =
+                    document.getElementById(
+                        "previewImagenMaqueta"
+                    );
+
+
+                const previewImg =
+                    document.getElementById(
+                        "previewImagenMaquetaImg"
+                    );
+
+
+                if (preview) {
+
+                    preview.hidden =
+                        true;
+
+                }
+
+
+                if (previewImg) {
+
+                    previewImg.src =
+                        "";
+
+                }
+
+
+                // =================================================
+                // RECARGAR MAQUETAS
+                // =================================================
+
                 await cargarMaquetas();
 
+
+                // =================================================
+                // CERRAR MODAL
+                // =================================================
 
                 setTimeout(
                     () => {
@@ -1547,7 +1886,9 @@ if (formMaqueta) {
 
 
                 mensaje.textContent =
+                    error?.message ||
                     "Error de conexión.";
+
             }
 
         }
@@ -1555,6 +1896,277 @@ if (formMaqueta) {
 }
 
 
+// =========================================================
+// PREVISUALIZAR IMAGEN ANTES DE SUBIR
+// =========================================================
+
+document
+    .getElementById(
+        "imagenMaqueta"
+    )
+    ?.addEventListener(
+        "change",
+        event => {
+
+            const archivo =
+                event.target
+                    .files?.[0];
+
+
+            const preview =
+                document.getElementById(
+                    "previewImagenMaqueta"
+                );
+
+
+            const imagen =
+                document.getElementById(
+                    "previewImagenMaquetaImg"
+                );
+
+
+            if (
+                !preview ||
+                !imagen
+            ) {
+
+                return;
+            }
+
+
+            if (!archivo) {
+
+                preview.hidden =
+                    true;
+
+
+                imagen.src =
+                    "";
+
+
+                return;
+            }
+
+
+            const tiposPermitidos = [
+
+                "image/jpeg",
+
+                "image/png",
+
+                "image/webp"
+
+            ];
+
+
+            if (
+                !tiposPermitidos.includes(
+                    archivo.type
+                )
+            ) {
+
+                alert(
+                    "Seleccione una imagen JPG, PNG o WEBP."
+                );
+
+
+                event.target.value =
+                    "";
+
+
+                preview.hidden =
+                    true;
+
+
+                imagen.src =
+                    "";
+
+
+                return;
+            }
+
+
+            if (
+                archivo.size >
+                5 * 1024 * 1024
+            ) {
+
+                alert(
+                    "La imagen no puede superar los 5 MB."
+                );
+
+
+                event.target.value =
+                    "";
+
+
+                preview.hidden =
+                    true;
+
+
+                imagen.src =
+                    "";
+
+
+                return;
+            }
+
+
+            imagen.src =
+                URL.createObjectURL(
+                    archivo
+                );
+
+
+            preview.hidden =
+                false;
+
+        }
+    );
+
+
+// =========================================================
+// BOTÓN NUEVA MAQUETA
+// =========================================================
+
+document
+    .getElementById(
+        "btnNuevaMaqueta"
+    )
+    ?.addEventListener(
+        "click",
+        () => {
+
+            const form =
+                document.getElementById(
+                    "formMaqueta"
+                );
+
+
+            const modal =
+                document.getElementById(
+                    "modalMaqueta"
+                );
+
+
+            if (
+                !form ||
+                !modal
+            ) {
+
+                return;
+            }
+
+
+            // =================================================
+            // LIMPIAR FORMULARIO
+            // =================================================
+
+            form.reset();
+
+
+            delete form
+                .dataset
+                .editandoId;
+
+
+            delete form
+                .dataset
+                .imagenActual;
+
+
+            // =================================================
+            // OCULTAR PREVISUALIZACIÓN
+            // =================================================
+
+            const preview =
+                document.getElementById(
+                    "previewImagenMaqueta"
+                );
+
+
+            const previewImg =
+                document.getElementById(
+                    "previewImagenMaquetaImg"
+                );
+
+
+            if (preview) {
+
+                preview.hidden =
+                    true;
+
+            }
+
+
+            if (previewImg) {
+
+                previewImg.src =
+                    "";
+
+            }
+
+
+            // =================================================
+            // TÍTULO
+            // =================================================
+
+            const titulo =
+                modal.querySelector(
+                    ".modal-header h2"
+                );
+
+
+            if (titulo) {
+
+                titulo.textContent =
+                    "Nueva maqueta";
+
+            }
+
+
+            // =================================================
+            // BOTÓN
+            // =================================================
+
+            const boton =
+                form.querySelector(
+                    'button[type="submit"]'
+                );
+
+
+            if (boton) {
+
+                boton.textContent =
+                    "Agregar maqueta";
+
+            }
+
+
+            // =================================================
+            // MENSAJE
+            // =================================================
+
+            const mensaje =
+                document.getElementById(
+                    "mensajeMaqueta"
+                );
+
+
+            if (mensaje) {
+
+                mensaje.textContent =
+                    "";
+
+            }
+
+
+            modal.classList.add(
+                "active"
+            );
+
+        }
+    );
 // =========================================================
 // CREAR USUARIO
 // =========================================================
@@ -1615,6 +2227,20 @@ if (formUsuario) {
                 );
 
 
+            if (
+                !nombre ||
+                !usuario ||
+                !password ||
+                !rol
+            ) {
+
+                mensaje.textContent =
+                    "Complete todos los campos.";
+
+                return;
+            }
+
+
             mensaje.textContent =
                 "Creando usuario...";
 
@@ -1658,17 +2284,20 @@ if (formUsuario) {
 
                             },
 
-
                             body:
                                 JSON.stringify({
 
-                                    nombre,
+                                    nombre:
+                                        nombre,
 
-                                    usuario,
+                                    usuario:
+                                        usuario,
 
-                                    password,
+                                    password:
+                                        password,
 
-                                    rol
+                                    rol:
+                                        rol
 
                                 })
 
@@ -1685,7 +2314,7 @@ if (formUsuario) {
 
                     mensaje.textContent =
                         resultado.error ||
-                        "No se pudo crear.";
+                        "No se pudo crear el usuario.";
 
                     return;
                 }
@@ -1713,6 +2342,10 @@ if (formUsuario) {
                                 "active"
                             );
 
+
+                        mensaje.textContent =
+                            "";
+
                     },
                     800
                 );
@@ -1728,6 +2361,7 @@ if (formUsuario) {
 
                 mensaje.textContent =
                     "Error de conexión.";
+
             }
 
         }
@@ -1736,7 +2370,7 @@ if (formUsuario) {
 
 
 // =========================================================
-// BOTONES NUEVO
+// BOTÓN NUEVO USUARIO
 // =========================================================
 
 document
@@ -1747,30 +2381,15 @@ document
         "click",
         () => {
 
-            document
-                .getElementById(
-                    "modalUsuario"
-                )
-                ?.classList
-                .add(
-                    "active"
-                );
-
-        }
-    );
-
-
-document
-    .getElementById(
-        "btnNuevaMaqueta"
-    )
-    ?.addEventListener(
-        "click",
-        () => {
-
             const form =
                 document.getElementById(
-                    "formMaqueta"
+                    "formUsuario"
+                );
+
+
+            const mensaje =
+                document.getElementById(
+                    "mensajeUsuario"
                 );
 
 
@@ -1778,16 +2397,20 @@ document
 
                 form.reset();
 
-                delete form
-                    .dataset
-                    .editandoId;
+            }
+
+
+            if (mensaje) {
+
+                mensaje.textContent =
+                    "";
 
             }
 
 
             document
                 .getElementById(
-                    "modalMaqueta"
+                    "modalUsuario"
                 )
                 ?.classList
                 .add(
@@ -1813,14 +2436,19 @@ document
                 "click",
                 () => {
 
-                    document
-                        .getElementById(
+                    const modal =
+                        document.getElementById(
                             button.dataset.modal
-                        )
-                        ?.classList
-                        .remove(
+                        );
+
+
+                    if (modal) {
+
+                        modal.classList.remove(
                             "active"
                         );
+
+                    }
 
                 }
             );
@@ -1904,7 +2532,9 @@ function sumarDiasAdmin(
 ) {
 
     const resultado =
-        new Date(fecha);
+        new Date(
+            fecha
+        );
 
 
     resultado.setDate(
@@ -1972,7 +2602,7 @@ function formatearFechaAdmin(
 
 
 // =========================================================
-// ENCABEZADOS SEMANA
+// ACTUALIZAR ENCABEZADOS DE LA SEMANA
 // =========================================================
 
 function actualizarEncabezadosAdmin(
@@ -1986,6 +2616,7 @@ function actualizarEncabezadosAdmin(
 
 
     if (!tabla) {
+
         return;
     }
 
@@ -2045,15 +2676,14 @@ function actualizarEncabezadosAdmin(
             `;
 
         }
+
     }
 }
-
-
 // =========================================================
 // CARGAR RESERVAS SEMANALES
 // =========================================================
 
-async function cargarReservasAdmin() {
+async function cargarReservasSemanaAdmin() {
 
     const tabla =
         document.getElementById(
@@ -2061,59 +2691,22 @@ async function cargarReservasAdmin() {
         );
 
 
-    const textoSemana =
-        document.getElementById(
-            "textoSemanaAdmin"
-        );
-
-
-    if (
-        !tabla ||
-        !textoSemana
-    ) {
+    if (!tabla) {
 
         return;
     }
-
-
-    const lunes =
-        new Date(
-            inicioSemanaAdmin
-        );
-
-
-    const viernes =
-        sumarDiasAdmin(
-            lunes,
-            4
-        );
-
-
-    textoSemana.textContent =
-        `${formatearFechaAdmin(lunes)} al ${formatearFechaAdmin(viernes)}`;
-
-
-    actualizarEncabezadosAdmin(
-        lunes
-    );
-
-
-    const fechaInicio =
-        fechaLocalISOAdmin(
-            lunes
-        );
-
-
-    const fechaFin =
-        fechaLocalISOAdmin(
-            viernes
-        );
 
 
     const tbody =
         tabla.querySelector(
             "tbody"
         );
+
+
+    if (!tbody) {
+
+        return;
+    }
 
 
     tbody.innerHTML = `
@@ -2129,319 +2722,110 @@ async function cargarReservasAdmin() {
     `;
 
 
-    try {
+    // =====================================================
+    // FECHAS DE LA SEMANA
+    // =====================================================
 
-        // =================================================
-        // RESERVAS
-        // =================================================
-
-        const {
-            data: reservas,
-            error
-        } =
-            await supabaseClient
-
-                .from("reservas")
-
-                .select(`
-                    id,
-                    usuario_id,
-                    grupo,
-                    fecha,
-                    horario,
-                    maqueta_id,
-                    maqueta_id_2,
-                    maqueta_id_3,
-                    area_codigo,
-                    titulo_tema,
-                    estado
-                `)
-
-                .gte(
-                    "fecha",
-                    fechaInicio
-                )
-
-                .lte(
-                    "fecha",
-                    fechaFin
-                )
-
-                .eq(
-                    "estado",
-                    "activa"
-                )
-
-                .order(
-                    "fecha"
-                );
+    const lunes =
+        inicioSemanaAdmin;
 
 
-        if (error) {
+    const viernes =
+        sumarDiasAdmin(
+            lunes,
+            4
+        );
 
-            console.error(
-                "Error cargando reservas:",
-                error
+
+    const fechaInicio =
+        fechaLocalISOAdmin(
+            lunes
+        );
+
+
+    const fechaFin =
+        fechaLocalISOAdmin(
+            viernes
+        );
+
+
+    // =====================================================
+    // TEXTO DE SEMANA
+    // =====================================================
+
+    const textoSemana =
+        document.getElementById(
+            "textoSemanaAdmin"
+        );
+
+
+    if (textoSemana) {
+
+        textoSemana.textContent =
+            `${formatearFechaAdmin(lunes)} al ${formatearFechaAdmin(viernes)}`;
+
+    }
+
+
+    actualizarEncabezadosAdmin(
+        lunes
+    );
+
+
+    // =====================================================
+    // CARGAR RESERVAS
+    // =====================================================
+
+    const {
+        data: reservas,
+        error: errorReservas
+    } =
+        await supabaseClient
+
+            .from("reservas")
+
+            .select(`
+                id,
+                usuario_id,
+                grupo,
+                fecha,
+                horario,
+                area_codigo,
+                titulo_tema,
+                maqueta_id,
+                maqueta_id_2,
+                maqueta_id_3,
+                estado
+            `)
+
+            .gte(
+                "fecha",
+                fechaInicio
+            )
+
+            .lte(
+                "fecha",
+                fechaFin
+            )
+
+            .neq(
+                "estado",
+                "cancelada"
+            )
+
+            .order(
+                "fecha",
+                {
+                    ascending: true
+                }
             );
 
 
-            tbody.innerHTML = `
-
-                <tr>
-                    <td colspan="6">
-                        Error al cargar.
-                    </td>
-                </tr>
-
-            `;
-
-
-            return;
-        }
-
-
-        const listaReservas =
-            reservas || [];
-
-
-        // =================================================
-        // IDS DE DOCENTES
-        // =================================================
-
-        const idsUsuarios =
-            [
-                ...new Set(
-
-                    listaReservas
-
-                        .map(
-                            reserva =>
-                                reserva.usuario_id
-                        )
-
-                        .filter(
-                            Boolean
-                        )
-
-                )
-            ];
-
-
-        // =================================================
-        // IDS DE TODAS LAS MAQUETAS
-        // =================================================
-
-        const idsMaquetas =
-            [
-                ...new Set(
-
-                    listaReservas
-
-                        .flatMap(
-                            reserva => [
-
-                                reserva.maqueta_id,
-
-                                reserva.maqueta_id_2,
-
-                                reserva.maqueta_id_3
-
-                            ]
-                        )
-
-                        .filter(
-                            Boolean
-                        )
-
-                )
-            ];
-
-
-        let perfiles = [];
-
-        let maquetas = [];
-
-
-        // =================================================
-        // CARGAR DOCENTES
-        // =================================================
-
-        if (
-            idsUsuarios.length > 0
-        ) {
-
-            const {
-                data,
-                error: errorPerfiles
-            } =
-                await supabaseClient
-
-                    .from("perfiles")
-
-                    .select(
-                        "id, nombre, usuario"
-                    )
-
-                    .in(
-                        "id",
-                        idsUsuarios
-                    );
-
-
-            if (errorPerfiles) {
-
-                console.error(
-                    "Error cargando docentes:",
-                    errorPerfiles
-                );
-
-            } else {
-
-                perfiles =
-                    data || [];
-
-            }
-        }
-
-
-        // =================================================
-        // CARGAR MAQUETAS
-        // =================================================
-
-        if (
-            idsMaquetas.length > 0
-        ) {
-
-            const {
-                data,
-                error: errorMaquetas
-            } =
-                await supabaseClient
-
-                    .from("maquetas")
-
-                    .select(
-                        "id, codigo, nombre"
-                    )
-
-                    .in(
-                        "id",
-                        idsMaquetas
-                    );
-
-
-            if (errorMaquetas) {
-
-                console.error(
-                    "Error cargando nombres de maquetas:",
-                    errorMaquetas
-                );
-
-            } else {
-
-                maquetas =
-                    data || [];
-
-            }
-        }
-
-
-        // =================================================
-        // MAPA DOCENTES
-        // =================================================
-
-        const mapaPerfiles =
-            new Map();
-
-
-        perfiles.forEach(
-            perfil => {
-
-                mapaPerfiles.set(
-
-                    perfil.id,
-
-                    perfil.nombre ||
-                    perfil.usuario ||
-                    "Docente"
-
-                );
-
-            }
-        );
-
-
-        // =================================================
-        // MAPA MAQUETAS
-        // =================================================
-
-        const mapaMaquetas =
-            new Map();
-
-
-        maquetas.forEach(
-            maqueta => {
-
-                const codigo =
-                    maqueta.codigo
-
-                        ? `${maqueta.codigo} - `
-
-                        : "";
-
-
-                mapaMaquetas.set(
-
-                    String(
-                        maqueta.id
-                    ),
-
-                    `${codigo}${maqueta.nombre}`
-
-                );
-
-            }
-        );
-
-
-        // =================================================
-        // DATOS PARA PDF
-        // =================================================
-
-        reservasSemanaPDF =
-            listaReservas;
-
-
-        mapaPerfilesPDF =
-            mapaPerfiles;
-
-
-        mapaMaquetasPDF =
-            mapaMaquetas;
-
-
-        // =================================================
-        // DIBUJAR TABLA
-        // =================================================
-
-        renderizarTablaAdmin(
-
-            listaReservas,
-
-            mapaPerfiles,
-
-            mapaMaquetas,
-
-            lunes
-
-        );
-
-
-    } catch (error) {
+    if (errorReservas) {
 
         console.error(
-            "Error inesperado cargando reservas:",
-            error
+            "Error cargando reservas:",
+            errorReservas
         );
 
 
@@ -2450,79 +2834,144 @@ async function cargarReservasAdmin() {
             <tr>
 
                 <td colspan="6">
-                    Error inesperado.
+                    Error al cargar las reservas.
                 </td>
 
             </tr>
 
         `;
-    }
-}
 
 
-// =========================================================
-// OBTENER NOMBRES DE LAS MAQUETAS DE UNA RESERVA
-// =========================================================
-
-function obtenerNombresMaquetas(
-    reserva,
-    mapaMaquetas
-) {
-
-    const ids =
-        [
-
-            reserva.maqueta_id,
-
-            reserva.maqueta_id_2,
-
-            reserva.maqueta_id_3
-
-        ]
-        .filter(
-            Boolean
-        );
-
-
-    return ids.map(
-        id =>
-
-            mapaMaquetas.get(
-                String(id)
-            ) ||
-            "Maqueta"
-
-    );
-}
-
-
-// =========================================================
-// RENDERIZAR TABLA
-// =========================================================
-
-function renderizarTablaAdmin(
-    reservas,
-    mapaPerfiles,
-    mapaMaquetas,
-    lunes
-) {
-
-    const tabla =
-        document.getElementById(
-            "tablaSemanaAdmin"
-        );
-
-
-    if (!tabla) {
         return;
     }
 
 
-    const tbody =
-        tabla.querySelector(
-            "tbody"
+    // =====================================================
+    // CARGAR PERFILES
+    // =====================================================
+
+    const {
+        data: perfiles,
+        error: errorPerfiles
+    } =
+        await supabaseClient
+
+            .from("perfiles")
+
+            .select(`
+                id,
+                nombre,
+                usuario
+            `);
+
+
+    if (errorPerfiles) {
+
+        console.error(
+            "Error cargando perfiles:",
+            errorPerfiles
         );
 
+    }
+
+
+    // =====================================================
+    // CARGAR MAQUETAS
+    // =====================================================
+
+    const {
+        data: maquetas,
+        error: errorMaquetas
+    } =
+        await supabaseClient
+
+            .from("maquetas")
+
+            .select(`
+                id,
+                codigo,
+                nombre
+            `);
+
+
+    if (errorMaquetas) {
+
+        console.error(
+            "Error cargando maquetas:",
+            errorMaquetas
+        );
+
+    }
+
+
+    // =====================================================
+    // CREAR MAPAS
+    // =====================================================
+
+    const mapaPerfiles =
+        new Map();
+
+
+    (
+        perfiles ||
+        []
+    )
+        .forEach(
+            perfil => {
+
+                mapaPerfiles.set(
+                    String(
+                        perfil.id
+                    ),
+                    perfil
+                );
+
+            }
+        );
+
+
+    const mapaMaquetas =
+        new Map();
+
+
+    (
+        maquetas ||
+        []
+    )
+        .forEach(
+            maqueta => {
+
+                mapaMaquetas.set(
+                    String(
+                        maqueta.id
+                    ),
+                    maqueta
+                );
+
+            }
+        );
+
+
+    // =====================================================
+    // GUARDAR DATOS PARA PDF
+    // =====================================================
+
+    reservasSemanaPDF =
+        reservas ||
+        [];
+
+
+    mapaPerfilesPDF =
+        mapaPerfiles;
+
+
+    mapaMaquetasPDF =
+        mapaMaquetas;
+
+
+    // =====================================================
+    // HORARIOS
+    // =====================================================
 
     const horarios = [
 
@@ -2535,364 +2984,384 @@ function renderizarTablaAdmin(
     ];
 
 
-    const visibles = {
-
-        "09:00-12:00":
-            "09:00 - 12:00",
-
-        "14:00-17:00":
-            "14:00 - 17:00",
-
-        "19:00-21:30":
-            "19:00 - 21:30"
-
-    };
-
+    // =====================================================
+    // CREAR FILAS
+    // =====================================================
 
     tbody.innerHTML =
-        "";
+        horarios
+            .map(
+                horario => {
 
+                    let fila = `
 
-    horarios.forEach(
-        horario => {
+                        <tr>
 
-            const fila =
-                document.createElement(
-                    "tr"
-                );
+                            <td class="horario-cell">
 
+                                <strong>
+                                    ${escapeHTML(
+                                        horario
+                                    )}
+                                </strong>
 
-            const th =
-                document.createElement(
-                    "th"
-                );
-
-
-            th.textContent =
-                visibles[
-                    horario
-                ];
-
-
-            fila.appendChild(
-                th
-            );
-
-
-            for (
-                let dia = 0;
-                dia < 5;
-                dia++
-            ) {
-
-                const fecha =
-                    sumarDiasAdmin(
-                        lunes,
-                        dia
-                    );
-
-
-                const fechaISO =
-                    fechaLocalISOAdmin(
-                        fecha
-                    );
-
-
-                const celda =
-                    document.createElement(
-                        "td"
-                    );
-
-
-                const lista =
-                    reservas.filter(
-                        reserva =>
-
-                            reserva.fecha ===
-                                fechaISO &&
-
-                            reserva.horario ===
-                                horario
-                    );
-
-
-                // =================================================
-                // SIN RESERVAS
-                // =================================================
-
-                if (
-                    lista.length === 0
-                ) {
-
-                    celda.innerHTML = `
-
-                        <span class="reserva-libre">
-                            Sin reservas
-                        </span>
+                            </td>
 
                     `;
 
-                }
+
+                    // =========================================
+                    // LUNES A VIERNES
+                    // =========================================
+
+                    for (
+                        let i = 0;
+                        i < 5;
+                        i++
+                    ) {
+
+                        const fecha =
+                            fechaLocalISOAdmin(
+                                sumarDiasAdmin(
+                                    lunes,
+                                    i
+                                )
+                            );
 
 
-                // =================================================
-                // CON RESERVAS
-                // =================================================
+                        const reservasCelda =
+                            (
+                                reservas ||
+                                []
+                            )
+                                .filter(
+                                    reserva =>
 
-                else {
+                                        reserva.fecha ===
+                                            fecha &&
 
-                    lista.forEach(
-                        reserva => {
-
-                            const tarjeta =
-                                document.createElement(
-                                    "div"
-                                );
-
-
-                            tarjeta.className =
-                                "reserva-card";
-
-
-                            const docente =
-                                mapaPerfiles.get(
-                                    reserva.usuario_id
-                                ) ||
-                                "Docente";
-
-
-                            const nombresMaquetas =
-                                obtenerNombresMaquetas(
-
-                                    reserva,
-
-                                    mapaMaquetas
+                                        reserva.horario ===
+                                            horario
 
                                 );
 
 
-                            const listaMaquetasHTML =
-                                nombresMaquetas
+                        // =====================================
+                        // SIN RESERVAS
+                        // =====================================
 
-                                    .map(
-                                        (
-                                            nombre,
-                                            indice
-                                        ) => `
+                        if (
+                            reservasCelda.length ===
+                            0
+                        ) {
 
-                                            <strong
-                                                class="maqueta-reservada-item"
-                                            >
+                            fila += `
 
-                                                🔧 ${indice + 1}.
-                                                ${escapeHTML(nombre)}
+                                <td>
 
-                                            </strong>
+                                    <div class="celda-libre">
 
-                                        `
-                                    )
+                                        Libre
 
-                                    .join("");
+                                    </div>
 
-
-                            tarjeta.innerHTML = `
-
-                                <div
-                                    class="lista-maquetas-reserva"
-                                >
-
-                                    ${listaMaquetasHTML}
-
-                                </div>
-
-
-                                <span>
-
-                                    👤
-                                    ${escapeHTML(
-                                        docente
-                                    )}
-
-                                </span>
-
-
-                                <span>
-
-                                    👥 Grupo:
-                                    ${escapeHTML(
-                                        reserva.grupo ||
-                                        "-"
-                                    )}
-
-                                </span>
-
-
-                                <span>
-
-                                    📍 Área:
-                                    ${escapeHTML(
-                                        reserva.area_codigo ||
-                                        "-"
-                                    )}
-
-                                </span>
-
-
-                                <span
-                                    class="reserva-tema-admin"
-                                >
-
-                                    📚 Tema:
-
-                                    ${escapeHTML(
-                                        reserva.titulo_tema ||
-                                        "Sin tema"
-                                    )}
-
-                                </span>
+                                </td>
 
                             `;
 
 
-                            // =================================================
-                            // CANCELAR
-                            // =================================================
-
-                            const botonCancelar =
-                                document.createElement(
-                                    "button"
-                                );
-
-
-                            botonCancelar.type =
-                                "button";
-
-
-                            botonCancelar.className =
-                                "btn-cancelar-reserva";
-
-
-                            botonCancelar.textContent =
-                                "✖ Cancelar reserva";
-
-
-                            botonCancelar.addEventListener(
-                                "click",
-                                () => {
-
-                                    cancelarReservaAdmin(
-                                        reserva.id
-                                    );
-
-                                }
-                            );
-
-
-                            tarjeta.appendChild(
-                                botonCancelar
-                            );
-
-
-                            celda.appendChild(
-                                tarjeta
-                            );
-
+                            continue;
                         }
-                    );
+
+
+                        // =====================================
+                        // CON RESERVAS
+                        // =====================================
+
+                        const contenido =
+                            reservasCelda
+                                .map(
+                                    reserva => {
+
+                                        const perfil =
+                                            mapaPerfiles.get(
+                                                String(
+                                                    reserva.usuario_id
+                                                )
+                                            );
+
+
+                                        const docente =
+                                            perfil?.nombre ||
+                                            perfil?.usuario ||
+                                            "Docente";
+
+
+                                        // =================================
+                                        // MAQUETAS
+                                        // =================================
+
+                                        const idsMaquetas = [
+
+                                            reserva.maqueta_id,
+
+                                            reserva.maqueta_id_2,
+
+                                            reserva.maqueta_id_3
+
+                                        ]
+                                            .filter(
+                                                Boolean
+                                            );
+
+
+                                        const nombresMaquetas =
+                                            idsMaquetas
+                                                .map(
+                                                    id => {
+
+                                                        const maqueta =
+                                                            mapaMaquetas.get(
+                                                                String(
+                                                                    id
+                                                                )
+                                                            );
+
+
+                                                        if (!maqueta) {
+
+                                                            return `Maqueta ${id}`;
+
+                                                        }
+
+
+                                                        return (
+
+                                                            maqueta.codigo
+
+                                                                ? `${maqueta.codigo} - ${maqueta.nombre}`
+
+                                                                : maqueta.nombre
+
+                                                        );
+
+                                                    }
+                                                );
+
+
+                                        const textoMaquetas =
+                                            nombresMaquetas.length
+
+                                                ? nombresMaquetas.join(
+                                                    "<br>"
+                                                )
+
+                                                : "Sin maqueta";
+
+
+                                        const grupo =
+                                            reserva.grupo ||
+                                            "Sin grupo";
+
+
+                                        const area =
+                                            reserva.area_codigo ||
+                                            "Sin área";
+
+
+                                        const tema =
+                                            reserva.titulo_tema ||
+                                            "Sin tema";
+
+
+                                        return `
+
+                                            <div class="reserva-admin-card">
+
+                                                <div class="reserva-admin-docente">
+
+                                                    👤
+                                                    ${escapeHTML(
+                                                        docente
+                                                    )}
+
+                                                </div>
+
+
+                                                <div>
+
+                                                    <strong>
+                                                        Grupo:
+                                                    </strong>
+
+                                                    ${escapeHTML(
+                                                        grupo
+                                                    )}
+
+                                                </div>
+
+
+                                                <div>
+
+                                                    <strong>
+                                                        Maqueta:
+                                                    </strong>
+
+                                                    <br>
+
+                                                    ${textoMaquetas}
+
+                                                </div>
+
+
+                                                <div>
+
+                                                    <strong>
+                                                        Área:
+                                                    </strong>
+
+                                                    ${escapeHTML(
+                                                        area
+                                                    )}
+
+                                                </div>
+
+
+                                                <div>
+
+                                                    <strong>
+                                                        Tema:
+                                                    </strong>
+
+                                                    ${escapeHTML(
+                                                        tema
+                                                    )}
+
+                                                </div>
+
+
+                                                <button
+                                                    type="button"
+                                                    class="btn-cancelar-reserva-admin"
+                                                    data-id="${reserva.id}"
+                                                >
+                                                    Cancelar reserva
+                                                </button>
+
+                                            </div>
+
+                                        `;
+
+                                    }
+                                )
+                                .join("");
+
+
+                        fila += `
+
+                            <td>
+
+                                ${contenido}
+
+                            </td>
+
+                        `;
+
+                    }
+
+
+                    fila += `
+
+                        </tr>
+
+                    `;
+
+
+                    return fila;
+
                 }
+            )
+            .join("");
 
 
-                fila.appendChild(
-                    celda
+    // =====================================================
+    // BOTONES CANCELAR RESERVA
+    // =====================================================
+
+    document
+        .querySelectorAll(
+            ".btn-cancelar-reserva-admin"
+        )
+        .forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    async () => {
+
+                        const id =
+                            Number(
+                                button.dataset.id
+                            );
+
+
+                        await cancelarReservaAdmin(
+                            id
+                        );
+
+                    }
                 );
+
             }
-
-
-            tbody.appendChild(
-                fila
-            );
-
-        }
-    );
+        );
 }
 
 
 // =========================================================
-// CANCELAR RESERVA
+// CANCELAR RESERVA DESDE ADMINISTRACIÓN
 // =========================================================
 
 async function cancelarReservaAdmin(
-    reservaId
+    id
 ) {
 
     const confirmar =
         confirm(
-            "¿Desea cancelar esta reserva? Todas las maquetas seleccionadas y el área volverán a quedar disponibles."
+            "¿Desea cancelar esta reserva? La maqueta y el área quedarán nuevamente disponibles."
         );
 
 
     if (!confirmar) {
+
         return;
     }
 
 
-    try {
+    const {
+        error
+    } =
+        await supabaseClient
 
-        const {
-            data,
-            error
-        } =
-            await supabaseClient
+            .from("reservas")
 
-                .from("reservas")
+            .update({
 
-                .update({
+                estado:
+                    "cancelada",
 
-                    estado:
-                        "cancelada",
+                updated_at:
+                    new Date()
+                        .toISOString()
 
-                    updated_at:
-                        new Date()
-                            .toISOString()
+            })
 
-                })
-
-                .eq(
-                    "id",
-                    reservaId
-                )
-
-                .eq(
-                    "estado",
-                    "activa"
-                )
-
-                .select("id");
-
-
-        if (error) {
-
-            throw error;
-        }
-
-
-        if (
-            !data ||
-            data.length === 0
-        ) {
-
-            alert(
-                "No se pudo cancelar o ya estaba cancelada."
+            .eq(
+                "id",
+                id
             );
 
-            return;
-        }
 
-
-        await cargarReservasAdmin();
-
-
-    } catch (error) {
+    if (error) {
 
         console.error(
             "Error cancelando reserva:",
@@ -2901,14 +3370,20 @@ async function cancelarReservaAdmin(
 
 
         alert(
-            "No fue posible cancelar la reserva."
+            "No se pudo cancelar la reserva."
         );
+
+
+        return;
     }
+
+
+    await cargarReservasSemanaAdmin();
 }
 
 
 // =========================================================
-// SEMANA ANTERIOR
+// CONTROLES DE SEMANA
 // =========================================================
 
 document
@@ -2926,15 +3401,11 @@ document
                 );
 
 
-            await cargarReservasAdmin();
+            await cargarReservasSemanaAdmin();
 
         }
     );
 
-
-// =========================================================
-// SEMANA ACTUAL
-// =========================================================
 
 document
     .getElementById(
@@ -2950,15 +3421,11 @@ document
                 );
 
 
-            await cargarReservasAdmin();
+            await cargarReservasSemanaAdmin();
 
         }
     );
 
-
-// =========================================================
-// SEMANA SIGUIENTE
-// =========================================================
 
 document
     .getElementById(
@@ -2975,114 +3442,15 @@ document
                 );
 
 
-            await cargarReservasAdmin();
+            await cargarReservasSemanaAdmin();
 
         }
     );
-
-
 // =========================================================
-// CARGAR IMAGEN COMO DATA URL
+// PDF
 // =========================================================
 
-async function cargarImagenDataURL(
-    ruta
-) {
-
-    return new Promise(
-        (
-            resolve,
-            reject
-        ) => {
-
-            const img =
-                new Image();
-
-
-            img.crossOrigin =
-                "anonymous";
-
-
-            img.onload =
-                () => {
-
-                    try {
-
-                        const canvas =
-                            document.createElement(
-                                "canvas"
-                            );
-
-
-                        canvas.width =
-                            img.naturalWidth;
-
-
-                        canvas.height =
-                            img.naturalHeight;
-
-
-                        const ctx =
-                            canvas.getContext(
-                                "2d"
-                            );
-
-
-                        ctx.drawImage(
-                            img,
-                            0,
-                            0
-                        );
-
-
-                        resolve(
-                            canvas.toDataURL(
-                                "image/png"
-                            )
-                        );
-
-
-                    } catch (error) {
-
-                        reject(
-                            error
-                        );
-                    }
-
-                };
-
-
-            img.onerror =
-                reject;
-
-
-            img.src =
-                `${ruta}?v=${Date.now()}`;
-
-        }
-    );
-}
-
-
-// =========================================================
-// BOTÓN PDF
-// =========================================================
-
-document
-    .getElementById(
-        "btnDescargarPDF"
-    )
-    ?.addEventListener(
-        "click",
-        descargarTablaPDF
-    );
-
-
-// =========================================================
-// DESCARGAR PDF
-// =========================================================
-
-async function descargarTablaPDF() {
+function descargarTablaPDF() {
 
     if (
         !window.jspdf ||
@@ -3090,7 +3458,7 @@ async function descargarTablaPDF() {
     ) {
 
         alert(
-            "No se pudo cargar el generador PDF."
+            "No se pudo cargar la librería PDF."
         );
 
         return;
@@ -3118,10 +3486,12 @@ async function descargarTablaPDF() {
         });
 
 
+    // =====================================================
+    // FECHAS
+    // =====================================================
+
     const lunes =
-        new Date(
-            inicioSemanaAdmin
-        );
+        inicioSemanaAdmin;
 
 
     const viernes =
@@ -3132,45 +3502,7 @@ async function descargarTablaPDF() {
 
 
     // =====================================================
-    // LOGO
-    // =====================================================
-
-    try {
-
-        const logo =
-            await cargarImagenDataURL(
-                "img/logo-ceta-transparente.png"
-            );
-
-
-        doc.addImage(
-
-            logo,
-
-            "PNG",
-
-            12,
-
-            8,
-
-            25,
-
-            25
-
-        );
-
-
-    } catch (error) {
-
-        console.warn(
-            "No se pudo incluir el logo en el PDF.",
-            error
-        );
-    }
-
-
-    // =====================================================
-    // CABECERA
+    // TÍTULO
     // =====================================================
 
     doc.setFontSize(
@@ -3178,19 +3510,20 @@ async function descargarTablaPDF() {
     );
 
 
+    doc.setFont(
+        "helvetica",
+        "bold"
+    );
+
+
     doc.text(
-
         "INSTITUTO CETA",
-
-        148,
-
-        14,
-
+        148.5,
+        13,
         {
             align:
                 "center"
         }
-
     );
 
 
@@ -3200,18 +3533,13 @@ async function descargarTablaPDF() {
 
 
     doc.text(
-
         "Sistema de Reserva de Maquetas",
-
-        148,
-
+        148.5,
         21,
-
         {
             align:
                 "center"
         }
-
     );
 
 
@@ -3220,69 +3548,64 @@ async function descargarTablaPDF() {
     );
 
 
-    doc.text(
-
-        "Reporte semanal de reservas",
-
-        148,
-
-        27,
-
-        {
-            align:
-                "center"
-        }
-
+    doc.setFont(
+        "helvetica",
+        "normal"
     );
 
 
     doc.text(
-
-        `Semana: ${formatearFechaAdmin(lunes)} al ${formatearFechaAdmin(viernes)}`,
-
-        148,
-
-        32,
-
+        `Reporte semanal: ${formatearFechaAdmin(lunes)} al ${formatearFechaAdmin(viernes)}`,
+        148.5,
+        28,
         {
             align:
                 "center"
         }
-
     );
 
 
     // =====================================================
-    // DÍAS
+    // ENCABEZADO DE TABLA
     // =====================================================
 
-    const dias = [
+    const head = [[
 
-        "LUNES",
+        "HORARIO",
 
-        "MARTES",
+        `LUNES\n${formatearFechaAdmin(
+            lunes
+        )}`,
 
-        "MIÉRCOLES",
+        `MARTES\n${formatearFechaAdmin(
+            sumarDiasAdmin(
+                lunes,
+                1
+            )
+        )}`,
 
-        "JUEVES",
+        `MIÉRCOLES\n${formatearFechaAdmin(
+            sumarDiasAdmin(
+                lunes,
+                2
+            )
+        )}`,
 
-        "VIERNES"
+        `JUEVES\n${formatearFechaAdmin(
+            sumarDiasAdmin(
+                lunes,
+                3
+            )
+        )}`,
 
-    ];
+        `VIERNES\n${formatearFechaAdmin(
+            sumarDiasAdmin(
+                lunes,
+                4
+            )
+        )}`
 
-
-    const fechasDias =
-        dias.map(
-            (
-                _,
-                indice
-            ) =>
-
-                sumarDiasAdmin(
-                    lunes,
-                    indice
-                )
-        );
+    ]];
 
 
     // =====================================================
@@ -3300,42 +3623,8 @@ async function descargarTablaPDF() {
     ];
 
 
-    const horariosVisibles = {
-
-        "09:00-12:00":
-            "09:00 - 12:00",
-
-        "14:00-17:00":
-            "14:00 - 17:00",
-
-        "19:00-21:30":
-            "19:00 - 21:30"
-
-    };
-
-
     // =====================================================
-    // ENCABEZADO TABLA PDF
-    // =====================================================
-
-    const head = [[
-
-        "Horario",
-
-        ...fechasDias.map(
-            (
-                fecha,
-                indice
-            ) =>
-
-                `${dias[indice]}\n${formatearFechaAdmin(fecha)}`
-        )
-
-    ]];
-
-
-    // =====================================================
-    // CONTENIDO TABLA PDF
+    // CUERPO DEL PDF
     // =====================================================
 
     const body =
@@ -3344,126 +3633,175 @@ async function descargarTablaPDF() {
 
                 const fila = [
 
-                    horariosVisibles[
-                        horario
-                    ]
+                    horario
 
                 ];
 
 
-                fechasDias.forEach(
-                    fecha => {
+                for (
+                    let i = 0;
+                    i < 5;
+                    i++
+                ) {
 
-                        const fechaISO =
-                            fechaLocalISOAdmin(
-                                fecha
+                    const fecha =
+                        fechaLocalISOAdmin(
+                            sumarDiasAdmin(
+                                lunes,
+                                i
+                            )
+                        );
+
+
+                    const reservasCelda =
+                        (
+                            reservasSemanaPDF ||
+                            []
+                        )
+                            .filter(
+                                reserva =>
+
+                                    reserva.fecha ===
+                                        fecha &&
+
+                                    reserva.horario ===
+                                        horario
+
                             );
 
 
-                        const reservas =
-                            reservasSemanaPDF
-                                .filter(
-                                    reserva =>
+                    if (
+                        reservasCelda.length ===
+                        0
+                    ) {
 
-                                        reserva.fecha ===
-                                            fechaISO &&
-
-                                        reserva.horario ===
-                                            horario
-                                );
+                        fila.push(
+                            "LIBRE"
+                        );
 
 
-                        // =================================================
-                        // SIN RESERVAS
-                        // =================================================
-
-                        if (
-                            reservas.length === 0
-                        ) {
-
-                            fila.push(
-                                "Sin reservas"
-                            );
-
-                            return;
-                        }
+                        continue;
+                    }
 
 
-                        // =================================================
-                        // RESERVAS DE LA CELDA
-                        // =================================================
+                    const textos =
+                        reservasCelda
+                            .map(
+                                reserva => {
 
-                        const contenido =
-                            reservas
-
-                                .map(
-                                    reserva => {
-
-                                        const docente =
-                                            mapaPerfilesPDF.get(
+                                    const perfil =
+                                        mapaPerfilesPDF.get(
+                                            String(
                                                 reserva.usuario_id
-                                            ) ||
-                                            "Docente";
+                                            )
+                                        );
 
 
-                                        const nombresMaquetas =
-                                            obtenerNombresMaquetas(
+                                    const docente =
+                                        perfil?.nombre ||
+                                        perfil?.usuario ||
+                                        "Docente";
 
-                                                reserva,
 
-                                                mapaMaquetasPDF
+                                    // =================================
+                                    // MAQUETAS
+                                    // Incluye tercer campo histórico
+                                    // =================================
 
+                                    const idsMaquetas = [
+
+                                        reserva.maqueta_id,
+
+                                        reserva.maqueta_id_2,
+
+                                        reserva.maqueta_id_3
+
+                                    ]
+                                        .filter(
+                                            Boolean
+                                        );
+
+
+                                    const maquetas =
+                                        idsMaquetas
+                                            .map(
+                                                id => {
+
+                                                    const maqueta =
+                                                        mapaMaquetasPDF.get(
+                                                            String(
+                                                                id
+                                                            )
+                                                        );
+
+
+                                                    if (!maqueta) {
+
+                                                        return `Maqueta ${id}`;
+
+                                                    }
+
+
+                                                    return (
+
+                                                        maqueta.codigo
+
+                                                            ? `${maqueta.codigo} - ${maqueta.nombre}`
+
+                                                            : maqueta.nombre
+
+                                                    );
+
+                                                }
+                                            )
+                                            .join(
+                                                ", "
                                             );
 
 
-                                        const textoMaquetas =
-                                            nombresMaquetas
-
-                                                .map(
-                                                    (
-                                                        nombre,
-                                                        indice
-                                                    ) =>
-
-                                                        `Maqueta ${indice + 1}: ${nombre}`
-                                                )
-
-                                                .join(
-                                                    "\n"
-                                                );
+                                    const grupo =
+                                        reserva.grupo ||
+                                        "-";
 
 
-                                        return [
+                                    const area =
+                                        reserva.area_codigo ||
+                                        "-";
 
-                                            textoMaquetas,
 
-                                            `Docente: ${docente}`,
+                                    const tema =
+                                        reserva.titulo_tema ||
+                                        "-";
 
-                                            `Grupo: ${reserva.grupo || "-"}`,
 
-                                            `Área: ${reserva.area_codigo || "-"}`,
+                                    return [
 
-                                            `Tema: ${reserva.titulo_tema || "Sin tema"}`
+                                        `Docente: ${docente}`,
 
-                                        ]
+                                        `Grupo: ${grupo}`,
+
+                                        `Maqueta: ${maquetas || "-"}`,
+
+                                        `Área: ${area}`,
+
+                                        `Tema: ${tema}`
+
+                                    ]
                                         .join(
                                             "\n"
                                         );
 
-                                    }
-                                )
-
-                                .join(
-                                    "\n\n"
-                                );
+                                }
+                            );
 
 
-                        fila.push(
-                            contenido
-                        );
+                    fila.push(
+                        textos.join(
+                            "\n\n"
+                        )
+                    );
 
-                    }
-                );
+                }
 
 
                 return fila;
@@ -3478,9 +3816,11 @@ async function descargarTablaPDF() {
 
     doc.autoTable({
 
-        head,
+        head:
+            head,
 
-        body,
+        body:
+            body,
 
         startY:
             39,
@@ -3490,8 +3830,9 @@ async function descargarTablaPDF() {
 
         styles: {
 
+            // LETRA AUMENTADA DE 7 A 8
             fontSize:
-                7,
+                11,
 
             cellPadding:
                 2,
@@ -3545,17 +3886,17 @@ async function descargarTablaPDF() {
 
 
     // =====================================================
-    // FOOTER PDF
+    // PIE DE PÁGINA
     // =====================================================
 
-    const paginas =
+    const numeroPaginas =
         doc.internal
             .getNumberOfPages();
 
 
     for (
         let pagina = 1;
-        pagina <= paginas;
+        pagina <= numeroPaginas;
         pagina++
     ) {
 
@@ -3564,35 +3905,35 @@ async function descargarTablaPDF() {
         );
 
 
-        const altura =
-            doc.internal
-                .pageSize
-                .height;
-
-
         doc.setFontSize(
             8
         );
 
 
+        doc.setFont(
+            "helvetica",
+            "normal"
+        );
+
+
         doc.text(
 
-            "Electricidad y Electrónica automotriz",
+            "Sistema de Reserva de Maquetas · CETA",
 
-            10,
+            8,
 
-            altura - 6
+            202
 
         );
 
 
         doc.text(
 
-            `Página ${pagina} de ${paginas}`,
+            `Página ${pagina} de ${numeroPaginas}`,
 
-            287,
+            289,
 
-            altura - 6,
+            202,
 
             {
                 align:
@@ -3600,116 +3941,52 @@ async function descargarTablaPDF() {
             }
 
         );
+
     }
 
 
     // =====================================================
-    // NOMBRE ARCHIVO
+    // NOMBRE DEL ARCHIVO
     // =====================================================
 
-    const archivo =
+    const nombreArchivo =
 
-        `CETA_Reservas_${fechaLocalISOAdmin(lunes)}_${fechaLocalISOAdmin(viernes)}.pdf`;
+        `reservas-ceta-${fechaLocalISOAdmin(
+            lunes
+        )}-${fechaLocalISOAdmin(
+            viernes
+        )}.pdf`;
 
 
     doc.save(
-        archivo
+        nombreArchivo
     );
 }
 
 
 // =========================================================
-// INICIAR PANEL
+// BOTÓN DESCARGAR PDF
 // =========================================================
 
-(async () => {
+document
+    .getElementById(
+        "btnDescargarPDF"
+    )
+    ?.addEventListener(
+        "click",
+        () => {
 
-    console.log(
-        "Iniciando panel administrador..."
+            descargarTablaPDF();
+
+        }
     );
-
-
-    const perfil =
-        await comprobarAdministrador();
-
-
-    if (!perfil) {
-        return;
-    }
-
-
-    await cargarUsuarios();
-
-    await cargarMaquetas();
-
-    await cargarReservasAdmin();
-
-
-    console.log(
-        "Panel administrador iniciado correctamente."
-    );
-
-})();
 // =========================================================
-// =========================================================
-// MÓDULO: GESTIÓN ACADÉMICA
-// =========================================================
-// =========================================================
-// =========================================================
-// MÓDULO: GESTIÓN ACADÉMICA
-// =========================================================
+// GESTIÓN ACADÉMICA
 // =========================================================
 
-let gestionAcademicaActiva = null;
+let gestionesAcademicas = [];
 
-
-// =========================================================
-// MENSAJE AMIGABLE DE ERROR
-// =========================================================
-
-function obtenerMensajeErrorGestion(error) {
-
-    const mensaje =
-        String(
-            error?.message ||
-            ""
-        )
-        .toLowerCase();
-
-
-    if (
-        mensaje.includes(
-            "superponen"
-        ) ||
-        mensaje.includes(
-            "solap"
-        )
-    ) {
-
-        return (
-            "Las fechas seleccionadas se superponen " +
-            "con otra gestión académica registrada."
-        );
-
-    }
-
-
-    if (
-        error?.code === "23505"
-    ) {
-
-        return (
-            "Ya existe una gestión con ese nombre."
-        );
-
-    }
-
-
-    return (
-        error?.message ||
-        "No se pudo completar la operación."
-    );
-}
+let areasTallerGestion = [];
 
 
 // =========================================================
@@ -3718,15 +3995,15 @@ function obtenerMensajeErrorGestion(error) {
 
 async function cargarGestionesAcademicas() {
 
-    const selectorGestion =
+    const lista =
         document.getElementById(
-            "configGestion"
+            "listaGestiones"
         );
 
 
-    const listaGestiones =
+    const selector =
         document.getElementById(
-            "listaGestiones"
+            "configGestion"
         );
 
 
@@ -3752,14 +4029,7 @@ async function cargarGestionesAcademicas() {
                 "gestiones_academicas"
             )
 
-            .select(`
-                id,
-                nombre,
-                fecha_inicio,
-                fecha_fin,
-                activa,
-                created_at
-            `)
+            .select("*")
 
             .order(
                 "fecha_inicio",
@@ -3777,12 +4047,18 @@ async function cargarGestionesAcademicas() {
         );
 
 
-        if (
-            gestionActivaTexto
-        ) {
+        if (lista) {
+
+            lista.innerHTML =
+                "Error al cargar gestiones.";
+
+        }
+
+
+        if (gestionActivaTexto) {
 
             gestionActivaTexto.textContent =
-                "Error al cargar gestión";
+                "No disponible";
 
         }
 
@@ -3791,7 +4067,7 @@ async function cargarGestionesAcademicas() {
     }
 
 
-    const gestiones =
+    gestionesAcademicas =
         data || [];
 
 
@@ -3799,277 +4075,114 @@ async function cargarGestionesAcademicas() {
     // GESTIÓN ACTIVA
     // =====================================================
 
-    gestionAcademicaActiva =
-        gestiones.find(
+    const activa =
+        gestionesAcademicas.find(
             gestion =>
                 gestion.activa === true
-        ) || null;
+        );
 
 
-    if (
-        gestionActivaTexto
-    ) {
+    if (gestionActivaTexto) {
 
         gestionActivaTexto.textContent =
-            gestionAcademicaActiva
-                ? gestionAcademicaActiva.nombre
-                : "No existe una gestión activa";
+            activa
+                ? activa.nombre
+                : "Ninguna gestión activa";
 
     }
 
 
-    if (
-        gestionActivaFechas
-    ) {
+    if (gestionActivaFechas) {
 
-        if (
-            gestionAcademicaActiva
-        ) {
+        gestionActivaFechas.textContent =
+            activa
 
-            gestionActivaFechas.textContent =
-                `${formatearFechaGestion(
-                    gestionAcademicaActiva.fecha_inicio
-                )} al ${formatearFechaGestion(
-                    gestionAcademicaActiva.fecha_fin
-                )}`;
+                ? `${formatearFechaBD(
+                    activa.fecha_inicio
+                )} al ${formatearFechaBD(
+                    activa.fecha_fin
+                )}`
 
-        } else {
-
-            gestionActivaFechas.textContent =
-                "";
-
-        }
+                : "";
 
     }
 
 
     // =====================================================
-    // SELECTOR DE GESTIÓN
+    // LISTA DE GESTIONES
     // =====================================================
 
-    if (
-        selectorGestion
-    ) {
-
-        const valorAnterior =
-            selectorGestion.value;
-
-
-        selectorGestion.innerHTML =
-            "";
-
+    if (lista) {
 
         if (
-            gestiones.length === 0
+            gestionesAcademicas.length ===
+            0
         ) {
 
-            selectorGestion.innerHTML = `
-
-                <option value="">
-                    No existen gestiones
-                </option>
-
-            `;
+            lista.innerHTML =
+                "No existen gestiones registradas.";
 
         } else {
 
-            gestiones.forEach(
-                gestion => {
-
-                    const option =
-                        document.createElement(
-                            "option"
-                        );
-
-
-                    option.value =
-                        gestion.id;
-
-
-                    option.textContent =
-                        gestion.activa
-
-                            ? `${gestion.nombre} — ACTIVA`
-
-                            : gestion.nombre;
-
-
-                    selectorGestion.appendChild(
-                        option
-                    );
-
-                }
-            );
-
-
-            const existeValorAnterior =
-                gestiones.some(
-                    gestion =>
-                        String(
-                            gestion.id
-                        ) ===
-                        String(
-                            valorAnterior
-                        )
-                );
-
-
-            if (
-                existeValorAnterior
-            ) {
-
-                selectorGestion.value =
-                    valorAnterior;
-
-            } else if (
-                gestionAcademicaActiva
-            ) {
-
-                selectorGestion.value =
-                    String(
-                        gestionAcademicaActiva.id
-                    );
-
-            }
-
-        }
-
-    }
-
-
-    // =====================================================
-    // LISTA VISUAL DE GESTIONES
-    // =====================================================
-
-    if (
-        listaGestiones
-    ) {
-
-        if (
-            gestiones.length === 0
-        ) {
-
-            listaGestiones.innerHTML = `
-
-                <div class="gestion-vacia">
-                    No existen gestiones académicas.
-                </div>
-
-            `;
-
-        } else {
-
-            listaGestiones.innerHTML =
-                gestiones
+            lista.innerHTML =
+                gestionesAcademicas
                     .map(
                         gestion => {
 
-                            const estado =
-                                gestion.activa
-
-                                    ? `
-                                        <span
-                                            class="badge-gestion-activa"
-                                        >
-                                            ✓ Gestión activa
-                                        </span>
-                                    `
-
-                                    : `
-                                        <span
-                                            class="badge-gestion-inactiva"
-                                        >
-                                            Inactiva
-                                        </span>
-                                    `;
-
-
-                            const botonActivar =
-                                gestion.activa
-
-                                    ? ""
-
-                                    : `
-                                        <button
-                                            type="button"
-                                            class="btn-activar-gestion"
-
-                                            data-id="${gestion.id}"
-
-                                            data-nombre="${escapeHTML(
-                                                gestion.nombre
-                                            )}"
-                                        >
-                                            ✓ Activar gestión
-                                        </button>
-                                    `;
-
-
                             return `
 
-                                <div
-                                    class="gestion-item
-                                    ${
-                                        gestion.activa
-                                            ? "gestion-item-activa"
-                                            : ""
-                                    }"
-                                >
+                                <div class="gestion-item">
 
                                     <div>
 
                                         <strong>
-
                                             ${escapeHTML(
                                                 gestion.nombre
                                             )}
-
                                         </strong>
-
 
                                         <span>
 
-                                            ${formatearFechaGestion(
+                                            ${formatearFechaBD(
                                                 gestion.fecha_inicio
                                             )}
 
-                                            —
+                                            al
 
-                                            ${formatearFechaGestion(
+                                            ${formatearFechaBD(
                                                 gestion.fecha_fin
                                             )}
 
                                         </span>
 
-
-                                        ${estado}
-
                                     </div>
 
 
-                                    <div
-                                        class="gestion-card-acciones"
-                                    >
+                                    <div>
 
-                                        <button
-                                            type="button"
-                                            class="btn-editar-gestion"
+                                        ${
+                                            gestion.activa
 
-                                            data-id="${gestion.id}"
+                                                ? `
 
-                                            data-nombre="${escapeHTML(
-                                                gestion.nombre
-                                            )}"
+                                                    <span class="badge-activo">
+                                                        Activa
+                                                    </span>
 
-                                            data-inicio="${gestion.fecha_inicio}"
+                                                `
 
-                                            data-fin="${gestion.fecha_fin}"
-                                        >
-                                            ✏️ Editar fechas
-                                        </button>
+                                                : `
 
+                                                    <button
+                                                        type="button"
+                                                        class="btn-activar-gestion"
+                                                        data-id="${gestion.id}"
+                                                    >
+                                                        Activar
+                                                    </button>
 
-                                        ${botonActivar}
+                                                `
+                                        }
 
                                     </div>
 
@@ -4087,7 +4200,7 @@ async function cargarGestionesAcademicas() {
 
 
     // =====================================================
-    // BOTONES ACTIVAR
+    // BOTONES ACTIVAR GESTIÓN
     // =====================================================
 
     document
@@ -4095,18 +4208,16 @@ async function cargarGestionesAcademicas() {
             ".btn-activar-gestion"
         )
         .forEach(
-            boton => {
+            button => {
 
-                boton.addEventListener(
+                button.addEventListener(
                     "click",
                     async () => {
 
                         await activarGestionAcademica(
-
-                            boton.dataset.id,
-
-                            boton.dataset.nombre
-
+                            Number(
+                                button.dataset.id
+                            )
                         );
 
                     }
@@ -4117,156 +4228,104 @@ async function cargarGestionesAcademicas() {
 
 
     // =====================================================
-    // BOTONES EDITAR FECHAS
+    // SELECTOR DE CONFIGURACIÓN
     // =====================================================
 
-    document
-        .querySelectorAll(
-            ".btn-editar-gestion"
-        )
-        .forEach(
-            boton => {
+    if (selector) {
 
-                boton.addEventListener(
-                    "click",
-                    () => {
+        const valorAnterior =
+            selector.value;
 
-                        abrirModalEditarGestion({
 
-                            id:
-                                boton.dataset.id,
+        selector.innerHTML =
+            gestionesAcademicas
+                .map(
+                    gestion => `
 
-                            nombre:
-                                boton.dataset.nombre,
+                        <option
+                            value="${gestion.id}"
+                        >
 
-                            fechaInicio:
-                                boton.dataset.inicio,
+                            ${escapeHTML(
+                                gestion.nombre
+                            )}
 
-                            fechaFin:
-                                boton.dataset.fin
+                            ${
+                                gestion.activa
+                                    ? " — ACTIVA"
+                                    : ""
+                            }
 
-                        });
+                        </option>
 
-                    }
+                    `
+                )
+                .join("");
+
+
+        // Intentar conservar selección
+
+        if (
+            valorAnterior &&
+            gestionesAcademicas.some(
+                gestion =>
+                    String(
+                        gestion.id
+                    ) ===
+                    String(
+                        valorAnterior
+                    )
+            )
+        ) {
+
+            selector.value =
+                valorAnterior;
+
+        } else if (activa) {
+
+            selector.value =
+                String(
+                    activa.id
                 );
 
-            }
-        );
+        }
 
 
-    generarChecksAreasGestion();
+        await cargarAreasLibresGestion();
 
-
-    await cargarAreasLibresGestion();
-
+    }
 }
 
 
 // =========================================================
-// FORMATEAR FECHA
+// FORMATEAR FECHA DE BASE DE DATOS
 // =========================================================
 
-function formatearFechaGestion(
-    fecha
+function formatearFechaBD(
+    fechaTexto
 ) {
 
-    if (
-        !fecha
-    ) {
+    if (!fechaTexto) {
 
-        return "";
+        return "-";
 
     }
 
 
     const partes =
-        String(
-            fecha
-        )
-        .split("-");
+        fechaTexto.split("-");
 
 
     if (
         partes.length !== 3
     ) {
 
-        return fecha;
+        return fechaTexto;
 
     }
 
 
-    return (
-        `${partes[2]}/${partes[1]}/${partes[0]}`
-    );
-}
-
-
-// =========================================================
-// GENERAR CHECKBOXES T-A1 A T-A9
-// =========================================================
-
-function generarChecksAreasGestion() {
-
-    const contenedor =
-        document.getElementById(
-            "areasGestionChecks"
-        );
-
-
-    if (
-        !contenedor
-    ) {
-
-        return;
-
-    }
-
-
-    contenedor.innerHTML =
-        "";
-
-
-    for (
-        let numero = 1;
-        numero <= 9;
-        numero++
-    ) {
-
-        const codigo =
-            `T-A${numero}`;
-
-
-        const label =
-            document.createElement(
-                "label"
-            );
-
-
-        label.className =
-            "area-check-card";
-
-
-        label.innerHTML = `
-
-            <input
-                type="checkbox"
-                class="check-area-gestion"
-                value="${codigo}"
-            >
-
-            <span>
-                ${codigo}
-            </span>
-
-        `;
-
-
-        contenedor.appendChild(
-            label
-        );
-
-    }
-
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
 }
 
 
@@ -4274,196 +4333,186 @@ function generarChecksAreasGestion() {
 // CREAR NUEVA GESTIÓN
 // =========================================================
 
-async function crearGestionAcademica(
-    event
-) {
-
-    event.preventDefault();
-
-
-    const nombre =
-        document
-            .getElementById(
-                "gestionNombre"
-            )
-            ?.value
-            .trim();
+const formNuevaGestion =
+    document.getElementById(
+        "formNuevaGestion"
+    );
 
 
-    const fechaInicio =
-        document
-            .getElementById(
-                "gestionFechaInicio"
-            )
-            ?.value;
+formNuevaGestion
+    ?.addEventListener(
+        "submit",
+        async event => {
+
+            event.preventDefault();
 
 
-    const fechaFin =
-        document
-            .getElementById(
-                "gestionFechaFin"
-            )
-            ?.value;
+            const nombre =
+                document
+                    .getElementById(
+                        "gestionNombre"
+                    )
+                    .value
+                    .trim();
 
 
-    const mensaje =
-        document.getElementById(
-            "mensajeGestion"
-        );
+            const fechaInicio =
+                document
+                    .getElementById(
+                        "gestionFechaInicio"
+                    )
+                    .value;
 
 
-    if (
-        !nombre ||
-        !fechaInicio ||
-        !fechaFin
-    ) {
+            const fechaFin =
+                document
+                    .getElementById(
+                        "gestionFechaFin"
+                    )
+                    .value;
 
-        if (
-            mensaje
-        ) {
+
+            const mensaje =
+                document.getElementById(
+                    "mensajeGestion"
+                );
+
+
+            if (
+                !nombre ||
+                !fechaInicio ||
+                !fechaFin
+            ) {
+
+                mensaje.textContent =
+                    "Complete todos los campos.";
+
+                return;
+            }
+
+
+            if (
+                fechaFin <
+                fechaInicio
+            ) {
+
+                mensaje.textContent =
+                    "La fecha final no puede ser anterior a la fecha inicial.";
+
+                return;
+            }
+
 
             mensaje.textContent =
-                "Complete todos los datos.";
-
-            mensaje.style.color =
-                "#b91c1c";
-
-        }
+                "Creando gestión...";
 
 
-        return;
-    }
+            const {
+                error
+            } =
+                await supabaseClient
+
+                    .from(
+                        "gestiones_academicas"
+                    )
+
+                    .insert({
+
+                        nombre:
+                            nombre,
+
+                        fecha_inicio:
+                            fechaInicio,
+
+                        fecha_fin:
+                            fechaFin,
+
+                        activa:
+                            false
+
+                    });
 
 
-    if (
-        fechaFin < fechaInicio
-    ) {
+            if (error) {
 
-        if (
-            mensaje
-        ) {
-
-            mensaje.textContent =
-                "La fecha final no puede ser anterior a la fecha inicial.";
-
-            mensaje.style.color =
-                "#b91c1c";
-
-        }
-
-
-        return;
-    }
-
-
-    if (
-        mensaje
-    ) {
-
-        mensaje.textContent =
-            "Creando gestión...";
-
-        mensaje.style.color =
-            "#374151";
-
-    }
-
-
-    const {
-        error
-    } =
-        await supabaseClient
-
-            .from(
-                "gestiones_academicas"
-            )
-
-            .insert({
-
-                nombre,
-
-                fecha_inicio:
-                    fechaInicio,
-
-                fecha_fin:
-                    fechaFin,
-
-                activa:
-                    false
-
-            });
-
-
-    if (
-        error
-    ) {
-
-        console.error(
-            "Error creando gestión:",
-            error
-        );
-
-
-        if (
-            mensaje
-        ) {
-
-            mensaje.textContent =
-                obtenerMensajeErrorGestion(
+                console.error(
+                    "Error creando gestión:",
                     error
                 );
 
-            mensaje.style.color =
-                "#b91c1c";
+
+                if (
+                    error.message
+                        ?.toLowerCase()
+                        .includes(
+                            "superponen"
+                        )
+                ) {
+
+                    mensaje.textContent =
+                        "Las fechas se superponen con otra gestión existente.";
+
+                } else {
+
+                    mensaje.textContent =
+                        error.message ||
+                        "No se pudo crear la gestión.";
+
+                }
+
+
+                return;
+            }
+
+
+            mensaje.textContent =
+                "Gestión creada correctamente.";
+
+
+            formNuevaGestion.reset();
+
+
+            await cargarGestionesAcademicas();
+
+
+            setTimeout(
+                () => {
+
+                    mensaje.textContent =
+                        "";
+
+                },
+                2000
+            );
 
         }
-
-
-        return;
-    }
-
-
-    if (
-        mensaje
-    ) {
-
-        mensaje.textContent =
-            "Gestión creada correctamente.";
-
-        mensaje.style.color =
-            "#15803d";
-
-    }
-
-
-    const form =
-        document.getElementById(
-            "formNuevaGestion"
-        );
-
-
-    if (
-        form
-    ) {
-
-        form.reset();
-
-    }
-
-
-    await cargarGestionesAcademicas();
-
-}
+    );
 
 
 // =========================================================
-// ACTIVAR GESTIÓN
+// ACTIVAR GESTIÓN ACADÉMICA
 // =========================================================
 
 async function activarGestionAcademica(
-    gestionId,
-    nombre
+    id
 ) {
+
+    const gestion =
+        gestionesAcademicas.find(
+            item =>
+                Number(
+                    item.id
+                ) ===
+                Number(
+                    id
+                )
+        );
+
+
+    const nombre =
+        gestion?.nombre ||
+        "esta gestión";
+
 
     if (
         !confirm(
@@ -4478,22 +4527,18 @@ async function activarGestionAcademica(
     const {
         error
     } =
-        await supabaseClient.rpc(
-            "activar_gestion_academica",
-            {
+        await supabaseClient
 
-                p_gestion_id:
-                    Number(
-                        gestionId
-                    )
-
-            }
-        );
+            .rpc(
+                "activar_gestion_academica",
+                {
+                    p_gestion_id:
+                        id
+                }
+            );
 
 
-    if (
-        error
-    ) {
+    if (error) {
 
         console.error(
             "Error activando gestión:",
@@ -4502,6 +4547,7 @@ async function activarGestionAcademica(
 
 
         alert(
+            error.message ||
             "No se pudo activar la gestión."
         );
 
@@ -4510,455 +4556,125 @@ async function activarGestionAcademica(
     }
 
 
-    alert(
-        `La gestión ${nombre} ahora está activa.`
-    );
-
-
     await cargarGestionesAcademicas();
-
 }
 
 
 // =========================================================
-// CREAR MODAL EDITAR GESTIÓN
+// CARGAR ÁREAS DEL TALLER
 // =========================================================
 
-function crearModalEditarGestion() {
-
-    if (
-        document.getElementById(
-            "modalEditarGestion"
-        )
-    ) {
-
-        return;
-
-    }
-
-
-    const modal =
-        document.createElement(
-            "div"
-        );
-
-
-    modal.id =
-        "modalEditarGestion";
-
-
-    modal.className =
-        "modal";
-
-
-    modal.innerHTML = `
-
-        <div class="modal-content">
-
-            <div class="modal-header">
-
-                <div>
-
-                    <span class="modal-label">
-                        Gestión académica
-                    </span>
-
-                    <h2>
-                        Editar fechas
-                    </h2>
-
-                </div>
-
-
-                <button
-                    type="button"
-                    id="btnCerrarEditarGestion"
-                    class="btnCerrarModal"
-                >
-                    ×
-                </button>
-
-            </div>
-
-
-            <form id="formEditarGestion">
-
-                <input
-                    type="hidden"
-                    id="editarGestionId"
-                >
-
-
-                <label>
-                    Gestión
-                </label>
-
-
-                <input
-                    type="text"
-                    id="editarGestionNombre"
-                    readonly
-                >
-
-
-                <label for="editarGestionInicio">
-                    Fecha de inicio
-                </label>
-
-
-                <input
-                    type="date"
-                    id="editarGestionInicio"
-                    required
-                >
-
-
-                <label for="editarGestionFin">
-                    Fecha de finalización
-                </label>
-
-
-                <input
-                    type="date"
-                    id="editarGestionFin"
-                    required
-                >
-
-
-                <p class="campo-ayuda">
-
-                    Las fechas no pueden superponerse
-                    con otra gestión académica registrada.
-
-                </p>
-
-
-                <button
-                    type="submit"
-                    class="btn-primary btn-form"
-                >
-                    Guardar nuevas fechas
-                </button>
-
-
-                <p
-                    id="mensajeEditarGestion"
-                    class="mensaje-form"
-                ></p>
-
-            </form>
-
-        </div>
-
-    `;
-
-
-    document.body.appendChild(
-        modal
-    );
-
-
-    document
-        .getElementById(
-            "btnCerrarEditarGestion"
-        )
-        ?.addEventListener(
-            "click",
-            () => {
-
-                modal.classList.remove(
-                    "active"
-                );
-
-            }
-        );
-
-
-    modal.addEventListener(
-        "click",
-        event => {
-
-            if (
-                event.target === modal
-            ) {
-
-                modal.classList.remove(
-                    "active"
-                );
-
-            }
-
-        }
-    );
-
-
-    document
-        .getElementById(
-            "formEditarGestion"
-        )
-        ?.addEventListener(
-            "submit",
-            guardarEdicionGestion
-        );
-
-}
-
-
-// =========================================================
-// ABRIR MODAL EDITAR GESTIÓN
-// =========================================================
-
-function abrirModalEditarGestion(
-    gestion
-) {
-
-    crearModalEditarGestion();
-
-
-    document.getElementById(
-        "editarGestionId"
-    ).value =
-        gestion.id;
-
-
-    document.getElementById(
-        "editarGestionNombre"
-    ).value =
-        gestion.nombre;
-
-
-    document.getElementById(
-        "editarGestionInicio"
-    ).value =
-        gestion.fechaInicio;
-
-
-    document.getElementById(
-        "editarGestionFin"
-    ).value =
-        gestion.fechaFin;
-
-
-    const mensaje =
-        document.getElementById(
-            "mensajeEditarGestion"
-        );
-
-
-    if (
-        mensaje
-    ) {
-
-        mensaje.textContent =
-            "";
-
-    }
-
-
-    document
-        .getElementById(
-            "modalEditarGestion"
-        )
-        ?.classList
-        .add(
-            "active"
-        );
-
-}
-
-
-// =========================================================
-// GUARDAR EDICIÓN DE FECHAS
-// =========================================================
-
-async function guardarEdicionGestion(
-    event
-) {
-
-    event.preventDefault();
-
-
-    const id =
-        document
-            .getElementById(
-                "editarGestionId"
-            )
-            .value;
-
-
-    const fechaInicio =
-        document
-            .getElementById(
-                "editarGestionInicio"
-            )
-            .value;
-
-
-    const fechaFin =
-        document
-            .getElementById(
-                "editarGestionFin"
-            )
-            .value;
-
-
-    const mensaje =
-        document.getElementById(
-            "mensajeEditarGestion"
-        );
-
-
-    if (
-        !id ||
-        !fechaInicio ||
-        !fechaFin
-    ) {
-
-        mensaje.textContent =
-            "Complete ambas fechas.";
-
-        mensaje.style.color =
-            "#b91c1c";
-
-
-        return;
-    }
-
-
-    if (
-        fechaFin < fechaInicio
-    ) {
-
-        mensaje.textContent =
-            "La fecha final no puede ser anterior a la fecha inicial.";
-
-        mensaje.style.color =
-            "#b91c1c";
-
-
-        return;
-    }
-
-
-    mensaje.textContent =
-        "Guardando cambios...";
-
-    mensaje.style.color =
-        "#374151";
-
+async function cargarAreasTallerGestion() {
 
     const {
+        data,
         error
     } =
         await supabaseClient
 
             .from(
-                "gestiones_academicas"
+                "areas_taller"
             )
 
-            .update({
-
-                fecha_inicio:
-                    fechaInicio,
-
-                fecha_fin:
-                    fechaFin,
-
-                updated_at:
-                    new Date()
-                        .toISOString()
-
-            })
+            .select(`
+                codigo,
+                nombre,
+                activo
+            `)
 
             .eq(
-                "id",
-                Number(
-                    id
-                )
+                "activo",
+                true
+            )
+
+            .order(
+                "codigo",
+                {
+                    ascending: true
+                }
             );
 
 
-    if (
-        error
-    ) {
+    if (error) {
 
         console.error(
-            "Error editando gestión:",
+            "Error cargando áreas del taller:",
             error
         );
 
 
-        mensaje.textContent =
-            obtenerMensajeErrorGestion(
-                error
-            );
-
-
-        mensaje.style.color =
-            "#b91c1c";
+        areasTallerGestion =
+            [];
 
 
         return;
     }
 
 
-    mensaje.textContent =
-        "Fechas actualizadas correctamente.";
-
-    mensaje.style.color =
-        "#15803d";
-
-
-    await cargarGestionesAcademicas();
-
-
-    setTimeout(
-        () => {
-
-            document
-                .getElementById(
-                    "modalEditarGestion"
-                )
-                ?.classList
-                .remove(
-                    "active"
-                );
-
-        },
-        700
-    );
-
+    areasTallerGestion =
+        data || [];
 }
 
 
 // =========================================================
-// CARGAR ÁREAS LIBRES GUARDADAS
+// CARGAR ÁREAS LIBRES DE UNA GESTIÓN
 // =========================================================
 
 async function cargarAreasLibresGestion() {
 
+    const selectorGestion =
+        document.getElementById(
+            "configGestion"
+        );
+
+
+    const selectorDia =
+        document.getElementById(
+            "configDia"
+        );
+
+
+    const selectorHorario =
+        document.getElementById(
+            "configHorario"
+        );
+
+
+    const contenedor =
+        document.getElementById(
+            "areasGestionChecks"
+        );
+
+
+    const mensaje =
+        document.getElementById(
+            "mensajeAreasGestion"
+        );
+
+
+    if (
+        !selectorGestion ||
+        !selectorDia ||
+        !selectorHorario ||
+        !contenedor
+    ) {
+
+        return;
+    }
+
+
     const gestionId =
-        document
-            .getElementById(
-                "configGestion"
-            )
-            ?.value;
+        Number(
+            selectorGestion.value
+        );
 
 
     const dia =
-        document
-            .getElementById(
-                "configDia"
-            )
-            ?.value;
+        selectorDia.value;
 
 
     const horario =
-        document
-            .getElementById(
-                "configHorario"
-            )
-            ?.value;
+        selectorHorario.value;
 
 
     if (
@@ -4967,9 +4683,53 @@ async function cargarAreasLibresGestion() {
         !horario
     ) {
 
+        contenedor.innerHTML = `
+
+            <span class="config-cargando">
+                Seleccione gestión, día y horario.
+            </span>
+
+        `;
+
+
         return;
     }
 
+
+    if (mensaje) {
+
+        mensaje.textContent =
+            "";
+
+    }
+
+
+    contenedor.innerHTML = `
+
+        <span class="config-cargando">
+            Cargando áreas...
+        </span>
+
+    `;
+
+
+    // =====================================================
+    // ASEGURAR QUE TENEMOS LAS ÁREAS
+    // =====================================================
+
+    if (
+        areasTallerGestion.length ===
+        0
+    ) {
+
+        await cargarAreasTallerGestion();
+
+    }
+
+
+    // =====================================================
+    // CONSULTAR CONFIGURACIÓN
+    // =====================================================
 
     const {
         data,
@@ -5001,9 +4761,7 @@ async function cargarAreasLibresGestion() {
             );
 
 
-    if (
-        error
-    ) {
+    if (error) {
 
         console.error(
             "Error cargando áreas libres:",
@@ -5011,91 +4769,13 @@ async function cargarAreasLibresGestion() {
         );
 
 
-        return;
-    }
+        contenedor.innerHTML = `
 
+            <span class="config-cargando">
+                Error al cargar configuración.
+            </span>
 
-    const seleccionadas =
-        new Set(
-            (data || [])
-                .map(
-                    fila =>
-                        fila.area_codigo
-                )
-        );
-
-
-    document
-        .querySelectorAll(
-            ".check-area-gestion"
-        )
-        .forEach(
-            checkbox => {
-
-                checkbox.checked =
-                    seleccionadas.has(
-                        checkbox.value
-                    );
-
-            }
-        );
-
-}
-
-
-// =========================================================
-// GUARDAR CONFIGURACIÓN DE ÁREAS
-// =========================================================
-
-async function guardarAreasLibresGestion() {
-
-    const gestionId =
-        document
-            .getElementById(
-                "configGestion"
-            )
-            ?.value;
-
-
-    const dia =
-        document
-            .getElementById(
-                "configDia"
-            )
-            ?.value;
-
-
-    const horario =
-        document
-            .getElementById(
-                "configHorario"
-            )
-            ?.value;
-
-
-    const mensaje =
-        document.getElementById(
-            "mensajeAreasGestion"
-        );
-
-
-    if (
-        !gestionId ||
-        !dia ||
-        !horario
-    ) {
-
-        if (
-            mensaje
-        ) {
-
-            mensaje.textContent =
-                "Seleccione gestión, día y horario.";
-
-            mensaje.style.color =
-                "#b91c1c";
-
-        }
+        `;
 
 
         return;
@@ -5103,259 +4783,416 @@ async function guardarAreasLibresGestion() {
 
 
     const areasSeleccionadas =
-        Array.from(
-            document.querySelectorAll(
-                ".check-area-gestion:checked"
+        new Set(
+            (
+                data ||
+                []
             )
-        )
-        .map(
-            checkbox =>
-                checkbox.value
+                .map(
+                    item =>
+                        item.area_codigo
+                )
         );
 
 
-    if (
-        mensaje
-    ) {
-
-        mensaje.textContent =
-            "Guardando configuración...";
-
-        mensaje.style.color =
-            "#374151";
-
-    }
-
-
-    const {
-        error: errorEliminar
-    } =
-        await supabaseClient
-
-            .from(
-                "areas_libres_gestion"
-            )
-
-            .delete()
-
-            .eq(
-                "gestion_id",
-                gestionId
-            )
-
-            .eq(
-                "dia_semana",
-                dia
-            )
-
-            .eq(
-                "horario",
-                horario
-            );
-
+    // =====================================================
+    // DIBUJAR CHECKBOXES
+    // =====================================================
 
     if (
-        errorEliminar
+        areasTallerGestion.length ===
+        0
     ) {
 
-        console.error(
-            "Error borrando configuración:",
-            errorEliminar
-        );
+        contenedor.innerHTML = `
 
+            <span class="config-cargando">
+                No existen áreas activas.
+            </span>
 
-        if (
-            mensaje
-        ) {
-
-            mensaje.textContent =
-                "No se pudo actualizar la configuración.";
-
-            mensaje.style.color =
-                "#b91c1c";
-
-        }
+        `;
 
 
         return;
     }
 
 
-    if (
-        areasSeleccionadas.length === 0
-    ) {
+    contenedor.innerHTML =
+        areasTallerGestion
+            .map(
+                area => {
 
-        if (
-            mensaje
-        ) {
-
-            mensaje.textContent =
-                "Configuración guardada: no hay áreas libres.";
-
-            mensaje.style.color =
-                "#15803d";
-
-        }
+                    const seleccionado =
+                        areasSeleccionadas.has(
+                            area.codigo
+                        );
 
 
-        return;
-    }
+                    return `
+
+                        <label class="area-check-card">
+
+                            <input
+                                type="checkbox"
+                                class="area-gestion-check"
+                                value="${escapeHTML(
+                                    area.codigo
+                                )}"
+                                ${
+                                    seleccionado
+                                        ? "checked"
+                                        : ""
+                                }
+                            >
+
+                            <span>
+
+                                ${escapeHTML(
+                                    area.codigo
+                                )}
+
+                            </span>
+
+                        </label>
+
+                    `;
+
+                }
+            )
+            .join("");
+}
 
 
-    const registros =
-        areasSeleccionadas.map(
-            codigo => ({
+// =========================================================
+// CAMBIAR SELECTORES DE CONFIGURACIÓN
+// =========================================================
 
-                gestion_id:
-                    Number(
+document
+    .getElementById(
+        "configGestion"
+    )
+    ?.addEventListener(
+        "change",
+        cargarAreasLibresGestion
+    );
+
+
+document
+    .getElementById(
+        "configDia"
+    )
+    ?.addEventListener(
+        "change",
+        cargarAreasLibresGestion
+    );
+
+
+document
+    .getElementById(
+        "configHorario"
+    )
+    ?.addEventListener(
+        "change",
+        cargarAreasLibresGestion
+    );
+
+
+// =========================================================
+// GUARDAR ÁREAS LIBRES
+// =========================================================
+
+document
+    .getElementById(
+        "btnGuardarAreasGestion"
+    )
+    ?.addEventListener(
+        "click",
+        async () => {
+
+            const selectorGestion =
+                document.getElementById(
+                    "configGestion"
+                );
+
+
+            const selectorDia =
+                document.getElementById(
+                    "configDia"
+                );
+
+
+            const selectorHorario =
+                document.getElementById(
+                    "configHorario"
+                );
+
+
+            const mensaje =
+                document.getElementById(
+                    "mensajeAreasGestion"
+                );
+
+
+            const gestionId =
+                Number(
+                    selectorGestion?.value
+                );
+
+
+            const dia =
+                selectorDia?.value;
+
+
+            const horario =
+                selectorHorario?.value;
+
+
+            if (
+                !gestionId ||
+                !dia ||
+                !horario
+            ) {
+
+                if (mensaje) {
+
+                    mensaje.textContent =
+                        "Seleccione gestión, día y horario.";
+
+                }
+
+
+                return;
+            }
+
+
+            const seleccionadas =
+                Array.from(
+                    document.querySelectorAll(
+                        ".area-gestion-check:checked"
+                    )
+                )
+                    .map(
+                        checkbox =>
+                            checkbox.value
+                    );
+
+
+            if (mensaje) {
+
+                mensaje.textContent =
+                    "Guardando configuración...";
+
+            }
+
+
+            // =================================================
+            // ELIMINAR CONFIGURACIÓN ANTERIOR
+            // =================================================
+
+            const {
+                error: errorEliminar
+            } =
+                await supabaseClient
+
+                    .from(
+                        "areas_libres_gestion"
+                    )
+
+                    .delete()
+
+                    .eq(
+                        "gestion_id",
                         gestionId
-                    ),
+                    )
 
-                dia_semana:
-                    dia,
+                    .eq(
+                        "dia_semana",
+                        dia
+                    )
 
-                horario,
-
-                area_codigo:
-                    codigo
-
-            })
-        );
-
-
-    const {
-        error: errorInsertar
-    } =
-        await supabaseClient
-
-            .from(
-                "areas_libres_gestion"
-            )
-
-            .insert(
-                registros
-            );
+                    .eq(
+                        "horario",
+                        horario
+                    );
 
 
-    if (
-        errorInsertar
-    ) {
+            if (errorEliminar) {
 
-        console.error(
-            "Error insertando áreas:",
-            errorInsertar
-        );
+                console.error(
+                    "Error eliminando configuración:",
+                    errorEliminar
+                );
 
 
-        if (
-            mensaje
-        ) {
+                if (mensaje) {
 
-            mensaje.textContent =
-                "No se pudieron guardar las áreas.";
+                    mensaje.textContent =
+                        "No se pudo guardar la configuración.";
 
-            mensaje.style.color =
-                "#b91c1c";
+                }
+
+
+                return;
+            }
+
+
+            // =================================================
+            // INSERTAR NUEVA CONFIGURACIÓN
+            // =================================================
+
+            if (
+                seleccionadas.length >
+                0
+            ) {
+
+                const registros =
+                    seleccionadas.map(
+                        codigo => ({
+
+                            gestion_id:
+                                gestionId,
+
+                            dia_semana:
+                                dia,
+
+                            horario:
+                                horario,
+
+                            area_codigo:
+                                codigo
+
+                        })
+                    );
+
+
+                const {
+                    error: errorInsertar
+                } =
+                    await supabaseClient
+
+                        .from(
+                            "areas_libres_gestion"
+                        )
+
+                        .insert(
+                            registros
+                        );
+
+
+                if (errorInsertar) {
+
+                    console.error(
+                        "Error insertando configuración:",
+                        errorInsertar
+                    );
+
+
+                    if (mensaje) {
+
+                        mensaje.textContent =
+                            "No se pudo guardar la configuración.";
+
+                    }
+
+
+                    return;
+                }
+
+            }
+
+
+            if (mensaje) {
+
+                mensaje.textContent =
+                    "Configuración guardada correctamente.";
+
+            }
+
+
+            await cargarAreasLibresGestion();
+
+
+            if (mensaje) {
+
+                mensaje.textContent =
+                    "Configuración guardada correctamente.";
+
+            }
+
+        }
+    );
+// =========================================================
+// INICIALIZAR PANEL ADMINISTRATIVO
+// =========================================================
+
+async function inicializarAdmin() {
+
+    try {
+
+        // =================================================
+        // COMPROBAR SESIÓN Y ADMINISTRADOR
+        // =================================================
+
+        const perfil =
+            await comprobarAdministrador();
+
+
+        if (!perfil) {
+
+            return;
 
         }
 
 
-        return;
-    }
+        // =================================================
+        // CARGAR USUARIOS
+        // =================================================
+
+        await cargarUsuarios();
 
 
-    if (
-        mensaje
-    ) {
+        // =================================================
+        // CARGAR MAQUETAS
+        // =================================================
 
-        mensaje.textContent =
-            "Configuración guardada correctamente.";
-
-        mensaje.style.color =
-            "#15803d";
-
-    }
-
-}
+        await cargarMaquetas();
 
 
-// =========================================================
-// EVENTOS DEL MÓDULO
-// =========================================================
+        // =================================================
+        // CARGAR RESERVAS SEMANALES
+        // =================================================
 
-function iniciarEventosGestionAcademica() {
-
-    const formNuevaGestion =
-        document.getElementById(
-            "formNuevaGestion"
-        );
+        await cargarReservasSemanaAdmin();
 
 
-    if (
-        formNuevaGestion
-    ) {
+        // =================================================
+        // CARGAR ÁREAS DEL TALLER
+        // =================================================
 
-        formNuevaGestion.addEventListener(
-            "submit",
-            crearGestionAcademica
-        );
-
-    }
+        await cargarAreasTallerGestion();
 
 
-    document
-        .getElementById(
-            "configGestion"
-        )
-        ?.addEventListener(
-            "change",
-            cargarAreasLibresGestion
-        );
-
-
-    document
-        .getElementById(
-            "configDia"
-        )
-        ?.addEventListener(
-            "change",
-            cargarAreasLibresGestion
-        );
-
-
-    document
-        .getElementById(
-            "configHorario"
-        )
-        ?.addEventListener(
-            "change",
-            cargarAreasLibresGestion
-        );
-
-
-    document
-        .getElementById(
-            "btnGuardarAreasGestion"
-        )
-        ?.addEventListener(
-            "click",
-            guardarAreasLibresGestion
-        );
-
-}
-
-
-// =========================================================
-// INICIAR MÓDULO
-// =========================================================
-
-document.addEventListener(
-    "DOMContentLoaded",
-    async () => {
-
-        iniciarEventosGestionAcademica();
+        // =================================================
+        // CARGAR GESTIONES ACADÉMICAS
+        // =================================================
 
         await cargarGestionesAcademicas();
 
+
+    } catch (error) {
+
+        console.error(
+            "Error inicializando panel administrativo:",
+            error
+        );
+
     }
-);
+
+}
+
+
+// =========================================================
+// EJECUTAR
+// =========================================================
+
+inicializarAdmin();
