@@ -2270,3 +2270,37 @@ body.docente-page::before {
     }
 
 }
+/* =========================================================
+   IMÁGENES DE MAQUETAS
+========================================================= */
+
+/* Imagen mostrada en las tarjetas del panel administrador */
+.maqueta-imagen-admin {
+    width: 100%;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.maqueta-imagen-admin img {
+    display: block;
+    width: 100%;
+    max-height: 190px;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+
+/* Vista previa al crear o editar una maqueta */
+.preview-imagen-maqueta {
+    width: 100%;
+    margin-bottom: 14px;
+    text-align: center;
+}
+
+.preview-imagen-maqueta img {
+    display: block;
+    width: 100%;
+    max-height: 250px;
+    object-fit: contain;
+    border-radius: 8px;
+}
