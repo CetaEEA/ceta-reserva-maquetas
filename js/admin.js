@@ -3450,7 +3450,7 @@ document
 // PDF
 // =========================================================
 
-function descargarTablaPDF() {
+async function descargarTablaPDF() {
 
     if (
         !window.jspdf ||
@@ -3502,11 +3502,128 @@ function descargarTablaPDF() {
 
 
     // =====================================================
-    // TÍTULO
+    // CARGAR LOGO
+    // =====================================================
+
+    let logoCeta =
+        null;
+
+
+    try {
+
+        logoCeta =
+            await cargarImagenDataURL(
+                "img/logo-ceta-transparente.png"
+            );
+
+    } catch (error) {
+
+        console.warn(
+            "No se pudo cargar el logo CETA para el PDF.",
+            error
+        );
+
+    }
+
+
+    // =====================================================
+    // CABECERA INSTITUCIONAL
+    // =====================================================
+
+    if (logoCeta) {
+
+        doc.addImage(
+
+            logoCeta,
+
+            "PNG",
+
+            10,
+            6,
+
+            29,
+            29
+
+        );
+    }
+
+
+    // Nombre de la institución
+
+    doc.setFont(
+        "helvetica",
+        "bold"
+    );
+
+
+    doc.setFontSize(
+        14
+    );
+
+
+    doc.text(
+
+        "INSTITUTO DE ENSEÑANZA TÉCNICO AUTOMOTRIZ CETA",
+
+        158,
+
+        11,
+
+        {
+            align:
+                "center"
+        }
+
+    );
+
+
+    // Carrera
+
+    doc.setFontSize(
+        11
+    );
+
+
+    doc.text(
+
+        "CARRERA DE ELECTRICIDAD Y ELECTRÓNICA AUTOMOTRIZ",
+
+        158,
+
+        17,
+
+        {
+            align:
+                "center"
+        }
+
+    );
+
+
+    // Línea divisoria superior
+
+    doc.setLineWidth(
+        0.4
+    );
+
+
+    doc.line(
+
+        45,
+        21,
+
+        287,
+        21
+
+    );
+
+
+    // =====================================================
+    // TÍTULO DEL REPORTE
     // =====================================================
 
     doc.setFontSize(
-        18
+        14
     );
 
 
@@ -3517,29 +3634,39 @@ function descargarTablaPDF() {
 
 
     doc.text(
-        "INSTITUTO CETA",
-        148.5,
-        13,
+
+        "Sistema de Reserva de Maquetas",
+
+        158,
+
+        28,
+
         {
             align:
                 "center"
         }
+
     );
 
 
     doc.setFontSize(
-        14
+        11
     );
 
 
     doc.text(
-        "Sistema de Reserva de Maquetas",
-        148.5,
-        21,
+
+        "Registro semanal de reservas",
+
+        158,
+
+        34,
+
         {
             align:
                 "center"
         }
+
     );
 
 
@@ -3555,13 +3682,36 @@ function descargarTablaPDF() {
 
 
     doc.text(
-        `Reporte semanal: ${formatearFechaAdmin(lunes)} al ${formatearFechaAdmin(viernes)}`,
-        148.5,
-        28,
+
+        `Semana: ${formatearFechaAdmin(lunes)} al ${formatearFechaAdmin(viernes)}`,
+
+        158,
+
+        40,
+
         {
             align:
                 "center"
         }
+
+    );
+
+
+    // Línea inferior de cabecera
+
+    doc.setLineWidth(
+        0.25
+    );
+
+
+    doc.line(
+
+        8,
+        44,
+
+        289,
+        44
+
     );
 
 
@@ -3823,14 +3973,13 @@ function descargarTablaPDF() {
             body,
 
         startY:
-            39,
+            48,
 
         theme:
             "grid",
 
         styles: {
 
-            // LETRA AUMENTADA DE 7 A 8
             fontSize:
                 11,
 
@@ -3878,7 +4027,126 @@ function descargarTablaPDF() {
                 8,
 
             right:
-                8
+                8,
+
+            top:
+                48,
+
+            bottom:
+                14
+
+        },
+
+
+        // =================================================
+        // MARCA DE AGUA EN TODAS LAS PÁGINAS
+        // =================================================
+
+        didDrawPage: function () {
+
+            if (!logoCeta) {
+
+                return;
+            }
+
+
+            const pageWidth =
+                doc.internal.pageSize.getWidth();
+
+
+            const pageHeight =
+                doc.internal.pageSize.getHeight();
+
+
+            // Guardar estado gráfico
+
+            if (
+                typeof doc.saveGraphicsState ===
+                "function"
+            ) {
+
+                doc.saveGraphicsState();
+            }
+
+
+            // Transparencia de la marca de agua
+            // Si la versión de jsPDF soporta GState
+
+            try {
+
+                if (
+                    typeof doc.GState ===
+                        "function" &&
+                    typeof doc.setGState ===
+                        "function"
+                ) {
+
+                    doc.setGState(
+                        new doc.GState({
+                            opacity:
+                                0.08
+                        })
+                    );
+
+                }
+
+            } catch (error) {
+
+                console.warn(
+                    "No se pudo aplicar transparencia a la marca de agua.",
+                    error
+                );
+            }
+
+
+            // Tamaño grande pero sin cubrir toda la página
+
+            const anchoMarca =
+                95;
+
+
+            const altoMarca =
+                95;
+
+
+            const x =
+                (
+                    pageWidth -
+                    anchoMarca
+                ) / 2;
+
+
+            const y =
+                (
+                    pageHeight -
+                    altoMarca
+                ) / 2;
+
+
+            doc.addImage(
+
+                logoCeta,
+
+                "PNG",
+
+                x,
+                y,
+
+                anchoMarca,
+                altoMarca
+
+            );
+
+
+            // Restaurar estado gráfico
+
+            if (
+                typeof doc.restoreGraphicsState ===
+                "function"
+            ) {
+
+                doc.restoreGraphicsState();
+            }
 
         }
 
