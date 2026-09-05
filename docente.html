@@ -100,7 +100,7 @@
 
             <p>
                 Puede reservar hasta un máximo de
-                <strong>3 maquetas</strong>
+                <strong>2 maquetas</strong>
                 para el mismo grupo, fecha, horario
                 y área de taller.
             </p>
@@ -125,7 +125,7 @@
 
                     <p>
                         La primera maqueta es obligatoria.
-                        La segunda y tercera son opcionales.
+                        La segunda es opcional.
                     </p>
 
                 </div>
@@ -260,7 +260,7 @@
                         </h3>
 
                         <p>
-                            Puede seleccionar hasta tres maquetas.
+                            Puede seleccionar hasta dos maquetas.
                         </p>
 
                     </div>
@@ -298,6 +298,23 @@
                             </option>
 
                         </select>
+
+
+                        <!-- IMAGEN MAQUETA 1 -->
+
+                        <div
+                            id="imagenMaquetaReserva1"
+                            class="imagen-maqueta-docente"
+                            hidden
+                        >
+
+                            <img
+                                id="imagenMaquetaReserva1Img"
+                                src=""
+                                alt="Imagen de la maqueta seleccionada"
+                            >
+
+                        </div>
 
 
                         <small id="estadoMaqueta">
@@ -355,71 +372,29 @@
                         </select>
 
 
+                        <!-- IMAGEN MAQUETA 2 -->
+
+                        <div
+                            id="imagenMaquetaReserva2"
+                            class="imagen-maqueta-docente"
+                            hidden
+                        >
+
+                            <img
+                                id="imagenMaquetaReserva2Img"
+                                src=""
+                                alt="Imagen de la maqueta seleccionada"
+                            >
+
+                        </div>
+
+
                         <button
                             type="button"
                             id="btnQuitarMaqueta2"
                             class="btn-quitar-maqueta"
                         >
                             Quitar segunda maqueta
-                        </button>
-
-                    </div>
-
-
-
-                    <!-- =====================================
-                         BOTÓN MAQUETA 3
-                    ====================================== -->
-
-                    <button
-                        type="button"
-                        id="btnAgregarMaqueta3"
-                        class="btn-agregar-maqueta"
-                        hidden
-                    >
-                        ➕ Añadir tercera maqueta
-                    </button>
-
-
-
-                    <!-- =====================================
-                         MAQUETA 3
-                    ====================================== -->
-
-                    <div
-                        class="campo-reserva bloque-maqueta maqueta-opcional"
-                        id="bloqueMaqueta3"
-                        hidden
-                    >
-
-                        <div class="maqueta-titulo">
-
-                            <strong>
-                                Maqueta 3
-                            </strong>
-
-                            <span class="badge-opcional">
-                                Opcional
-                            </span>
-
-                        </div>
-
-
-                        <select id="maquetaReserva3">
-
-                            <option value="">
-                                Seleccione una maqueta
-                            </option>
-
-                        </select>
-
-
-                        <button
-                            type="button"
-                            id="btnQuitarMaqueta3"
-                            class="btn-quitar-maqueta"
-                        >
-                            Quitar tercera maqueta
                         </button>
 
                     </div>
@@ -700,7 +675,7 @@
 
     <script src="js/config.js"></script>
 
-    <script src="js/docente.js?v=8"></script>
+    <script src="js/docente.js?v=9"></script>
 
 
 </body>
