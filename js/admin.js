@@ -3452,7 +3452,7 @@ document
 
 
 // =========================================================
-// CARGAR IMAGEN COMO DATA URL
+// CARGAR LOGO PARA PDF
 // =========================================================
 
 async function cargarImagenDataURL(ruta) {
@@ -3486,198 +3486,10 @@ async function cargarImagenDataURL(ruta) {
 
 
             lector.onload =
-                () => {
-
-                    resolve(
-                        lector.result
-                    );
-                };
-
-
-            lector.onerror =
-                () => {
-
-                    reject(
-                        new Error(
-                            "No se pudo convertir el logo."
-                        )
-                    );
-                };
-
-
-            lector.readAsDataURL(
-                blob
-            );
-
-        }
-    );
-}
-
-
-// =========================================================
-// DIBUJAR MARCA DE AGUA
-// =========================================================
-
-function dibujarMarcaAguaCeta(
-    doc,
-    logoCeta
-) {
-
-    if (!logoCeta) {
-
-        return;
-    }
-
-
-    const anchoPagina =
-        doc.internal
-            .pageSize
-            .getWidth();
-
-
-    const altoPagina =
-        doc.internal
-            .pageSize
-            .getHeight();
-
-
-    // Marca de agua grande
-
-    const anchoLogo =
-        105;
-
-    const altoLogo =
-        105;
-
-
-    const x =
-        (
-            anchoPagina -
-            anchoLogo
-        ) / 2;
-
-
-    const y =
-        (
-            altoPagina -
-            altoLogo
-        ) / 2;
-
-
-    // =====================================================
-    // TRANSPARENCIA
-    // =====================================================
-
-    let transparenciaAplicada =
-        false;
-
-
-    try {
-
-        if (
-            typeof doc.GState === "function" &&
-            typeof doc.setGState === "function" &&
-            typeof doc.saveGraphicsState === "function"
-        ) {
-
-            doc.saveGraphicsState();
-
-
-            doc.setGState(
-                new doc.GState({
-
-                    opacity:
-                        0.055
-
-                })
-            );
-
-
-            transparenciaAplicada =
-                true;
-        }
-
-    } catch (error) {
-
-        console.warn(
-            "La versión de jsPDF no permitió aplicar transparencia.",
-            error
-        );
-
-    }
-
-
-    // =====================================================
-    // INSERTAR MARCA DE AGUA
-    // =====================================================
-
-    doc.addImage(
-
-        logoCeta,
-
-        "PNG",
-
-        x,
-        y,
-
-        anchoLogo,
-        altoLogo
-
-    );
-
-
-    // =====================================================
-    // RESTAURAR TRANSPARENCIA
-    // =====================================================
-
-    if (
-        transparenciaAplicada &&
-        typeof doc.restoreGraphicsState === "function"
-    ) {
-
-        doc.restoreGraphicsState();
-    }
-
-}
-
-
-// =========================================================
-// DESCARGAR PDF
-// =========================================================
-// =========================================================
-// CARGAR IMAGEN PARA PDF
-// =========================================================
-
-async function cargarImagenDataURL(ruta) {
-
-    const respuesta =
-        await fetch(
-            ruta,
-            {
-                cache: "no-store"
-            }
-        );
-
-    if (!respuesta.ok) {
-
-        throw new Error(
-            `No se pudo cargar la imagen: ${ruta} - HTTP ${respuesta.status}`
-        );
-    }
-
-    const blob =
-        await respuesta.blob();
-
-    return await new Promise(
-        (resolve, reject) => {
-
-            const lector =
-                new FileReader();
-
-            lector.onload =
                 () => resolve(
                     lector.result
                 );
+
 
             lector.onerror =
                 () => reject(
@@ -3686,50 +3498,43 @@ async function cargarImagenDataURL(ruta) {
                     )
                 );
 
+
             lector.readAsDataURL(
                 blob
             );
+
         }
     );
 }
+
+
+// =========================================================
+// DESCARGAR PDF
+// =========================================================
+
 async function descargarTablaPDF() {
 
     // =====================================================
     // VERIFICAR LIBRERÍA
     // =====================================================
 
-  let logoCeta =
-    null;
+    if (
+        !window.jspdf ||
+        !window.jspdf.jsPDF
+    ) {
 
-try {
-
-    const rutaLogo =
-        new URL(
-            "./img/logo-ceta-transparente.png",
-            window.location.href
-        ).href;
-
-    console.log(
-        "Ruta del logo:",
-        rutaLogo
-    );
-
-    logoCeta =
-        await cargarImagenDataURL(
-            rutaLogo
+        alert(
+            "No se pudo cargar la librería PDF."
         );
 
-    console.log(
-        "Logo CETA cargado correctamente."
-    );
+        return;
+    }
 
-} catch (error) {
 
-    console.error(
-        "No se pudo cargar el logo CETA para el PDF.",
-        error
-    );
-}
+    const {
+        jsPDF
+    } =
+        window.jspdf;
 
 
     // =====================================================
@@ -3767,7 +3572,7 @@ try {
 
 
     // =====================================================
-    // CARGAR LOGO
+    // CARGAR LOGO CETA
     // =====================================================
 
     let logoCeta =
@@ -3778,13 +3583,13 @@ try {
 
         const rutaLogo =
             new URL(
-                "img/logo-ceta-transparente.png",
+                "./img/logo-ceta-transparente.png",
                 window.location.href
             ).href;
 
 
         console.log(
-            "Intentando cargar logo:",
+            "Cargando logo CETA:",
             rutaLogo
         );
 
@@ -3811,21 +3616,6 @@ try {
 
 
     // =====================================================
-    // MARCA DE AGUA
-    // PRIMERA PÁGINA
-    // =====================================================
-
-    if (logoCeta) {
-
-        dibujarMarcaAguaCeta(
-            doc,
-            logoCeta
-        );
-
-    }
-
-
-    // =====================================================
     // LOGO SUPERIOR IZQUIERDO
     // =====================================================
 
@@ -3837,11 +3627,11 @@ try {
 
             "PNG",
 
-            9,
-            6,
+            8,      // posición X
+            5,      // posición Y
 
-            31,
-            31
+            34,     // ancho
+            34      // alto
 
         );
 
@@ -3849,7 +3639,7 @@ try {
 
 
     // =====================================================
-    // ENCABEZADO INSTITUCIONAL
+    // NOMBRE DE LA INSTITUCIÓN
     // =====================================================
 
     doc.setFont(
@@ -3867,7 +3657,7 @@ try {
 
         "INSTITUTO DE ENSEÑANZA TÉCNICO AUTOMOTRIZ CETA",
 
-        162,
+        164,
 
         10,
 
@@ -3879,6 +3669,10 @@ try {
     );
 
 
+    // =====================================================
+    // CARRERA
+    // =====================================================
+
     doc.setFontSize(
         11
     );
@@ -3888,9 +3682,9 @@ try {
 
         "CARRERA DE ELECTRICIDAD Y ELECTRÓNICA AUTOMOTRIZ",
 
-        162,
+        164,
 
-        16.5,
+        17,
 
         {
             align:
@@ -3901,20 +3695,20 @@ try {
 
 
     // =====================================================
-    // LÍNEA SUPERIOR
+    // LÍNEA INSTITUCIONAL
     // =====================================================
 
     doc.setLineWidth(
-        0.45
+        0.4
     );
 
 
     doc.line(
 
-        45,
+        47,
         21,
 
-        288,
+        289,
         21
 
     );
@@ -3939,7 +3733,7 @@ try {
 
         "SISTEMA DE RESERVA DE MAQUETAS",
 
-        162,
+        164,
 
         28,
 
@@ -3952,7 +3746,7 @@ try {
 
 
     // =====================================================
-    // SUBTÍTULO
+    // REGISTRO SEMANAL
     // =====================================================
 
     doc.setFontSize(
@@ -3964,7 +3758,7 @@ try {
 
         "REGISTRO SEMANAL DE RESERVAS",
 
-        162,
+        164,
 
         34,
 
@@ -3995,7 +3789,7 @@ try {
 
         `Semana: ${formatearFechaAdmin(lunes)} al ${formatearFechaAdmin(viernes)}`,
 
-        162,
+        164,
 
         40,
 
@@ -4128,7 +3922,6 @@ try {
 
                                     reserva.horario ===
                                         horario
-
                             );
 
 
@@ -4151,7 +3944,7 @@ try {
 
 
                     // =====================================
-                    // RESERVAS
+                    // RESERVAS DE LA CELDA
                     // =====================================
 
                     const textos =
@@ -4175,8 +3968,7 @@ try {
 
                                     // =================================
                                     // MAQUETAS
-                                    // Conservamos maqueta_id_3
-                                    // para registros históricos
+                                    // Conservamos tercer campo histórico
                                     // =================================
 
                                     const idsMaquetas = [
@@ -4325,7 +4117,7 @@ try {
 
 
         // =================================================
-        // ENCABEZADO
+        // ENCABEZADO DE LA TABLA
         // =================================================
 
         headStyles: {
@@ -4346,7 +4138,7 @@ try {
 
 
         // =================================================
-        // PRIMERA COLUMNA
+        // COLUMNA HORARIO
         // =================================================
 
         columnStyles: {
@@ -4387,35 +4179,6 @@ try {
 
             bottom:
                 14
-
-        },
-
-
-        // =================================================
-        // MARCA DE AGUA EN PÁGINAS ADICIONALES
-        // =================================================
-
-        willDrawPage: function (data) {
-
-            /*
-             * La primera página ya tiene su marca de agua
-             * dibujada antes de la tabla.
-             *
-             * Si AutoTable genera páginas adicionales,
-             * aquí agregamos la misma marca de agua.
-             */
-
-            if (
-                data.pageNumber > 1 &&
-                logoCeta
-            ) {
-
-                dibujarMarcaAguaCeta(
-                    doc,
-                    logoCeta
-                );
-
-            }
 
         }
 
@@ -4524,7 +4287,7 @@ try {
 
 
     // =====================================================
-    // GUARDAR
+    // GUARDAR PDF
     // =====================================================
 
     doc.save(
