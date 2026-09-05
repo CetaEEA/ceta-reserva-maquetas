@@ -2317,8 +2317,14 @@ body.docente-page::before {
 
 .imagen-maqueta-docente img {
     display: block;
-    width: 100%;
-    max-height: 280px;
+
+    width: auto;
+    max-width: min(220px, 80%);
+    max-height: 160px;
+
+    margin: 0 auto;
+
     object-fit: contain;
+
     border-radius: 8px;
 }
