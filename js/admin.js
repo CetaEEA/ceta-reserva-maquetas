@@ -3644,30 +3644,92 @@ function dibujarMarcaAguaCeta(
 // =========================================================
 // DESCARGAR PDF
 // =========================================================
+// =========================================================
+// CARGAR IMAGEN PARA PDF
+// =========================================================
 
+async function cargarImagenDataURL(ruta) {
+
+    const respuesta =
+        await fetch(
+            ruta,
+            {
+                cache: "no-store"
+            }
+        );
+
+    if (!respuesta.ok) {
+
+        throw new Error(
+            `No se pudo cargar la imagen: ${ruta} - HTTP ${respuesta.status}`
+        );
+    }
+
+    const blob =
+        await respuesta.blob();
+
+    return await new Promise(
+        (resolve, reject) => {
+
+            const lector =
+                new FileReader();
+
+            lector.onload =
+                () => resolve(
+                    lector.result
+                );
+
+            lector.onerror =
+                () => reject(
+                    new Error(
+                        "No se pudo convertir el logo."
+                    )
+                );
+
+            lector.readAsDataURL(
+                blob
+            );
+        }
+    );
+}
 async function descargarTablaPDF() {
 
     // =====================================================
     // VERIFICAR LIBRERÍA
     // =====================================================
 
-    if (
-        !window.jspdf ||
-        !window.jspdf.jsPDF
-    ) {
+  let logoCeta =
+    null;
 
-        alert(
-            "No se pudo cargar la librería PDF."
+try {
+
+    const rutaLogo =
+        new URL(
+            "./img/logo-ceta-transparente.png",
+            window.location.href
+        ).href;
+
+    console.log(
+        "Ruta del logo:",
+        rutaLogo
+    );
+
+    logoCeta =
+        await cargarImagenDataURL(
+            rutaLogo
         );
 
-        return;
-    }
+    console.log(
+        "Logo CETA cargado correctamente."
+    );
 
+} catch (error) {
 
-    const {
-        jsPDF
-    } =
-        window.jspdf;
+    console.error(
+        "No se pudo cargar el logo CETA para el PDF.",
+        error
+    );
+}
 
 
     // =====================================================
@@ -5079,27 +5141,10 @@ async function cargarAreasTallerGestion() {
     } =
         await supabaseClient
 
-            .from(
-                "areas_taller"
-            )
-
-            .select(`
-                codigo,
-                nombre,
-                activo
-            `)
-
-            .eq(
-                "activo",
-                true
-            )
-
-            .order(
-                "codigo",
-                {
-                    ascending: true
-                }
-            );
+            .from("areas_taller")
+.select("codigo, nombre, activa")
+.eq("activa", true)
+.order("codigo", { ascending: true });
 
 
     if (error) {
