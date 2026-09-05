@@ -1,7 +1,7 @@
 // =========================================================
 // DOCENTE.JS
 // Sistema de Reserva de Maquetas CETA
-// Hasta 3 maquetas por reserva
+// Hasta 2 maquetas por nueva reserva
 // =========================================================
 
 
@@ -88,19 +88,9 @@ const maquetaReserva2 =
         "maquetaReserva2"
     );
 
-const maquetaReserva3 =
-    document.getElementById(
-        "maquetaReserva3"
-    );
-
 const bloqueMaqueta2 =
     document.getElementById(
         "bloqueMaqueta2"
-    );
-
-const bloqueMaqueta3 =
-    document.getElementById(
-        "bloqueMaqueta3"
     );
 
 const btnAgregarMaqueta2 =
@@ -108,24 +98,39 @@ const btnAgregarMaqueta2 =
         "btnAgregarMaqueta2"
     );
 
-const btnAgregarMaqueta3 =
-    document.getElementById(
-        "btnAgregarMaqueta3"
-    );
-
 const btnQuitarMaqueta2 =
     document.getElementById(
         "btnQuitarMaqueta2"
     );
 
-const btnQuitarMaqueta3 =
-    document.getElementById(
-        "btnQuitarMaqueta3"
-    );
-
 const estadoMaqueta =
     document.getElementById(
         "estadoMaqueta"
+    );
+
+
+// =========================================================
+// IMÁGENES DE MAQUETAS
+// =========================================================
+
+const imagenMaquetaReserva1 =
+    document.getElementById(
+        "imagenMaquetaReserva1"
+    );
+
+const imagenMaquetaReserva1Img =
+    document.getElementById(
+        "imagenMaquetaReserva1Img"
+    );
+
+const imagenMaquetaReserva2 =
+    document.getElementById(
+        "imagenMaquetaReserva2"
+    );
+
+const imagenMaquetaReserva2Img =
+    document.getElementById(
+        "imagenMaquetaReserva2Img"
     );
 
 
@@ -528,7 +533,8 @@ async function cargarMaquetasBase() {
                 codigo,
                 nombre,
                 descripcion,
-                disponible
+                disponible,
+                imagen_url
             `)
 
             .eq(
@@ -576,6 +582,98 @@ async function cargarMaquetasBase() {
 
 
 // =========================================================
+// IMAGEN DE LA MAQUETA SELECCIONADA
+// =========================================================
+
+function mostrarImagenMaqueta(
+    idMaqueta,
+    contenedor,
+    imagen
+) {
+
+    if (
+        !contenedor ||
+        !imagen
+    ) {
+
+        return;
+    }
+
+
+    if (!idMaqueta) {
+
+        imagen.src =
+            "";
+
+        contenedor.hidden =
+            true;
+
+        return;
+    }
+
+
+    const maqueta =
+        listaMaquetas.find(
+            item =>
+                String(
+                    item.id
+                ) ===
+                String(
+                    idMaqueta
+                )
+        );
+
+
+    if (
+        !maqueta ||
+        !maqueta.imagen_url
+    ) {
+
+        imagen.src =
+            "";
+
+        contenedor.hidden =
+            true;
+
+        return;
+    }
+
+
+    imagen.src =
+        maqueta.imagen_url;
+
+
+    imagen.alt =
+        `Imagen de ${maqueta.nombre}`;
+
+
+    contenedor.hidden =
+        false;
+}
+
+
+// =========================================================
+// ACTUALIZAR IMÁGENES
+// =========================================================
+
+function actualizarImagenesMaquetas() {
+
+    mostrarImagenMaqueta(
+        maquetaReserva.value,
+        imagenMaquetaReserva1,
+        imagenMaquetaReserva1Img
+    );
+
+
+    mostrarImagenMaqueta(
+        maquetaReserva2.value,
+        imagenMaquetaReserva2,
+        imagenMaquetaReserva2Img
+    );
+}
+
+
+// =========================================================
 // SELECTORES DE MAQUETAS
 // =========================================================
 
@@ -583,8 +681,7 @@ function obtenerMaquetasSeleccionadas() {
 
     return [
         maquetaReserva.value,
-        maquetaReserva2.value,
-        maquetaReserva3.value
+        maquetaReserva2.value
     ]
         .filter(Boolean)
         .map(String);
@@ -697,16 +794,12 @@ function actualizarOpcionesMaquetas() {
     const valor2 =
         maquetaReserva2.value;
 
-    const valor3 =
-        maquetaReserva3.value;
-
 
     llenarSelectorMaqueta(
         maquetaReserva,
         valor1,
         [
-            valor2,
-            valor3
+            valor2
         ].filter(Boolean)
     );
 
@@ -715,18 +808,7 @@ function actualizarOpcionesMaquetas() {
         maquetaReserva2,
         valor2,
         [
-            valor1,
-            valor3
-        ].filter(Boolean)
-    );
-
-
-    llenarSelectorMaqueta(
-        maquetaReserva3,
-        valor3,
-        [
-            valor1,
-            valor2
+            valor1
         ].filter(Boolean)
     );
 
@@ -761,6 +843,9 @@ function actualizarOpcionesMaquetas() {
         estadoMaqueta.className =
             "maqueta-ocupada";
     }
+
+
+    actualizarImagenesMaquetas();
 }
 
 
@@ -770,8 +855,7 @@ function actualizarOpcionesMaquetas() {
 
 [
     maquetaReserva,
-    maquetaReserva2,
-    maquetaReserva3
+    maquetaReserva2
 ].forEach(
     selector => {
 
@@ -801,9 +885,6 @@ btnAgregarMaqueta2.addEventListener(
         btnAgregarMaqueta2.hidden =
             true;
 
-        btnAgregarMaqueta3.hidden =
-            false;
-
         actualizarOpcionesMaquetas();
     }
 );
@@ -820,67 +901,29 @@ btnQuitarMaqueta2.addEventListener(
         maquetaReserva2.value =
             "";
 
-        maquetaReserva3.value =
-            "";
-
         bloqueMaqueta2.hidden =
-            true;
-
-        bloqueMaqueta3.hidden =
             true;
 
         btnAgregarMaqueta2.hidden =
             false;
 
-        btnAgregarMaqueta3.hidden =
-            true;
+
+        if (
+            imagenMaquetaReserva2 &&
+            imagenMaquetaReserva2Img
+        ) {
+
+            imagenMaquetaReserva2Img.src =
+                "";
+
+            imagenMaquetaReserva2.hidden =
+                true;
+        }
+
 
         actualizarOpcionesMaquetas();
     }
 );
-
-
-// =========================================================
-// MOSTRAR MAQUETA 3
-// =========================================================
-
-btnAgregarMaqueta3.addEventListener(
-    "click",
-    () => {
-
-        bloqueMaqueta3.hidden =
-            false;
-
-        btnAgregarMaqueta3.hidden =
-            true;
-
-        actualizarOpcionesMaquetas();
-    }
-);
-
-
-// =========================================================
-// QUITAR MAQUETA 3
-// =========================================================
-
-btnQuitarMaqueta3.addEventListener(
-    "click",
-    () => {
-
-        maquetaReserva3.value =
-            "";
-
-        bloqueMaqueta3.hidden =
-            true;
-
-        btnAgregarMaqueta3.hidden =
-            false;
-
-        actualizarOpcionesMaquetas();
-    }
-);
-
-
 // =========================================================
 // DISPONIBILIDAD GENERAL
 // =========================================================
@@ -954,8 +997,8 @@ async function actualizarDisponibilidad() {
         maquetaReserva2.innerHTML =
             maquetaReserva.innerHTML;
 
-        maquetaReserva3.innerHTML =
-            maquetaReserva.innerHTML;
+
+        actualizarImagenesMaquetas();
 
 
         return;
@@ -1036,6 +1079,10 @@ async function cargarMaquetasDisponibles(
     (data || []).forEach(
         reserva => {
 
+            // IMPORTANTE:
+            // Seguimos leyendo maqueta_id_3 porque pueden
+            // existir reservas antiguas con tres maquetas.
+
             [
                 reserva.maqueta_id,
                 reserva.maqueta_id_2,
@@ -1059,10 +1106,6 @@ async function cargarMaquetasDisponibles(
     actualizarOpcionesMaquetas();
 }
 
-
-// =========================================================
-// ÁREAS
-// =========================================================
 
 // =========================================================
 // ÁREAS SEGÚN GESTIÓN ACADÉMICA
@@ -1566,8 +1609,6 @@ horarioReserva.addEventListener(
     "change",
     actualizarDisponibilidad
 );
-
-
 // =========================================================
 // REGISTRAR
 // =========================================================
@@ -1606,11 +1647,10 @@ formReserva.addEventListener(
                 ? ""
                 : maquetaReserva2.value;
 
-        const maqueta3 =
-            bloqueMaqueta3.hidden
-                ? ""
-                : maquetaReserva3.value;
 
+        // =================================================
+        // CAMPOS OBLIGATORIOS
+        // =================================================
 
         if (
             !grupo ||
@@ -1630,12 +1670,29 @@ formReserva.addEventListener(
         }
 
 
+        // =================================================
+        // MAQUETAS SELECCIONADAS
+        // Máximo 2 para nuevas reservas
+        // =================================================
+
         const seleccionadas =
             [
                 maqueta1,
-                maqueta2,
-                maqueta3
+                maqueta2
             ].filter(Boolean);
+
+
+        if (
+            seleccionadas.length > 2
+        ) {
+
+            mostrarMensaje(
+                "Solo puede seleccionar hasta 2 maquetas.",
+                false
+            );
+
+            return;
+        }
 
 
         if (
@@ -1653,6 +1710,10 @@ formReserva.addEventListener(
             return;
         }
 
+
+        // =================================================
+        // VALIDAR FECHA
+        // =================================================
 
         const fechaObjeto =
             fechaDesdeISO(
@@ -1755,7 +1816,7 @@ formReserva.addEventListener(
             ) {
 
                 mostrarMensaje(
-                    "Ya tiene una reserva activa para esta fecha y horario. Puede registrar hasta 3 maquetas dentro de una misma reserva.",
+                    "Ya tiene una reserva activa para esta fecha y horario. Puede registrar hasta 2 maquetas dentro de una misma reserva.",
                     false
                 );
 
@@ -1810,6 +1871,11 @@ formReserva.addEventListener(
             (reservasHorario || [])
                 .forEach(
                     reserva => {
+
+                        // IMPORTANTE:
+                        // Las reservas antiguas pueden
+                        // contener una tercera maqueta.
+                        // Por eso seguimos comprobándola.
 
                         [
                             reserva.maqueta_id,
@@ -1910,6 +1976,13 @@ formReserva.addEventListener(
             // =============================================
             // INSERT
             // =============================================
+            //
+            // Las nuevas reservas admiten máximo 2 maquetas.
+            //
+            // maqueta_id_3 se conserva en la base de datos
+            // para mantener compatibilidad con reservas
+            // históricas, pero las nuevas siempre guardan NULL.
+            // =============================================
 
             const {
                 error
@@ -1942,11 +2015,7 @@ formReserva.addEventListener(
                                 : null,
 
                         maqueta_id_3:
-                            maqueta3
-                                ? Number(
-                                    maqueta3
-                                )
-                                : null,
+                            null,
 
                         area_codigo:
                             areaCodigo,
@@ -1972,6 +2041,10 @@ formReserva.addEventListener(
             );
 
 
+            // =============================================
+            // LIMPIAR FORMULARIO
+            // =============================================
+
             grupoReserva.value =
                 "";
 
@@ -1984,9 +2057,6 @@ formReserva.addEventListener(
             maquetaReserva2.value =
                 "";
 
-            maquetaReserva3.value =
-                "";
-
             areaReserva.value =
                 "";
 
@@ -1994,15 +2064,40 @@ formReserva.addEventListener(
             bloqueMaqueta2.hidden =
                 true;
 
-            bloqueMaqueta3.hidden =
-                true;
-
             btnAgregarMaqueta2.hidden =
                 false;
 
-            btnAgregarMaqueta3.hidden =
-                true;
 
+            // Ocultar las imágenes después de registrar
+
+            if (
+                imagenMaquetaReserva1 &&
+                imagenMaquetaReserva1Img
+            ) {
+
+                imagenMaquetaReserva1Img.src =
+                    "";
+
+                imagenMaquetaReserva1.hidden =
+                    true;
+            }
+
+
+            if (
+                imagenMaquetaReserva2 &&
+                imagenMaquetaReserva2Img
+            ) {
+
+                imagenMaquetaReserva2Img.src =
+                    "";
+
+                imagenMaquetaReserva2.hidden =
+                    true;
+            }
+
+
+            // Mostrar en la tabla la semana
+            // correspondiente a la reserva realizada
 
             inicioSemanaActual =
                 obtenerLunes(
@@ -2040,8 +2135,6 @@ formReserva.addEventListener(
         }
     }
 );
-
-
 // =========================================================
 // TABLA SEMANAL
 // =========================================================
@@ -2124,6 +2217,10 @@ async function cargarTablaSemanal() {
     }
 
 
+    // =====================================================
+    // DOCENTES DE LAS RESERVAS
+    // =====================================================
+
     const usuarios =
         [
             ...new Set(
@@ -2184,7 +2281,14 @@ async function cargarTablaSemanal() {
 
 
     // =====================================================
-    // TODOS LOS IDS DE MAQUETAS DE LAS RESERVAS
+    // IDS DE TODAS LAS MAQUETAS
+    // =====================================================
+    //
+    // Aquí conservamos maqueta_id_3.
+    //
+    // Las reservas nuevas tendrán máximo 2,
+    // pero las reservas antiguas que tenían 3
+    // deben seguir mostrándose completas.
     // =====================================================
 
     const idsMaquetas =
@@ -2451,6 +2555,15 @@ function renderizarTablaSemanal(
                                 "Docente";
 
 
+                            // =================================
+                            // MAQUETAS DE LA RESERVA
+                            // =================================
+                            //
+                            // Seguimos leyendo las tres
+                            // posiciones para visualizar
+                            // correctamente datos históricos.
+                            // =================================
+
                             const ids =
                                 [
                                     reserva.maqueta_id,
@@ -2512,6 +2625,10 @@ function renderizarTablaSemanal(
                             `;
 
 
+                            // =================================
+                            // CANCELAR SOLO RESERVA PROPIA
+                            // =================================
+
                             if (
                                 usuarioActual &&
                                 reserva.usuario_id ===
@@ -2569,8 +2686,6 @@ function renderizarTablaSemanal(
         }
     );
 }
-
-
 // =========================================================
 // CANCELAR
 // =========================================================
