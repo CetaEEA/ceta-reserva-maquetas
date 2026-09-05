@@ -3450,7 +3450,206 @@ document
 // PDF
 // =========================================================
 
+
+// =========================================================
+// CARGAR IMAGEN COMO DATA URL
+// =========================================================
+
+async function cargarImagenDataURL(ruta) {
+
+    const respuesta =
+        await fetch(
+            ruta,
+            {
+                cache: "no-store"
+            }
+        );
+
+
+    if (!respuesta.ok) {
+
+        throw new Error(
+            `No se pudo cargar la imagen (${respuesta.status}): ${ruta}`
+        );
+    }
+
+
+    const blob =
+        await respuesta.blob();
+
+
+    return await new Promise(
+        (resolve, reject) => {
+
+            const lector =
+                new FileReader();
+
+
+            lector.onload =
+                () => {
+
+                    resolve(
+                        lector.result
+                    );
+                };
+
+
+            lector.onerror =
+                () => {
+
+                    reject(
+                        new Error(
+                            "No se pudo convertir el logo."
+                        )
+                    );
+                };
+
+
+            lector.readAsDataURL(
+                blob
+            );
+
+        }
+    );
+}
+
+
+// =========================================================
+// DIBUJAR MARCA DE AGUA
+// =========================================================
+
+function dibujarMarcaAguaCeta(
+    doc,
+    logoCeta
+) {
+
+    if (!logoCeta) {
+
+        return;
+    }
+
+
+    const anchoPagina =
+        doc.internal
+            .pageSize
+            .getWidth();
+
+
+    const altoPagina =
+        doc.internal
+            .pageSize
+            .getHeight();
+
+
+    // Marca de agua grande
+
+    const anchoLogo =
+        105;
+
+    const altoLogo =
+        105;
+
+
+    const x =
+        (
+            anchoPagina -
+            anchoLogo
+        ) / 2;
+
+
+    const y =
+        (
+            altoPagina -
+            altoLogo
+        ) / 2;
+
+
+    // =====================================================
+    // TRANSPARENCIA
+    // =====================================================
+
+    let transparenciaAplicada =
+        false;
+
+
+    try {
+
+        if (
+            typeof doc.GState === "function" &&
+            typeof doc.setGState === "function" &&
+            typeof doc.saveGraphicsState === "function"
+        ) {
+
+            doc.saveGraphicsState();
+
+
+            doc.setGState(
+                new doc.GState({
+
+                    opacity:
+                        0.055
+
+                })
+            );
+
+
+            transparenciaAplicada =
+                true;
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "La versión de jsPDF no permitió aplicar transparencia.",
+            error
+        );
+
+    }
+
+
+    // =====================================================
+    // INSERTAR MARCA DE AGUA
+    // =====================================================
+
+    doc.addImage(
+
+        logoCeta,
+
+        "PNG",
+
+        x,
+        y,
+
+        anchoLogo,
+        altoLogo
+
+    );
+
+
+    // =====================================================
+    // RESTAURAR TRANSPARENCIA
+    // =====================================================
+
+    if (
+        transparenciaAplicada &&
+        typeof doc.restoreGraphicsState === "function"
+    ) {
+
+        doc.restoreGraphicsState();
+    }
+
+}
+
+
+// =========================================================
+// DESCARGAR PDF
+// =========================================================
+
 async function descargarTablaPDF() {
+
+    // =====================================================
+    // VERIFICAR LIBRERÍA
+    // =====================================================
 
     if (
         !window.jspdf ||
@@ -3470,6 +3669,10 @@ async function descargarTablaPDF() {
     } =
         window.jspdf;
 
+
+    // =====================================================
+    // CREAR DOCUMENTO
+    // =====================================================
 
     const doc =
         new jsPDF({
@@ -3511,15 +3714,34 @@ async function descargarTablaPDF() {
 
     try {
 
+        const rutaLogo =
+            new URL(
+                "img/logo-ceta-transparente.png",
+                window.location.href
+            ).href;
+
+
+        console.log(
+            "Intentando cargar logo:",
+            rutaLogo
+        );
+
+
         logoCeta =
             await cargarImagenDataURL(
-                "img/logo-ceta-transparente.png"
+                rutaLogo
             );
+
+
+        console.log(
+            "Logo CETA cargado correctamente."
+        );
+
 
     } catch (error) {
 
-        console.warn(
-            "No se pudo cargar el logo CETA para el PDF.",
+        console.error(
+            "No se pudo cargar el logo CETA:",
             error
         );
 
@@ -3527,7 +3749,22 @@ async function descargarTablaPDF() {
 
 
     // =====================================================
-    // CABECERA INSTITUCIONAL
+    // MARCA DE AGUA
+    // PRIMERA PÁGINA
+    // =====================================================
+
+    if (logoCeta) {
+
+        dibujarMarcaAguaCeta(
+            doc,
+            logoCeta
+        );
+
+    }
+
+
+    // =====================================================
+    // LOGO SUPERIOR IZQUIERDO
     // =====================================================
 
     if (logoCeta) {
@@ -3538,17 +3775,20 @@ async function descargarTablaPDF() {
 
             "PNG",
 
-            10,
+            9,
             6,
 
-            29,
-            29
+            31,
+            31
 
         );
+
     }
 
 
-    // Nombre de la institución
+    // =====================================================
+    // ENCABEZADO INSTITUCIONAL
+    // =====================================================
 
     doc.setFont(
         "helvetica",
@@ -3557,7 +3797,7 @@ async function descargarTablaPDF() {
 
 
     doc.setFontSize(
-        14
+        15
     );
 
 
@@ -3565,9 +3805,9 @@ async function descargarTablaPDF() {
 
         "INSTITUTO DE ENSEÑANZA TÉCNICO AUTOMOTRIZ CETA",
 
-        158,
+        162,
 
-        11,
+        10,
 
         {
             align:
@@ -3576,8 +3816,6 @@ async function descargarTablaPDF() {
 
     );
 
-
-    // Carrera
 
     doc.setFontSize(
         11
@@ -3588,9 +3826,9 @@ async function descargarTablaPDF() {
 
         "CARRERA DE ELECTRICIDAD Y ELECTRÓNICA AUTOMOTRIZ",
 
-        158,
+        162,
 
-        17,
+        16.5,
 
         {
             align:
@@ -3600,10 +3838,12 @@ async function descargarTablaPDF() {
     );
 
 
-    // Línea divisoria superior
+    // =====================================================
+    // LÍNEA SUPERIOR
+    // =====================================================
 
     doc.setLineWidth(
-        0.4
+        0.45
     );
 
 
@@ -3612,20 +3852,15 @@ async function descargarTablaPDF() {
         45,
         21,
 
-        287,
+        288,
         21
 
     );
 
 
     // =====================================================
-    // TÍTULO DEL REPORTE
+    // TÍTULO
     // =====================================================
-
-    doc.setFontSize(
-        14
-    );
-
 
     doc.setFont(
         "helvetica",
@@ -3633,11 +3868,16 @@ async function descargarTablaPDF() {
     );
 
 
+    doc.setFontSize(
+        14
+    );
+
+
     doc.text(
 
-        "Sistema de Reserva de Maquetas",
+        "SISTEMA DE RESERVA DE MAQUETAS",
 
-        158,
+        162,
 
         28,
 
@@ -3649,6 +3889,10 @@ async function descargarTablaPDF() {
     );
 
 
+    // =====================================================
+    // SUBTÍTULO
+    // =====================================================
+
     doc.setFontSize(
         11
     );
@@ -3656,9 +3900,9 @@ async function descargarTablaPDF() {
 
     doc.text(
 
-        "Registro semanal de reservas",
+        "REGISTRO SEMANAL DE RESERVAS",
 
-        158,
+        162,
 
         34,
 
@@ -3670,10 +3914,9 @@ async function descargarTablaPDF() {
     );
 
 
-    doc.setFontSize(
-        10
-    );
-
+    // =====================================================
+    // SEMANA
+    // =====================================================
 
     doc.setFont(
         "helvetica",
@@ -3681,11 +3924,16 @@ async function descargarTablaPDF() {
     );
 
 
+    doc.setFontSize(
+        10
+    );
+
+
     doc.text(
 
         `Semana: ${formatearFechaAdmin(lunes)} al ${formatearFechaAdmin(viernes)}`,
 
-        158,
+        162,
 
         40,
 
@@ -3697,7 +3945,9 @@ async function descargarTablaPDF() {
     );
 
 
-    // Línea inferior de cabecera
+    // =====================================================
+    // LÍNEA INFERIOR DEL ENCABEZADO
+    // =====================================================
 
     doc.setLineWidth(
         0.25
@@ -3820,6 +4070,10 @@ async function descargarTablaPDF() {
                             );
 
 
+                    // =====================================
+                    // SIN RESERVAS
+                    // =====================================
+
                     if (
                         reservasCelda.length ===
                         0
@@ -3833,6 +4087,10 @@ async function descargarTablaPDF() {
                         continue;
                     }
 
+
+                    // =====================================
+                    // RESERVAS
+                    // =====================================
 
                     const textos =
                         reservasCelda
@@ -3855,7 +4113,8 @@ async function descargarTablaPDF() {
 
                                     // =================================
                                     // MAQUETAS
-                                    // Incluye tercer campo histórico
+                                    // Conservamos maqueta_id_3
+                                    // para registros históricos
                                     // =================================
 
                                     const idsMaquetas = [
@@ -3978,6 +4237,11 @@ async function descargarTablaPDF() {
         theme:
             "grid",
 
+
+        // =================================================
+        // ESTILO GENERAL
+        // =================================================
+
         styles: {
 
             fontSize:
@@ -3990,19 +4254,38 @@ async function descargarTablaPDF() {
                 "top",
 
             overflow:
-                "linebreak"
+                "linebreak",
+
+            textColor:
+                20
 
         },
+
+
+        // =================================================
+        // ENCABEZADO
+        // =================================================
 
         headStyles: {
 
             halign:
                 "center",
 
+            valign:
+                "middle",
+
             fontStyle:
-                "bold"
+                "bold",
+
+            fontSize:
+                10
 
         },
+
+
+        // =================================================
+        // PRIMERA COLUMNA
+        // =================================================
 
         columnStyles: {
 
@@ -4014,12 +4297,20 @@ async function descargarTablaPDF() {
                 halign:
                     "center",
 
+                valign:
+                    "middle",
+
                 fontStyle:
                     "bold"
 
             }
 
         },
+
+
+        // =================================================
+        // MÁRGENES
+        // =================================================
 
         margin: {
 
@@ -4039,113 +4330,29 @@ async function descargarTablaPDF() {
 
 
         // =================================================
-        // MARCA DE AGUA EN TODAS LAS PÁGINAS
+        // MARCA DE AGUA EN PÁGINAS ADICIONALES
         // =================================================
 
-        didDrawPage: function () {
+        willDrawPage: function (data) {
 
-            if (!logoCeta) {
-
-                return;
-            }
-
-
-            const pageWidth =
-                doc.internal.pageSize.getWidth();
-
-
-            const pageHeight =
-                doc.internal.pageSize.getHeight();
-
-
-            // Guardar estado gráfico
+            /*
+             * La primera página ya tiene su marca de agua
+             * dibujada antes de la tabla.
+             *
+             * Si AutoTable genera páginas adicionales,
+             * aquí agregamos la misma marca de agua.
+             */
 
             if (
-                typeof doc.saveGraphicsState ===
-                "function"
+                data.pageNumber > 1 &&
+                logoCeta
             ) {
 
-                doc.saveGraphicsState();
-            }
-
-
-            // Transparencia de la marca de agua
-            // Si la versión de jsPDF soporta GState
-
-            try {
-
-                if (
-                    typeof doc.GState ===
-                        "function" &&
-                    typeof doc.setGState ===
-                        "function"
-                ) {
-
-                    doc.setGState(
-                        new doc.GState({
-                            opacity:
-                                0.08
-                        })
-                    );
-
-                }
-
-            } catch (error) {
-
-                console.warn(
-                    "No se pudo aplicar transparencia a la marca de agua.",
-                    error
+                dibujarMarcaAguaCeta(
+                    doc,
+                    logoCeta
                 );
-            }
 
-
-            // Tamaño grande pero sin cubrir toda la página
-
-            const anchoMarca =
-                95;
-
-
-            const altoMarca =
-                95;
-
-
-            const x =
-                (
-                    pageWidth -
-                    anchoMarca
-                ) / 2;
-
-
-            const y =
-                (
-                    pageHeight -
-                    altoMarca
-                ) / 2;
-
-
-            doc.addImage(
-
-                logoCeta,
-
-                "PNG",
-
-                x,
-                y,
-
-                anchoMarca,
-                altoMarca
-
-            );
-
-
-            // Restaurar estado gráfico
-
-            if (
-                typeof doc.restoreGraphicsState ===
-                "function"
-            ) {
-
-                doc.restoreGraphicsState();
             }
 
         }
@@ -4173,6 +4380,30 @@ async function descargarTablaPDF() {
         );
 
 
+        // =================================================
+        // LÍNEA DEL PIE
+        // =================================================
+
+        doc.setLineWidth(
+            0.2
+        );
+
+
+        doc.line(
+
+            8,
+            198,
+
+            289,
+            198
+
+        );
+
+
+        // =================================================
+        // TEXTO IZQUIERDO
+        // =================================================
+
         doc.setFontSize(
             8
         );
@@ -4190,10 +4421,14 @@ async function descargarTablaPDF() {
 
             8,
 
-            202
+            203
 
         );
 
+
+        // =================================================
+        // NÚMERO DE PÁGINA
+        // =================================================
 
         doc.text(
 
@@ -4201,7 +4436,7 @@ async function descargarTablaPDF() {
 
             289,
 
-            202,
+            203,
 
             {
                 align:
@@ -4226,6 +4461,10 @@ async function descargarTablaPDF() {
         )}.pdf`;
 
 
+    // =====================================================
+    // GUARDAR
+    // =====================================================
+
     doc.save(
         nombreArchivo
     );
@@ -4242,9 +4481,9 @@ document
     )
     ?.addEventListener(
         "click",
-        () => {
+        async () => {
 
-            descargarTablaPDF();
+            await descargarTablaPDF();
 
         }
     );
