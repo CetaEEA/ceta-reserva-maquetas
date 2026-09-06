@@ -2779,3 +2779,236 @@ body.admin-page.modo-oscuro .btnCerrarModal {
 
     object-fit: contain;
 }
+/* =========================================================
+   AJUSTES DOCENTE - PESTAÑAS, MODO OSCURO E IMÁGENES
+   IMPORTANTE: reglas limitadas a body.docente-page para no
+   modificar el panel administrador.
+========================================================= */
+
+/* Mismo fondo blanco usado en el logo del administrador */
+body.docente-page .docente-header .logo-ceta {
+    background: #ffffff;
+    padding: 10px;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    object-fit: contain;
+}
+
+/* Navegación por secciones */
+body.docente-page .docente-tabs {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 25px;
+    padding: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+}
+
+body.docente-page .btn-docente-tab,
+body.docente-page .btn-modo-oscuro-docente {
+    min-height: 46px;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    background: #f8fafc;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+body.docente-page .btn-docente-tab:hover,
+body.docente-page .btn-modo-oscuro-docente:hover {
+    background: #eef2f7;
+}
+
+body.docente-page .btn-docente-tab.active {
+    border-color: #1f2937;
+    background: #1f2937;
+    color: #ffffff;
+}
+
+body.docente-page .docente-panel-section {
+    display: none;
+}
+
+body.docente-page .docente-panel-section.active {
+    display: block;
+}
+
+/* Imágenes más grandes en PC */
+body.docente-page .imagen-maqueta-docente img {
+    width: auto;
+    max-width: min(420px, 96%);
+    max-height: 330px;
+    margin: 0 auto;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+/* =========================================================
+   MODO OSCURO - SOLO DOCENTE
+========================================================= */
+
+body.docente-page.modo-oscuro {
+    background-color: #0f172a;
+    color: #e5e7eb;
+}
+
+body.docente-page.modo-oscuro::before {
+    opacity: 0.025;
+}
+
+body.docente-page.modo-oscuro .docente-welcome,
+body.docente-page.modo-oscuro .docente-section,
+body.docente-page.modo-oscuro .docente-tabs {
+    background: #111827;
+    color: #e5e7eb;
+    border-color: #334155;
+}
+
+body.docente-page.modo-oscuro .docente-welcome p,
+body.docente-page.modo-oscuro .section-header p,
+body.docente-page.modo-oscuro .campo-reserva small,
+body.docente-page.modo-oscuro .docente-footer,
+body.docente-page.modo-oscuro .leyenda-item {
+    color: #94a3b8;
+}
+
+body.docente-page.modo-oscuro .docente-footer strong,
+body.docente-page.modo-oscuro .campo-reserva label,
+body.docente-page.modo-oscuro .grupo-maquetas-titulo h3,
+body.docente-page.modo-oscuro .maqueta-reservada-item {
+    color: #e5e7eb;
+}
+
+body.docente-page.modo-oscuro input,
+body.docente-page.modo-oscuro select,
+body.docente-page.modo-oscuro textarea {
+    background: #1e293b;
+    color: #f8fafc;
+    border-color: #475569;
+}
+
+body.docente-page.modo-oscuro input:focus,
+body.docente-page.modo-oscuro select:focus,
+body.docente-page.modo-oscuro textarea:focus {
+    border-color: #94a3b8;
+    box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.12);
+}
+
+body.docente-page.modo-oscuro .grupo-maquetas-reserva,
+body.docente-page.modo-oscuro .bloque-maqueta,
+body.docente-page.modo-oscuro .leyenda-reservas {
+    background: #1e293b;
+    color: #e5e7eb;
+    border-color: #334155;
+}
+
+body.docente-page.modo-oscuro .grupo-maquetas-titulo p {
+    color: #94a3b8;
+}
+
+body.docente-page.modo-oscuro .areas-libres-info {
+    background: #052e16;
+    border-color: #166534;
+}
+
+body.docente-page.modo-oscuro .areas-libres-titulo,
+body.docente-page.modo-oscuro .areas-libres-info strong {
+    color: #86efac;
+}
+
+body.docente-page.modo-oscuro .areas-libres-info p,
+body.docente-page.modo-oscuro .areas-libres-info small {
+    color: #bbf7d0;
+}
+
+body.docente-page.modo-oscuro .aviso-disponibilidad {
+    background: #172554;
+    border-color: #1d4ed8;
+}
+
+body.docente-page.modo-oscuro .aviso-disponibilidad strong {
+    color: #bfdbfe;
+}
+
+body.docente-page.modo-oscuro .aviso-disponibilidad p {
+    color: #cbd5e1;
+}
+
+body.docente-page.modo-oscuro .tabla-semana th,
+body.docente-page.modo-oscuro .tabla-semana td {
+    border-color: #334155;
+}
+
+body.docente-page.modo-oscuro .tabla-semana tbody th {
+    background: #1e293b;
+    color: #e5e7eb;
+}
+
+body.docente-page.modo-oscuro .tabla-semana td {
+    background: #111827;
+    color: #e5e7eb;
+}
+
+body.docente-page.modo-oscuro .reserva-card {
+    background: #1e293b;
+    color: #e5e7eb;
+    border-left-color: #94a3b8;
+}
+
+body.docente-page.modo-oscuro .reserva-card > strong,
+body.docente-page.modo-oscuro .reserva-card span {
+    color: #e5e7eb;
+}
+
+body.docente-page.modo-oscuro .reserva-libre {
+    color: #94a3b8;
+}
+
+body.docente-page.modo-oscuro .btn-docente-tab,
+body.docente-page.modo-oscuro .btn-modo-oscuro-docente {
+    background: #1e293b;
+    color: #e5e7eb;
+    border-color: #475569;
+}
+
+body.docente-page.modo-oscuro .btn-docente-tab:hover,
+body.docente-page.modo-oscuro .btn-modo-oscuro-docente:hover {
+    background: #334155;
+}
+
+body.docente-page.modo-oscuro .btn-docente-tab.active {
+    background: #e5e7eb;
+    color: #111827;
+    border-color: #e5e7eb;
+}
+
+/* Celular: un poco más grandes que antes */
+@media (max-width: 700px) {
+    body.docente-page .docente-tabs {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    body.docente-page .btn-modo-oscuro-docente {
+        grid-column: 1 / -1;
+    }
+
+    body.docente-page .imagen-maqueta-docente img {
+        max-width: min(300px, 96%);
+        max-height: 230px;
+    }
+}
+
+@media (max-width: 480px) {
+    body.docente-page .docente-tabs {
+        grid-template-columns: 1fr;
+    }
+
+    body.docente-page .btn-modo-oscuro-docente {
+        grid-column: auto;
+    }
+}
