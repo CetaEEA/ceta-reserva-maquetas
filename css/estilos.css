@@ -2421,3 +2421,347 @@ body.docente-page::before {
     }
 
 }
+
+/* =========================================================
+   AJUSTES FINALES - PANEL ADMINISTRADOR
+========================================================= */
+
+/* Mostrar una sola sección del panel a la vez */
+.admin-panel-section {
+    display: none;
+}
+
+.admin-panel-section.active {
+    display: block;
+}
+
+
+/* =========================================================
+   PESTAÑAS DEL PANEL
+========================================================= */
+
+.admin-tabs {
+    width: 100%;
+
+    display: grid;
+    grid-template-columns:
+        repeat(5, minmax(0, 1fr));
+
+    gap: 10px;
+
+    margin-bottom: 25px;
+
+    padding: 12px;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.07);
+}
+
+
+.btn-admin-tab,
+.btn-modo-oscuro {
+    min-height: 46px;
+
+    padding: 10px 12px;
+
+    border: 1px solid #d1d5db;
+
+    background: #f8fafc;
+    color: #374151;
+
+    font-size: 14px;
+    font-weight: 700;
+}
+
+
+.btn-admin-tab:hover,
+.btn-modo-oscuro:hover {
+    background: #eef2f7;
+}
+
+
+.btn-admin-tab.active {
+    border-color: #1f2937;
+
+    background: #1f2937;
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   BOTÓN CANCELAR RESERVA ADMIN
+========================================================= */
+
+.reserva-admin-card .btn-cancelar-reserva-admin,
+.btn-cancelar-reserva-admin {
+    display: block;
+
+    width: 100%;
+
+    margin-top: 12px;
+
+    padding: 10px 14px;
+
+    border: 1px solid #b91c1c;
+    border-radius: 8px;
+
+    background: #dc2626 !important;
+    color: #ffffff !important;
+
+    font-size: 14px;
+    font-weight: 700;
+}
+
+
+.reserva-admin-card .btn-cancelar-reserva-admin:hover,
+.btn-cancelar-reserva-admin:hover {
+    background: #b91c1c !important;
+}
+
+
+/* =========================================================
+   IMAGEN DE MAQUETA - DOCENTE
+========================================================= */
+
+.imagen-maqueta-docente img {
+    width: auto;
+
+    max-width: min(360px, 92%);
+    max-height: 280px;
+}
+
+
+/* =========================================================
+   MODO OSCURO - ADMINISTRADOR
+========================================================= */
+
+body.admin-page.modo-oscuro {
+    background-color: #0f172a;
+    color: #e5e7eb;
+}
+
+
+body.admin-page.modo-oscuro::before {
+    opacity: 0.025;
+}
+
+
+body.admin-page.modo-oscuro .admin-welcome,
+body.admin-page.modo-oscuro .admin-section,
+body.admin-page.modo-oscuro .admin-tabs,
+body.admin-page.modo-oscuro .modal-content {
+    background: #111827;
+    color: #e5e7eb;
+
+    border-color: #334155;
+}
+
+
+body.admin-page.modo-oscuro .admin-welcome p,
+body.admin-page.modo-oscuro .section-header p,
+body.admin-page.modo-oscuro .campo-ayuda,
+body.admin-page.modo-oscuro .modal-label,
+body.admin-page.modo-oscuro .gestion-item span,
+body.admin-page.modo-oscuro .config-areas-header p,
+body.admin-page.modo-oscuro .admin-footer,
+body.admin-page.modo-oscuro .semana-info span {
+    color: #94a3b8;
+}
+
+
+body.admin-page.modo-oscuro .admin-footer strong,
+body.admin-page.modo-oscuro .semana-info strong,
+body.admin-page.modo-oscuro .area-check-card span {
+    color: #e5e7eb;
+}
+
+
+body.admin-page.modo-oscuro input,
+body.admin-page.modo-oscuro select,
+body.admin-page.modo-oscuro textarea {
+    background: #1e293b;
+    color: #f8fafc;
+
+    border-color: #475569;
+}
+
+
+body.admin-page.modo-oscuro input:focus,
+body.admin-page.modo-oscuro select:focus,
+body.admin-page.modo-oscuro textarea:focus {
+    border-color: #94a3b8;
+
+    box-shadow:
+        0 0 0 3px rgba(148, 163, 184, 0.12);
+}
+
+
+body.admin-page.modo-oscuro .usuarios-scroll,
+body.admin-page.modo-oscuro .tabla-semanal-container,
+body.admin-page.modo-oscuro .semana-panel,
+body.admin-page.modo-oscuro .gestion-bloque,
+body.admin-page.modo-oscuro .config-areas-panel,
+body.admin-page.modo-oscuro .maqueta-card,
+body.admin-page.modo-oscuro .gestion-item,
+body.admin-page.modo-oscuro .area-check-card {
+    background: #1e293b;
+
+    border-color: #334155;
+
+    color: #e5e7eb;
+}
+
+
+body.admin-page.modo-oscuro .tabla-usuarios td,
+body.admin-page.modo-oscuro .tabla-semanal td {
+    background: #111827;
+
+    color: #e5e7eb;
+
+    border-color: #334155;
+}
+
+
+body.admin-page.modo-oscuro .tabla-usuarios tbody tr:hover {
+    background: #1e293b;
+}
+
+
+body.admin-page.modo-oscuro .tabla-semanal tbody th {
+    background: #1e293b;
+    color: #e5e7eb;
+
+    border-color: #334155;
+}
+
+
+body.admin-page.modo-oscuro .reserva-admin-card {
+    background: #1e293b;
+    color: #e5e7eb;
+}
+
+
+body.admin-page.modo-oscuro .maqueta-descripcion {
+    color: #cbd5e1;
+}
+
+
+body.admin-page.modo-oscuro .maqueta-codigo,
+body.admin-page.modo-oscuro .section-number,
+body.admin-page.modo-oscuro .cuenta-protegida {
+    background: #334155;
+    color: #e5e7eb;
+
+    border-color: #475569;
+}
+
+
+body.admin-page.modo-oscuro .gestion-activa-card {
+    background: #052e16;
+
+    border-color: #22c55e;
+}
+
+
+body.admin-page.modo-oscuro .gestion-activa-card span,
+body.admin-page.modo-oscuro .gestion-activa-card small {
+    color: #bbf7d0;
+}
+
+
+body.admin-page.modo-oscuro .gestion-activa-card strong {
+    color: #86efac;
+}
+
+
+body.admin-page.modo-oscuro .admin-reserva-nota {
+    background: #172554;
+
+    border-color: #3b82f6;
+}
+
+
+body.admin-page.modo-oscuro .admin-reserva-nota strong {
+    color: #bfdbfe;
+}
+
+
+body.admin-page.modo-oscuro .admin-reserva-nota p {
+    color: #cbd5e1;
+}
+
+
+body.admin-page.modo-oscuro .btn-admin-tab,
+body.admin-page.modo-oscuro .btn-modo-oscuro {
+    background: #1e293b;
+    color: #e5e7eb;
+
+    border-color: #475569;
+}
+
+
+body.admin-page.modo-oscuro .btn-admin-tab:hover,
+body.admin-page.modo-oscuro .btn-modo-oscuro:hover {
+    background: #334155;
+}
+
+
+body.admin-page.modo-oscuro .btn-admin-tab.active {
+    background: #e5e7eb;
+    color: #111827;
+
+    border-color: #e5e7eb;
+}
+
+
+body.admin-page.modo-oscuro .btnCerrarModal {
+    color: #e5e7eb;
+}
+
+
+/* =========================================================
+   TABLET Y CELULAR - PESTAÑAS / IMAGEN
+========================================================= */
+
+@media (max-width: 850px) {
+
+    .admin-tabs {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+
+    .btn-modo-oscuro {
+        grid-column: 1 / -1;
+    }
+
+}
+
+
+@media (max-width: 700px) {
+
+    .imagen-maqueta-docente img {
+        max-width: min(260px, 92%);
+        max-height: 200px;
+    }
+
+}
+
+
+@media (max-width: 480px) {
+
+    .admin-tabs {
+        grid-template-columns: 1fr;
+    }
+
+
+    .btn-modo-oscuro {
+        grid-column: auto;
+    }
+
+}
