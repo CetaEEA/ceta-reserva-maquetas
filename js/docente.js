@@ -196,6 +196,142 @@ const tablaSemana =
 
 
 // =========================================================
+// PESTAÑAS DEL PANEL DOCENTE
+// =========================================================
+
+function mostrarPanelDocente(panelId) {
+
+    document
+        .querySelectorAll(
+            ".docente-panel-section"
+        )
+        .forEach(
+            seccion => {
+
+                seccion.classList.toggle(
+                    "active",
+                    seccion.id === panelId
+                );
+
+            }
+        );
+
+
+    document
+        .querySelectorAll(
+            ".btn-docente-tab"
+        )
+        .forEach(
+            boton => {
+
+                boton.classList.toggle(
+                    "active",
+                    boton.dataset.panel === panelId
+                );
+
+            }
+        );
+
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
+
+document
+    .querySelectorAll(
+        ".btn-docente-tab"
+    )
+    .forEach(
+        boton => {
+
+            boton.addEventListener(
+                "click",
+                () => {
+
+                    mostrarPanelDocente(
+                        boton.dataset.panel
+                    );
+
+                }
+            );
+
+        }
+    );
+
+
+// =========================================================
+// MODO OSCURO DOCENTE
+// =========================================================
+
+function aplicarModoOscuroDocente(activado) {
+
+    document.body.classList.toggle(
+        "modo-oscuro",
+        activado
+    );
+
+
+    const boton =
+        document.getElementById(
+            "btnModoOscuroDocente"
+        );
+
+
+    if (boton) {
+
+        boton.textContent =
+            activado
+                ? "☀️ Modo claro"
+                : "🌙 Modo oscuro";
+
+
+        boton.setAttribute(
+            "aria-pressed",
+            String(activado)
+        );
+    }
+
+
+    localStorage.setItem(
+        "cetaDocenteModoOscuro",
+        activado ? "1" : "0"
+    );
+}
+
+
+const modoOscuroDocenteGuardado =
+    localStorage.getItem(
+        "cetaDocenteModoOscuro"
+    ) === "1";
+
+
+aplicarModoOscuroDocente(
+    modoOscuroDocenteGuardado
+);
+
+
+document
+    .getElementById(
+        "btnModoOscuroDocente"
+    )
+    ?.addEventListener(
+        "click",
+        () => {
+
+            aplicarModoOscuroDocente(
+                !document.body.classList.contains(
+                    "modo-oscuro"
+                )
+            );
+
+        }
+    );
+
+
+// =========================================================
 // FECHAS
 // =========================================================
 
@@ -672,8 +808,6 @@ function actualizarImagenesMaquetas() {
         imagenMaquetaReserva2Img
     );
 }
-
-
 // =========================================================
 // SELECTORES DE MAQUETAS
 // =========================================================
@@ -925,6 +1059,8 @@ btnQuitarMaqueta2.addEventListener(
         actualizarOpcionesMaquetas();
     }
 );
+
+
 // =========================================================
 // DISPONIBILIDAD GENERAL
 // =========================================================
@@ -1080,10 +1216,6 @@ async function cargarMaquetasDisponibles(
     (data || []).forEach(
         reserva => {
 
-            // IMPORTANTE:
-            // Seguimos leyendo maqueta_id_3 porque pueden
-            // existir reservas antiguas con tres maquetas.
-
             [
                 reserva.maqueta_id,
                 reserva.maqueta_id_2,
@@ -1179,10 +1311,6 @@ async function cargarAreasDisponibles(
         return;
     }
 
-
-    // =====================================================
-    // NO EXISTE GESTIÓN PARA ESA FECHA
-    // =====================================================
 
     if (!gestion) {
 
@@ -1499,10 +1627,6 @@ async function cargarAreasDisponibles(
                     area.codigo;
 
 
-                // =========================================
-                // ÁREA YA RESERVADA
-                // =========================================
-
                 if (
                     areasOcupadas.has(
                         area.codigo
@@ -1516,10 +1640,6 @@ async function cargarAreasDisponibles(
                         true;
 
 
-                // =========================================
-                // ÁREA LIBRE ESPECIAL DE LA GESTIÓN
-                // =========================================
-
                 } else if (
                     areasLibres.has(
                         area.codigo
@@ -1529,10 +1649,6 @@ async function cargarAreasDisponibles(
                     option.textContent =
                         `⭐ ${area.codigo} — Área libre para práctica`;
 
-
-                // =========================================
-                // RESTO DE ÁREAS
-                // =========================================
 
                 } else {
 
@@ -2111,6 +2227,15 @@ formReserva.addEventListener(
             await cargarTablaSemanal();
 
 
+            // =============================================
+            // VOLVER A LA PESTAÑA DE RESERVAS
+            // =============================================
+
+            mostrarPanelDocente(
+                "panelReservasDocente"
+            );
+
+
         } catch (error) {
 
             console.error(
@@ -2136,6 +2261,8 @@ formReserva.addEventListener(
         }
     }
 );
+
+
 // =========================================================
 // TABLA SEMANAL
 // =========================================================
@@ -2284,13 +2411,6 @@ async function cargarTablaSemanal() {
     // =====================================================
     // IDS DE TODAS LAS MAQUETAS
     // =====================================================
-    //
-    // Aquí conservamos maqueta_id_3.
-    //
-    // Las reservas nuevas tendrán máximo 2,
-    // pero las reservas antiguas que tenían 3
-    // deben seguir mostrándose completas.
-    // =====================================================
 
     const idsMaquetas =
         [
@@ -2416,8 +2536,6 @@ function actualizarEncabezadosTabla(
             `${nombres[i]}<br><small>${formatearFecha(fecha)}</small>`;
     }
 }
-
-
 // =========================================================
 // RENDERIZAR TABLA
 // =========================================================
@@ -2560,9 +2678,11 @@ function renderizarTablaSemanal(
                             // MAQUETAS DE LA RESERVA
                             // =================================
                             //
-                            // Seguimos leyendo las tres
-                            // posiciones para visualizar
-                            // correctamente datos históricos.
+                            // Se mantienen las tres posiciones
+                            // para visualizar correctamente
+                            // las reservas históricas.
+                            // Las reservas nuevas tienen
+                            // máximo 2 maquetas.
                             // =================================
 
                             const ids =
@@ -2687,8 +2807,10 @@ function renderizarTablaSemanal(
         }
     );
 }
+
+
 // =========================================================
-// CANCELAR
+// CANCELAR RESERVA DOCENTE
 // =========================================================
 
 async function cancelarReservaDocente(
@@ -2931,6 +3053,15 @@ async function iniciarPagina() {
     await cargarMaquetasBase();
 
     await cargarTablaSemanal();
+
+
+    // =====================================================
+    // MOSTRAR RESERVAS COMO PRIMERA PESTAÑA
+    // =====================================================
+
+    mostrarPanelDocente(
+        "panelReservasDocente"
+    );
 
 
     console.log(
