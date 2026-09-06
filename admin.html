@@ -14,7 +14,7 @@
 
     <link
         rel="stylesheet"
-        href="css/estilos.css"
+        href="css/estilos.css?v=10"
     >
 
 </head>
@@ -106,10 +106,60 @@
 
 
         <!-- =================================================
+             NAVEGACIÓN DEL PANEL
+        ================================================== -->
+
+        <nav class="admin-tabs" aria-label="Secciones de administración">
+
+            <button
+                type="button"
+                class="btn-admin-tab active"
+                data-panel="panelReservas"
+            >
+                📅 Reservas
+            </button>
+
+            <button
+                type="button"
+                class="btn-admin-tab"
+                data-panel="panelUsuarios"
+            >
+                👤 Usuarios
+            </button>
+
+            <button
+                type="button"
+                class="btn-admin-tab"
+                data-panel="panelMaquetas"
+            >
+                🔧 Maquetas
+            </button>
+
+            <button
+                type="button"
+                class="btn-admin-tab"
+                data-panel="panelGestion"
+            >
+                🎓 Gestión
+            </button>
+
+            <button
+                type="button"
+                id="btnModoOscuro"
+                class="btn-modo-oscuro"
+                aria-pressed="false"
+            >
+                🌙 Modo oscuro
+            </button>
+
+        </nav>
+
+
+        <!-- =================================================
              USUARIOS
         ================================================== -->
 
-        <section class="admin-section">
+        <section id="panelUsuarios" class="admin-section admin-panel-section">
 
             <div class="section-header">
 
@@ -203,7 +253,7 @@
              MAQUETAS
         ================================================== -->
 
-        <section class="admin-section">
+        <section id="panelMaquetas" class="admin-section admin-panel-section">
 
             <div class="section-header">
 
@@ -255,7 +305,7 @@
              RESERVAS
         ================================================== -->
 
-        <section class="admin-section">
+        <section id="panelReservas" class="admin-section admin-panel-section active">
 
             <div class="section-header">
 
@@ -417,7 +467,7 @@
              CONFIGURACIÓN ACADÉMICA
         ================================================== -->
 
-        <section class="admin-section">
+        <section id="panelGestion" class="admin-section admin-panel-section">
 
             <div class="section-header">
 
@@ -1093,7 +1143,7 @@
 
     <script src="js/config.js"></script>
 
-    <script src="js/admin.js?v=9"></script>
+    <script src="js/admin.js?v=10"></script>
 
 
 </body>
