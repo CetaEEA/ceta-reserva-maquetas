@@ -14,7 +14,7 @@
 
     <link
         rel="stylesheet"
-        href="css/estilos.css"
+        href="css/estilos.css?v=12"
     >
 
 </head>
@@ -110,10 +110,48 @@
 
 
         <!-- =================================================
+             NAVEGACIÓN DOCENTE
+        ================================================== -->
+
+        <nav
+            class="docente-tabs"
+            aria-label="Secciones del panel docente"
+        >
+
+            <button
+                type="button"
+                class="btn-docente-tab active"
+                data-panel="panelReservasDocente"
+            >
+                📋 Reservas
+            </button>
+
+            <button
+                type="button"
+                class="btn-docente-tab"
+                data-panel="panelNuevaReserva"
+            >
+                📅 Nueva reserva
+            </button>
+
+            <button
+                type="button"
+                id="btnModoOscuroDocente"
+                class="btn-modo-oscuro-docente"
+                aria-pressed="false"
+            >
+                🌙 Modo oscuro
+            </button>
+
+        </nav>
+
+
+
+        <!-- =================================================
              FORMULARIO
         ================================================== -->
 
-        <section class="docente-section">
+        <section id="panelNuevaReserva" class="docente-section docente-panel-section">
 
             <div class="section-header">
 
@@ -520,7 +558,7 @@
              TABLA SEMANAL
         ================================================== -->
 
-        <section class="docente-section">
+        <section id="panelReservasDocente" class="docente-section docente-panel-section active">
 
             <div class="section-header semana-header">
 
@@ -675,7 +713,7 @@
 
     <script src="js/config.js"></script>
 
-    <script src="js/docente.js?v=9"></script>
+    <script src="js/docente.js?v=10"></script>
 
 
 </body>
