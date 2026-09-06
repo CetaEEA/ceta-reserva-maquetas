@@ -2765,3 +2765,13 @@ body.admin-page.modo-oscuro .btnCerrarModal {
     }
 
 }
+/* =========================================
+   FONDO BLANCO PARA LOGO DEL ENCABEZADO
+   ========================================= */
+
+.admin-header img {
+    background: #ffffff;
+    padding: 8px;
+    border-radius: 12px;
+    object-fit: contain;
+}
