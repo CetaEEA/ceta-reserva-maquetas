@@ -2771,7 +2771,11 @@ body.admin-page.modo-oscuro .btnCerrarModal {
 
 .admin-header img {
     background: #ffffff;
-    padding: 8px;
-    border-radius: 12px;
+    padding: 10px;
+    border-radius: 14px;
+
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.15);
+
     object-fit: contain;
 }
