@@ -2328,3 +2328,96 @@ body.docente-page::before {
 
     border-radius: 8px;
 }
+/* =========================================================
+   BOTÓN CANCELAR RESERVA ADMIN
+========================================================= */
+
+.btn-cancelar-reserva-admin {
+
+    width: 100%;
+
+    margin-top: 12px;
+
+    padding: 10px 14px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #dc2626;
+
+    color: #ffffff;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.15s ease;
+}
+
+
+.btn-cancelar-reserva-admin:hover {
+
+    background: #b91c1c;
+
+    transform: translateY(-1px);
+}
+
+
+.btn-cancelar-reserva-admin:active {
+
+    transform: translateY(0);
+}
+/* =========================================================
+   IMAGEN DE MAQUETA - DOCENTE
+========================================================= */
+
+.imagen-maqueta-docente {
+
+    width: 100%;
+
+    display: flex;
+
+    justify-content: center;
+
+    margin-top: 12px;
+}
+
+
+.imagen-maqueta-docente img {
+
+    display: block;
+
+    width: auto;
+
+    max-width: min(340px, 90%);
+
+    max-height: 250px;
+
+    margin: 0 auto;
+
+    object-fit: contain;
+
+    border-radius: 10px;
+}
+
+
+/* =========================================================
+   CELULAR
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .imagen-maqueta-docente img {
+
+        max-width: min(255px, 90%);
+
+        max-height: 190px;
+
+    }
+
+}
