@@ -33,6 +33,151 @@ let mapaMaquetasPDF =
 
 
 // =========================================================
+// NAVEGACIÓN DEL PANEL ADMINISTRATIVO
+// =========================================================
+
+function mostrarPanelAdmin(
+    panelId
+) {
+
+    document
+        .querySelectorAll(
+            ".admin-panel-section"
+        )
+        .forEach(
+            seccion => {
+
+                seccion.classList.toggle(
+                    "active",
+                    seccion.id === panelId
+                );
+
+            }
+        );
+
+
+    document
+        .querySelectorAll(
+            ".btn-admin-tab"
+        )
+        .forEach(
+            boton => {
+
+                boton.classList.toggle(
+                    "active",
+                    boton.dataset.panel === panelId
+                );
+
+            }
+        );
+
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
+
+document
+    .querySelectorAll(
+        ".btn-admin-tab"
+    )
+    .forEach(
+        boton => {
+
+            boton.addEventListener(
+                "click",
+                () => {
+
+                    mostrarPanelAdmin(
+                        boton.dataset.panel
+                    );
+
+                }
+            );
+
+        }
+    );
+
+
+// =========================================================
+// MODO OSCURO DEL PANEL ADMINISTRATIVO
+// =========================================================
+
+function aplicarModoOscuroAdmin(
+    activado
+) {
+
+    document.body.classList.toggle(
+        "modo-oscuro",
+        activado
+    );
+
+
+    const boton =
+        document.getElementById(
+            "btnModoOscuro"
+        );
+
+
+    if (boton) {
+
+        boton.textContent =
+            activado
+                ? "☀️ Modo claro"
+                : "🌙 Modo oscuro";
+
+
+        boton.setAttribute(
+            "aria-pressed",
+            String(
+                activado
+            )
+        );
+
+    }
+
+
+    localStorage.setItem(
+        "cetaAdminModoOscuro",
+        activado
+            ? "1"
+            : "0"
+    );
+}
+
+
+const modoOscuroGuardado =
+    localStorage.getItem(
+        "cetaAdminModoOscuro"
+    ) === "1";
+
+
+aplicarModoOscuroAdmin(
+    modoOscuroGuardado
+);
+
+
+document
+    .getElementById(
+        "btnModoOscuro"
+    )
+    ?.addEventListener(
+        "click",
+        () => {
+
+            aplicarModoOscuroAdmin(
+                !document.body.classList.contains(
+                    "modo-oscuro"
+                )
+            );
+
+        }
+    );
+
+
+// =========================================================
 // COMPROBAR ADMINISTRADOR
 // =========================================================
 
@@ -356,41 +501,27 @@ async function cargarUsuarios() {
                     <tr>
 
                         <td>
-
                             ${escapeHTML(
                                 usuario.usuario
                             )}
-
                         </td>
 
-
                         <td>
-
                             ${escapeHTML(
                                 usuario.nombre
                             )}
-
                         </td>
 
-
                         <td>
-
                             ${rolVisible}
-
                         </td>
 
-
                         <td>
-
                             ${estado}
-
                         </td>
 
-
                         <td>
-
                             ${acciones}
-
                         </td>
 
                     </tr>
@@ -796,6 +927,7 @@ async function eliminarUsuario(
     }
 }
 
+
 // =========================================================
 // MAQUETAS
 // =========================================================
@@ -891,7 +1023,6 @@ async function cargarMaquetas() {
                 return `
 
                     <div class="maqueta-card">
-
 
                         ${
                             maqueta.imagen_url
@@ -1023,10 +1154,6 @@ async function cargarMaquetas() {
         .join("");
 
 
-    // =====================================================
-    // BOTONES EDITAR
-    // =====================================================
-
     document
         .querySelectorAll(
             ".btn-editar-maqueta"
@@ -1058,10 +1185,6 @@ async function cargarMaquetas() {
             }
         );
 
-
-    // =====================================================
-    // BOTONES DISPONIBILIDAD
-    // =====================================================
 
     document
         .querySelectorAll(
@@ -1100,8 +1223,6 @@ async function cargarMaquetas() {
             }
         );
 }
-
-
 // =========================================================
 // ABRIR EDICIÓN DE MAQUETA
 // =========================================================
@@ -1135,13 +1256,9 @@ function abrirEditarMaqueta(
     }
 
 
-    // Guardar ID que estamos editando
-
     form.dataset.editandoId =
         id;
 
-
-    // Guardar imagen actual
 
     form.dataset.imagenActual =
         imagenUrl || "";
@@ -1179,10 +1296,6 @@ function abrirEditarMaqueta(
     }
 
 
-    // =====================================================
-    // MOSTRAR IMAGEN ACTUAL
-    // =====================================================
-
     const preview =
         document.getElementById(
             "previewImagenMaqueta"
@@ -1216,10 +1329,6 @@ function abrirEditarMaqueta(
     }
 
 
-    // =====================================================
-    // CAMBIAR TÍTULO DEL MODAL
-    // =====================================================
-
     const titulo =
         modal.querySelector(
             ".modal-header h2"
@@ -1233,10 +1342,6 @@ function abrirEditarMaqueta(
 
     }
 
-
-    // =====================================================
-    // CAMBIAR TEXTO DEL BOTÓN
-    // =====================================================
 
     const boton =
         form.querySelector(
@@ -1368,10 +1473,6 @@ async function subirImagenMaqueta(
     ];
 
 
-    // =====================================================
-    // VALIDAR FORMATO
-    // =====================================================
-
     if (
         !tiposPermitidos.includes(
             archivo.type
@@ -1384,10 +1485,6 @@ async function subirImagenMaqueta(
 
     }
 
-
-    // =====================================================
-    // VALIDAR TAMAÑO
-    // =====================================================
 
     const maximoBytes =
         5 * 1024 * 1024;
@@ -1404,10 +1501,6 @@ async function subirImagenMaqueta(
 
     }
 
-
-    // =====================================================
-    // OBTENER EXTENSIÓN
-    // =====================================================
 
     let extension =
         archivo.name
@@ -1454,17 +1547,9 @@ async function subirImagenMaqueta(
     }
 
 
-    // =====================================================
-    // CREAR NOMBRE ÚNICO
-    // =====================================================
-
     const nombreArchivo =
         `maqueta-${Date.now()}-${crypto.randomUUID()}.${extension}`;
 
-
-    // =====================================================
-    // SUBIR AL BUCKET
-    // =====================================================
 
     const {
         error
@@ -1510,10 +1595,6 @@ async function subirImagenMaqueta(
 
     }
 
-
-    // =====================================================
-    // OBTENER URL PÚBLICA
-    // =====================================================
 
     const {
         data
@@ -1654,20 +1735,12 @@ if (formMaqueta) {
                 }
 
 
-                // =================================================
-                // IMAGEN ACTUAL
-                // =================================================
-
                 let imagenUrl =
                     formMaqueta
                         .dataset
                         .imagenActual ||
                     null;
 
-
-                // =================================================
-                // SI HAY NUEVA IMAGEN, SUBIRLA
-                // =================================================
 
                 if (archivoImagen) {
 
@@ -1687,10 +1760,6 @@ if (formMaqueta) {
                     "Guardando maqueta...";
 
 
-                // =================================================
-                // ELEGIR EDGE FUNCTION
-                // =================================================
-
                 const funcion =
                     idEditando
 
@@ -1698,10 +1767,6 @@ if (formMaqueta) {
 
                         : "crear-maqueta";
 
-
-                // =================================================
-                // ARMAR DATOS
-                // =================================================
 
                 const datos =
                     idEditando
@@ -1743,10 +1808,6 @@ if (formMaqueta) {
 
                         };
 
-
-                // =================================================
-                // LLAMAR EDGE FUNCTION
-                // =================================================
 
                 const respuesta =
                     await fetch(
@@ -1800,10 +1861,6 @@ if (formMaqueta) {
                         : "Maqueta creada correctamente.";
 
 
-                // =================================================
-                // LIMPIAR FORMULARIO
-                // =================================================
-
                 formMaqueta.reset();
 
 
@@ -1816,10 +1873,6 @@ if (formMaqueta) {
                     .dataset
                     .imagenActual;
 
-
-                // =================================================
-                // OCULTAR PREVISUALIZACIÓN
-                // =================================================
 
                 const preview =
                     document.getElementById(
@@ -1849,16 +1902,8 @@ if (formMaqueta) {
                 }
 
 
-                // =================================================
-                // RECARGAR MAQUETAS
-                // =================================================
-
                 await cargarMaquetas();
 
-
-                // =================================================
-                // CERRAR MODAL
-                // =================================================
 
                 setTimeout(
                     () => {
@@ -2058,10 +2103,6 @@ document
             }
 
 
-            // =================================================
-            // LIMPIAR FORMULARIO
-            // =================================================
-
             form.reset();
 
 
@@ -2074,10 +2115,6 @@ document
                 .dataset
                 .imagenActual;
 
-
-            // =================================================
-            // OCULTAR PREVISUALIZACIÓN
-            // =================================================
 
             const preview =
                 document.getElementById(
@@ -2107,10 +2144,6 @@ document
             }
 
 
-            // =================================================
-            // TÍTULO
-            // =================================================
-
             const titulo =
                 modal.querySelector(
                     ".modal-header h2"
@@ -2125,10 +2158,6 @@ document
             }
 
 
-            // =================================================
-            // BOTÓN
-            // =================================================
-
             const boton =
                 form.querySelector(
                     'button[type="submit"]'
@@ -2142,10 +2171,6 @@ document
 
             }
 
-
-            // =================================================
-            // MENSAJE
-            // =================================================
 
             const mensaje =
                 document.getElementById(
@@ -2167,6 +2192,8 @@ document
 
         }
     );
+
+
 // =========================================================
 // CREAR USUARIO
 // =========================================================
@@ -2479,8 +2506,6 @@ document
 
         }
     );
-
-
 // =========================================================
 // FUNCIONES DE FECHA
 // =========================================================
@@ -2679,6 +2704,8 @@ function actualizarEncabezadosAdmin(
 
     }
 }
+
+
 // =========================================================
 // CARGAR RESERVAS SEMANALES
 // =========================================================
@@ -3010,10 +3037,6 @@ async function cargarReservasSemanaAdmin() {
                     `;
 
 
-                    // =========================================
-                    // LUNES A VIERNES
-                    // =========================================
-
                     for (
                         let i = 0;
                         i < 5;
@@ -3046,10 +3069,6 @@ async function cargarReservasSemanaAdmin() {
                                 );
 
 
-                        // =====================================
-                        // SIN RESERVAS
-                        // =====================================
-
                         if (
                             reservasCelda.length ===
                             0
@@ -3074,10 +3093,6 @@ async function cargarReservasSemanaAdmin() {
                         }
 
 
-                        // =====================================
-                        // CON RESERVAS
-                        // =====================================
-
                         const contenido =
                             reservasCelda
                                 .map(
@@ -3096,10 +3111,6 @@ async function cargarReservasSemanaAdmin() {
                                             perfil?.usuario ||
                                             "Docente";
 
-
-                                        // =================================
-                                        // MAQUETAS
-                                        // =================================
 
                                         const idsMaquetas = [
 
@@ -3152,11 +3163,23 @@ async function cargarReservasSemanaAdmin() {
                                         const textoMaquetas =
                                             nombresMaquetas.length
 
-                                                ? nombresMaquetas.join(
-                                                    "<br>"
-                                                )
+                                                ? nombresMaquetas
+                                                    .map(
+                                                        nombre => `
+                                                            <div class="maqueta-admin-linea">
+                                                                ${escapeHTML(
+                                                                    nombre
+                                                                )}
+                                                            </div>
+                                                        `
+                                                    )
+                                                    .join("")
 
-                                                : "Sin maqueta";
+                                                : `
+                                                    <div class="maqueta-admin-linea">
+                                                        Sin maqueta
+                                                    </div>
+                                                `;
 
 
                                         const grupo =
@@ -3204,12 +3227,18 @@ async function cargarReservasSemanaAdmin() {
                                                 <div>
 
                                                     <strong>
-                                                        Maqueta:
+                                                        ${
+                                                            nombresMaquetas.length > 1
+                                                                ? "Maquetas:"
+                                                                : "Maqueta:"
+                                                        }
                                                     </strong>
 
-                                                    <br>
+                                                    <div class="lista-maquetas-admin">
 
-                                                    ${textoMaquetas}
+                                                        ${textoMaquetas}
+
+                                                    </div>
 
                                                 </div>
 
@@ -3509,6 +3538,377 @@ async function cargarImagenDataURL(ruta) {
 
 
 // =========================================================
+// CREAR CONTENIDO DE CELDA PARA PDF
+// =========================================================
+
+function crearContenidoReservaPDF(
+    reserva
+) {
+
+    const perfil =
+        mapaPerfilesPDF.get(
+            String(
+                reserva.usuario_id
+            )
+        );
+
+
+    const docente =
+        perfil?.nombre ||
+        perfil?.usuario ||
+        "Docente";
+
+
+    const idsMaquetas = [
+
+        reserva.maqueta_id,
+
+        reserva.maqueta_id_2,
+
+        reserva.maqueta_id_3
+
+    ]
+        .filter(
+            Boolean
+        );
+
+
+    const nombresMaquetas =
+        idsMaquetas
+            .map(
+                id => {
+
+                    const maqueta =
+                        mapaMaquetasPDF.get(
+                            String(
+                                id
+                            )
+                        );
+
+
+                    if (!maqueta) {
+
+                        return `Maqueta ${id}`;
+
+                    }
+
+
+                    return (
+
+                        maqueta.codigo
+
+                            ? `${maqueta.codigo} - ${maqueta.nombre}`
+
+                            : maqueta.nombre
+
+                    );
+
+                }
+            );
+
+
+    const grupo =
+        reserva.grupo ||
+        "-";
+
+
+    const area =
+        reserva.area_codigo ||
+        "-";
+
+
+    const tema =
+        reserva.titulo_tema ||
+        "-";
+
+
+    return {
+
+        docente,
+        grupo,
+        nombresMaquetas,
+        area,
+        tema
+
+    };
+}
+
+
+// =========================================================
+// DIBUJAR TEXTO DE UNA RESERVA DENTRO DE CELDA PDF
+// =========================================================
+
+function dibujarReservaEnCeldaPDF(
+    doc,
+    reserva,
+    x,
+    y,
+    anchoDisponible
+) {
+
+    const datos =
+        crearContenidoReservaPDF(
+            reserva
+        );
+
+
+    const interlineado =
+        4.7;
+
+
+    let cursorY =
+        y;
+
+
+    const escribirLinea =
+        (
+            etiqueta,
+            valor
+        ) => {
+
+            doc.setFont(
+                "helvetica",
+                "bold"
+            );
+
+
+            doc.text(
+
+                etiqueta,
+
+                x,
+
+                cursorY
+
+            );
+
+
+            const anchoEtiqueta =
+                doc.getTextWidth(
+                    etiqueta
+                );
+
+
+            doc.setFont(
+                "helvetica",
+                "normal"
+            );
+
+
+            const lineas =
+                doc.splitTextToSize(
+
+                    String(
+                        valor
+                    ),
+
+                    Math.max(
+                        10,
+                        anchoDisponible -
+                        anchoEtiqueta -
+                        1
+                    )
+
+                );
+
+
+            if (
+                lineas.length ===
+                1
+            ) {
+
+                doc.text(
+
+                    lineas[0],
+
+                    x +
+                    anchoEtiqueta +
+                    1,
+
+                    cursorY
+
+                );
+
+
+                cursorY +=
+                    interlineado;
+
+            } else {
+
+                doc.text(
+
+                    lineas[0],
+
+                    x +
+                    anchoEtiqueta +
+                    1,
+
+                    cursorY
+
+                );
+
+
+                cursorY +=
+                    interlineado;
+
+
+                for (
+                    let i = 1;
+                    i < lineas.length;
+                    i++
+                ) {
+
+                    doc.text(
+
+                        lineas[i],
+
+                        x,
+
+                        cursorY
+
+                    );
+
+
+                    cursorY +=
+                        interlineado;
+
+                }
+
+            }
+
+        };
+
+
+    escribirLinea(
+        "Docente: ",
+        datos.docente
+    );
+
+
+    escribirLinea(
+        "Grupo: ",
+        datos.grupo
+    );
+
+
+    // =====================================================
+    // MAQUETAS
+    // =====================================================
+
+    doc.setFont(
+        "helvetica",
+        "bold"
+    );
+
+
+    const tituloMaqueta =
+        datos.nombresMaquetas.length > 1
+
+            ? "Maquetas:"
+
+            : "Maqueta:";
+
+
+    doc.text(
+
+        tituloMaqueta,
+
+        x,
+
+        cursorY
+
+    );
+
+
+    cursorY +=
+        interlineado;
+
+
+    doc.setFont(
+        "helvetica",
+        "normal"
+    );
+
+
+    if (
+        datos.nombresMaquetas.length >
+        0
+    ) {
+
+        datos.nombresMaquetas
+            .forEach(
+                nombreMaqueta => {
+
+                    const lineasMaqueta =
+                        doc.splitTextToSize(
+
+                            nombreMaqueta,
+
+                            anchoDisponible
+
+                        );
+
+
+                    lineasMaqueta
+                        .forEach(
+                            linea => {
+
+                                doc.text(
+
+                                    linea,
+
+                                    x,
+
+                                    cursorY
+
+                                );
+
+
+                                cursorY +=
+                                    interlineado;
+
+                            }
+                        );
+
+                }
+            );
+
+    } else {
+
+        doc.text(
+
+            "-",
+
+            x,
+
+            cursorY
+
+        );
+
+
+        cursorY +=
+            interlineado;
+
+    }
+
+
+    escribirLinea(
+        "Área: ",
+        datos.area
+    );
+
+
+    escribirLinea(
+        "Tema: ",
+        datos.tema
+    );
+
+
+    return cursorY;
+}
+
+
+// =========================================================
 // DESCARGAR PDF
 // =========================================================
 
@@ -3588,21 +3988,10 @@ async function descargarTablaPDF() {
             ).href;
 
 
-        console.log(
-            "Cargando logo CETA:",
-            rutaLogo
-        );
-
-
         logoCeta =
             await cargarImagenDataURL(
                 rutaLogo
             );
-
-
-        console.log(
-            "Logo CETA cargado correctamente."
-        );
 
 
     } catch (error) {
@@ -3627,11 +4016,11 @@ async function descargarTablaPDF() {
 
             "PNG",
 
-            8,      // posición X
-            5,      // posición Y
+            8,
+            5,
 
-            34,     // ancho
-            34      // alto
+            34,
+            34
 
         );
 
@@ -3639,7 +4028,7 @@ async function descargarTablaPDF() {
 
 
     // =====================================================
-    // NOMBRE DE LA INSTITUCIÓN
+    // ENCABEZADO INSTITUCIONAL
     // =====================================================
 
     doc.setFont(
@@ -3669,10 +4058,6 @@ async function descargarTablaPDF() {
     );
 
 
-    // =====================================================
-    // CARRERA
-    // =====================================================
-
     doc.setFontSize(
         11
     );
@@ -3694,10 +4079,6 @@ async function descargarTablaPDF() {
     );
 
 
-    // =====================================================
-    // LÍNEA INSTITUCIONAL
-    // =====================================================
-
     doc.setLineWidth(
         0.4
     );
@@ -3711,16 +4092,6 @@ async function descargarTablaPDF() {
         289,
         21
 
-    );
-
-
-    // =====================================================
-    // TÍTULO
-    // =====================================================
-
-    doc.setFont(
-        "helvetica",
-        "bold"
     );
 
 
@@ -3745,10 +4116,6 @@ async function descargarTablaPDF() {
     );
 
 
-    // =====================================================
-    // REGISTRO SEMANAL
-    // =====================================================
-
     doc.setFontSize(
         11
     );
@@ -3769,10 +4136,6 @@ async function descargarTablaPDF() {
 
     );
 
-
-    // =====================================================
-    // SEMANA
-    // =====================================================
 
     doc.setFont(
         "helvetica",
@@ -3800,10 +4163,6 @@ async function descargarTablaPDF() {
 
     );
 
-
-    // =====================================================
-    // LÍNEA INFERIOR DEL ENCABEZADO
-    // =====================================================
 
     doc.setLineWidth(
         0.25
@@ -3880,12 +4239,20 @@ async function descargarTablaPDF() {
 
 
     // =====================================================
-    // CUERPO DEL PDF
+    // CUERPO DE TABLA
+    // Cada celda guarda temporalmente IDs/reservas
     // =====================================================
+
+    const mapaReservasCeldas =
+        new Map();
+
 
     const body =
         horarios.map(
-            horario => {
+            (
+                horario,
+                filaIndice
+            ) => {
 
                 const fila = [
 
@@ -3925,9 +4292,15 @@ async function descargarTablaPDF() {
                             );
 
 
-                    // =====================================
-                    // SIN RESERVAS
-                    // =====================================
+                    const clave =
+                        `${filaIndice}-${i + 1}`;
+
+
+                    mapaReservasCeldas.set(
+                        clave,
+                        reservasCelda
+                    );
+
 
                     if (
                         reservasCelda.length ===
@@ -3938,131 +4311,13 @@ async function descargarTablaPDF() {
                             "LIBRE"
                         );
 
+                    } else {
 
-                        continue;
+                        fila.push(
+                            " "
+                        );
+
                     }
-
-
-                    // =====================================
-                    // RESERVAS DE LA CELDA
-                    // =====================================
-
-                    const textos =
-                        reservasCelda
-                            .map(
-                                reserva => {
-
-                                    const perfil =
-                                        mapaPerfilesPDF.get(
-                                            String(
-                                                reserva.usuario_id
-                                            )
-                                        );
-
-
-                                    const docente =
-                                        perfil?.nombre ||
-                                        perfil?.usuario ||
-                                        "Docente";
-
-
-                                    // =================================
-                                    // MAQUETAS
-                                    // Conservamos tercer campo histórico
-                                    // =================================
-
-                                    const idsMaquetas = [
-
-                                        reserva.maqueta_id,
-
-                                        reserva.maqueta_id_2,
-
-                                        reserva.maqueta_id_3
-
-                                    ]
-                                        .filter(
-                                            Boolean
-                                        );
-
-
-                                    const maquetas =
-                                        idsMaquetas
-                                            .map(
-                                                id => {
-
-                                                    const maqueta =
-                                                        mapaMaquetasPDF.get(
-                                                            String(
-                                                                id
-                                                            )
-                                                        );
-
-
-                                                    if (!maqueta) {
-
-                                                        return `Maqueta ${id}`;
-
-                                                    }
-
-
-                                                    return (
-
-                                                        maqueta.codigo
-
-                                                            ? `${maqueta.codigo} - ${maqueta.nombre}`
-
-                                                            : maqueta.nombre
-
-                                                    );
-
-                                                }
-                                            )
-                                            .join(
-                                                ", "
-                                            );
-
-
-                                    const grupo =
-                                        reserva.grupo ||
-                                        "-";
-
-
-                                    const area =
-                                        reserva.area_codigo ||
-                                        "-";
-
-
-                                    const tema =
-                                        reserva.titulo_tema ||
-                                        "-";
-
-
-                                    return [
-
-                                        `Docente: ${docente}`,
-
-                                        `Grupo: ${grupo}`,
-
-                                        `Maqueta: ${maquetas || "-"}`,
-
-                                        `Área: ${area}`,
-
-                                        `Tema: ${tema}`
-
-                                    ]
-                                        .join(
-                                            "\n"
-                                        );
-
-                                }
-                            );
-
-
-                    fila.push(
-                        textos.join(
-                            "\n\n"
-                        )
-                    );
 
                 }
 
@@ -4092,14 +4347,10 @@ async function descargarTablaPDF() {
             "grid",
 
 
-        // =================================================
-        // ESTILO GENERAL
-        // =================================================
-
         styles: {
 
             fontSize:
-                11,
+                10.5,
 
             cellPadding:
                 2,
@@ -4111,14 +4362,13 @@ async function descargarTablaPDF() {
                 "linebreak",
 
             textColor:
-                20
+                20,
+
+            minCellHeight:
+                22
 
         },
 
-
-        // =================================================
-        // ENCABEZADO DE LA TABLA
-        // =================================================
 
         headStyles: {
 
@@ -4136,10 +4386,6 @@ async function descargarTablaPDF() {
 
         },
 
-
-        // =================================================
-        // COLUMNA HORARIO
-        // =================================================
 
         columnStyles: {
 
@@ -4162,10 +4408,6 @@ async function descargarTablaPDF() {
         },
 
 
-        // =================================================
-        // MÁRGENES
-        // =================================================
-
         margin: {
 
             left:
@@ -4180,7 +4422,231 @@ async function descargarTablaPDF() {
             bottom:
                 14
 
-        }
+        },
+
+
+        // =================================================
+        // CALCULAR ALTURA DE CELDAS CON RESERVAS
+        // =================================================
+
+        didParseCell:
+            function(data) {
+
+                if (
+                    data.section !==
+                    "body"
+                ) {
+
+                    return;
+                }
+
+
+                if (
+                    data.column.index ===
+                    0
+                ) {
+
+                    return;
+                }
+
+
+                const clave =
+                    `${data.row.index}-${data.column.index}`;
+
+
+                const reservas =
+                    mapaReservasCeldas.get(
+                        clave
+                    ) || [];
+
+
+                if (
+                    reservas.length ===
+                    0
+                ) {
+
+                    return;
+                }
+
+
+                let lineasEstimadas =
+                    0;
+
+
+                reservas.forEach(
+                    reserva => {
+
+                        const datos =
+                            crearContenidoReservaPDF(
+                                reserva
+                            );
+
+
+                        lineasEstimadas +=
+                            4;
+
+
+                        lineasEstimadas +=
+                            Math.max(
+                                1,
+                                datos.nombresMaquetas.length
+                            );
+
+
+                        if (
+                            String(
+                                datos.tema
+                            ).length >
+                            30
+                        ) {
+
+                            lineasEstimadas +=
+                                1;
+
+                        }
+
+
+                        lineasEstimadas +=
+                            2;
+
+                    }
+                );
+
+
+                data.cell.styles.minCellHeight =
+                    Math.max(
+                        28,
+                        lineasEstimadas *
+                        4.7 +
+                        5
+                    );
+
+            },
+
+
+        // =================================================
+        // DIBUJAR CONTENIDO PERSONALIZADO
+        // =================================================
+
+        didDrawCell:
+            function(data) {
+
+                if (
+                    data.section !==
+                    "body"
+                ) {
+
+                    return;
+                }
+
+
+                if (
+                    data.column.index ===
+                    0
+                ) {
+
+                    return;
+                }
+
+
+                const clave =
+                    `${data.row.index}-${data.column.index}`;
+
+
+                const reservas =
+                    mapaReservasCeldas.get(
+                        clave
+                    ) || [];
+
+
+                if (
+                    reservas.length ===
+                    0
+                ) {
+
+                    return;
+                }
+
+
+                const x =
+                    data.cell.x +
+                    2;
+
+
+                let y =
+                    data.cell.y +
+                    5;
+
+
+                const ancho =
+                    data.cell.width -
+                    4;
+
+
+                doc.setFontSize(
+                    9.5
+                );
+
+
+                reservas.forEach(
+                    (
+                        reserva,
+                        indice
+                    ) => {
+
+                        y =
+                            dibujarReservaEnCeldaPDF(
+
+                                doc,
+
+                                reserva,
+
+                                x,
+
+                                y,
+
+                                ancho
+
+                            );
+
+
+                        if (
+                            indice <
+                            reservas.length - 1
+                        ) {
+
+                            y +=
+                                2;
+
+
+                            doc.setLineWidth(
+                                0.15
+                            );
+
+
+                            doc.line(
+
+                                x,
+
+                                y,
+
+                                x +
+                                ancho,
+
+                                y
+
+                            );
+
+
+                            y +=
+                                4;
+
+                        }
+
+                    }
+                );
+
+            }
 
     });
 
@@ -4205,10 +4671,6 @@ async function descargarTablaPDF() {
         );
 
 
-        // =================================================
-        // LÍNEA DEL PIE
-        // =================================================
-
         doc.setLineWidth(
             0.2
         );
@@ -4224,10 +4686,6 @@ async function descargarTablaPDF() {
 
         );
 
-
-        // =================================================
-        // TEXTO IZQUIERDO
-        // =================================================
 
         doc.setFontSize(
             8
@@ -4250,10 +4708,6 @@ async function descargarTablaPDF() {
 
         );
 
-
-        // =================================================
-        // NÚMERO DE PÁGINA
-        // =================================================
 
         doc.text(
 
@@ -4595,8 +5049,6 @@ async function cargarGestionesAcademicas() {
                 .join("");
 
 
-        // Intentar conservar selección
-
         if (
             valorAnterior &&
             gestionesAcademicas.some(
@@ -4904,10 +5356,25 @@ async function cargarAreasTallerGestion() {
     } =
         await supabaseClient
 
-            .from("areas_taller")
-.select("codigo, nombre, activa")
-.eq("activa", true)
-.order("codigo", { ascending: true });
+            .from(
+                "areas_taller"
+            )
+
+            .select(
+                "codigo, nombre, activa"
+            )
+
+            .eq(
+                "activa",
+                true
+            )
+
+            .order(
+                "codigo",
+                {
+                    ascending: true
+                }
+            );
 
 
     if (error) {
@@ -5028,10 +5495,6 @@ async function cargarAreasLibresGestion() {
     `;
 
 
-    // =====================================================
-    // ASEGURAR QUE TENEMOS LAS ÁREAS
-    // =====================================================
-
     if (
         areasTallerGestion.length ===
         0
@@ -5041,10 +5504,6 @@ async function cargarAreasLibresGestion() {
 
     }
 
-
-    // =====================================================
-    // CONSULTAR CONFIGURACIÓN
-    // =====================================================
 
     const {
         data,
@@ -5109,10 +5568,6 @@ async function cargarAreasLibresGestion() {
                 )
         );
 
-
-    // =====================================================
-    // DIBUJAR CHECKBOXES
-    // =====================================================
 
     if (
         areasTallerGestion.length ===
@@ -5300,10 +5755,6 @@ document
             }
 
 
-            // =================================================
-            // ELIMINAR CONFIGURACIÓN ANTERIOR
-            // =================================================
-
             const {
                 error: errorEliminar
             } =
@@ -5350,10 +5801,6 @@ document
                 return;
             }
 
-
-            // =================================================
-            // INSERTAR NUEVA CONFIGURACIÓN
-            // =================================================
 
             if (
                 seleccionadas.length >
@@ -5436,6 +5883,31 @@ document
 
         }
     );
+
+
+// =========================================================
+// INICIALIZAR PESTAÑA PRINCIPAL
+// =========================================================
+
+function inicializarPestanasAdmin() {
+
+    const panelReservas =
+        document.getElementById(
+            "panelReservas"
+        );
+
+
+    if (panelReservas) {
+
+        mostrarPanelAdmin(
+            "panelReservas"
+        );
+
+    }
+
+}
+
+
 // =========================================================
 // INICIALIZAR PANEL ADMINISTRATIVO
 // =========================================================
@@ -5460,6 +5932,13 @@ async function inicializarAdmin() {
 
 
         // =================================================
+        // CARGAR RESERVAS SEMANALES
+        // =================================================
+
+        await cargarReservasSemanaAdmin();
+
+
+        // =================================================
         // CARGAR USUARIOS
         // =================================================
 
@@ -5474,13 +5953,6 @@ async function inicializarAdmin() {
 
 
         // =================================================
-        // CARGAR RESERVAS SEMANALES
-        // =================================================
-
-        await cargarReservasSemanaAdmin();
-
-
-        // =================================================
         // CARGAR ÁREAS DEL TALLER
         // =================================================
 
@@ -5492,6 +5964,13 @@ async function inicializarAdmin() {
         // =================================================
 
         await cargarGestionesAcademicas();
+
+
+        // =================================================
+        // MOSTRAR RESERVAS COMO PESTAÑA PRINCIPAL
+        // =================================================
+
+        inicializarPestanasAdmin();
 
 
     } catch (error) {
