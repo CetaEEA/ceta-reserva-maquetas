@@ -3478,6 +3478,9 @@ document
 // =========================================================
 // PDF
 // =========================================================
+// =========================================================
+// PDF
+// =========================================================
 
 
 // =========================================================
@@ -3538,7 +3541,7 @@ async function cargarImagenDataURL(ruta) {
 
 
 // =========================================================
-// CREAR CONTENIDO DE CELDA PARA PDF
+// CREAR CONTENIDO DE RESERVA
 // =========================================================
 
 function crearContenidoReservaPDF(
@@ -3567,81 +3570,175 @@ function crearContenidoReservaPDF(
 
         reserva.maqueta_id_3
 
-    ]
-        .filter(
-            Boolean
-        );
+    ].filter(Boolean);
 
 
     const nombresMaquetas =
-        idsMaquetas
-            .map(
-                id => {
+        idsMaquetas.map(
+            id => {
 
-                    const maqueta =
-                        mapaMaquetasPDF.get(
-                            String(
-                                id
-                            )
-                        );
-
-
-                    if (!maqueta) {
-
-                        return `Maqueta ${id}`;
-
-                    }
-
-
-                    return (
-
-                        maqueta.codigo
-
-                            ? `${maqueta.codigo} - ${maqueta.nombre}`
-
-                            : maqueta.nombre
-
+                const maqueta =
+                    mapaMaquetasPDF.get(
+                        String(id)
                     );
 
+
+                if (!maqueta) {
+
+                    return `Maqueta ${id}`;
                 }
-            );
 
 
-    const grupo =
-        reserva.grupo ||
-        "-";
+                return maqueta.codigo
 
+                    ? `${maqueta.codigo} - ${maqueta.nombre}`
 
-    const area =
-        reserva.area_codigo ||
-        "-";
+                    : maqueta.nombre;
 
-
-    const tema =
-        reserva.titulo_tema ||
-        "-";
+            }
+        );
 
 
     return {
 
-        docente,
-        grupo,
+        docente:
+
+            docente,
+
+        grupo:
+
+            reserva.grupo ||
+            "-",
+
         nombresMaquetas,
-        area,
-        tema
+
+        area:
+
+            reserva.area_codigo ||
+            "-",
+
+        tema:
+
+            reserva.titulo_tema ||
+            "-"
 
     };
 }
 
 
 // =========================================================
-// CALCULAR ALTURA REAL DE UNA RESERVA EN PDF
+// NOMBRE DEL DÍA
 // =========================================================
 
-function calcularAlturaReservaPDF(
+function obtenerNombreDiaPDF(
+    fechaISO
+) {
+
+    const fecha =
+        new Date(
+            `${fechaISO}T12:00:00`
+        );
+
+
+    const dias = [
+
+        "DOMINGO",
+        "LUNES",
+        "MARTES",
+        "MIÉRCOLES",
+        "JUEVES",
+        "VIERNES",
+        "SÁBADO"
+
+    ];
+
+
+    return dias[
+        fecha.getDay()
+    ];
+}
+
+
+// =========================================================
+// HORARIO VISIBLE
+// =========================================================
+
+function horarioVisiblePDF(
+    horario
+) {
+
+    const mapa = {
+
+        "09:00-12:00":
+            "09:00 - 12:00",
+
+        "14:00-17:00":
+            "14:00 - 17:00",
+
+        "19:00-21:30":
+            "19:00 - 21:30"
+
+    };
+
+
+    return mapa[horario] ||
+        horario;
+}
+
+
+// =========================================================
+// CALCULAR LÍNEAS DE UN CAMPO
+// =========================================================
+
+function calcularLineasCampoPDF(
+    doc,
+    etiqueta,
+    valor,
+    anchoDisponible
+) {
+
+    doc.setFont(
+        "helvetica",
+        "bold"
+    );
+
+
+    const anchoEtiqueta =
+        doc.getTextWidth(
+            etiqueta
+        );
+
+
+    doc.setFont(
+        "helvetica",
+        "normal"
+    );
+
+
+    const anchoValor =
+        Math.max(
+            15,
+            anchoDisponible -
+            anchoEtiqueta -
+            1
+        );
+
+
+    return doc.splitTextToSize(
+        String(valor),
+        anchoValor
+    );
+}
+
+
+// =========================================================
+// CALCULAR ALTURA REAL DEL RECUADRO
+// =========================================================
+
+function calcularAlturaRecuadroPDF(
     doc,
     reserva,
-    anchoDisponible
+    anchoRecuadro
 ) {
 
     const datos =
@@ -3650,172 +3747,209 @@ function calcularAlturaReservaPDF(
         );
 
 
+    const padding =
+        3;
+
+
+    const anchoTexto =
+        anchoRecuadro -
+        padding * 2;
+
+
     const interlineado =
-        4.7;
+        4.2;
 
 
-    let lineasTotales =
+    let lineas =
         0;
 
 
-    // =====================================================
-    // CONTAR CAMPO ETIQUETA + VALOR
-    // =====================================================
-
-    const contarCampo =
-        (
-            etiqueta,
-            valor
-        ) => {
-
-            doc.setFont(
-                "helvetica",
-                "bold"
-            );
+    // Día / fecha / horario
+    lineas +=
+        2;
 
 
-            const anchoEtiqueta =
-                doc.getTextWidth(
-                    etiqueta
-                );
+    // Docente
+    lineas +=
+        calcularLineasCampoPDF(
+            doc,
+            "Docente: ",
+            datos.docente,
+            anchoTexto
+        ).length;
 
 
-            doc.setFont(
-                "helvetica",
-                "normal"
-            );
+    // Grupo
+    lineas +=
+        calcularLineasCampoPDF(
+            doc,
+            "Grupo: ",
+            datos.grupo,
+            anchoTexto
+        ).length;
 
 
-            const anchoValor =
-                Math.max(
-                    10,
-                    anchoDisponible -
-                    anchoEtiqueta -
-                    1
-                );
-
-
-            const lineas =
-                doc.splitTextToSize(
-
-                    String(
-                        valor
-                    ),
-
-                    anchoValor
-
-                );
-
-
-            lineasTotales +=
-                Math.max(
-                    1,
-                    lineas.length
-                );
-
-        };
-
-
-    // DOCENTE
-
-    contarCampo(
-        "Docente: ",
-        datos.docente
-    );
-
-
-    // GRUPO
-
-    contarCampo(
-        "Grupo: ",
-        datos.grupo
-    );
-
-
-    // =====================================================
-    // MAQUETAS
-    // =====================================================
-
-    // Línea donde aparece:
-    // Maqueta:
-    // o
-    // Maquetas:
-
-    lineasTotales +=
+    // Título Maqueta / Maquetas
+    lineas +=
         1;
 
 
+    // Cada maqueta
     if (
-        datos.nombresMaquetas.length >
-        0
+        datos.nombresMaquetas.length
     ) {
 
         datos.nombresMaquetas
             .forEach(
-                nombreMaqueta => {
+                nombre => {
 
-                    const lineas =
+                    lineas +=
                         doc.splitTextToSize(
-
-                            String(
-                                nombreMaqueta
-                            ),
-
-                            anchoDisponible
-
-                        );
-
-
-                    lineasTotales +=
-                        Math.max(
-                            1,
-                            lineas.length
-                        );
+                            nombre,
+                            anchoTexto
+                        ).length;
 
                 }
             );
 
     } else {
 
-        lineasTotales +=
+        lineas +=
             1;
-
     }
 
 
-    // ÁREA
-
-    contarCampo(
-        "Área: ",
-        datos.area
-    );
-
-
-    // TEMA
-
-    contarCampo(
-        "Tema: ",
-        datos.tema
-    );
+    // Área
+    lineas +=
+        calcularLineasCampoPDF(
+            doc,
+            "Área: ",
+            datos.area,
+            anchoTexto
+        ).length;
 
 
+    // Tema
+    lineas +=
+        calcularLineasCampoPDF(
+            doc,
+            "Tema: ",
+            datos.tema,
+            anchoTexto
+        ).length;
+
+
+    // Espacio superior e inferior
     return (
-        lineasTotales *
-        interlineado
+        lineas *
+        interlineado +
+        8
     );
 }
 
 
 // =========================================================
-// DIBUJAR TEXTO DE UNA RESERVA DENTRO DE CELDA PDF
+// DIBUJAR CAMPO ETIQUETA + VALOR
 // =========================================================
 
-function dibujarReservaEnCeldaPDF(
+function dibujarCampoPDF(
+    doc,
+    etiqueta,
+    valor,
+    x,
+    y,
+    anchoDisponible,
+    interlineado
+) {
+
+    doc.setFont(
+        "helvetica",
+        "bold"
+    );
+
+
+    doc.text(
+        etiqueta,
+        x,
+        y
+    );
+
+
+    const anchoEtiqueta =
+        doc.getTextWidth(
+            etiqueta
+        );
+
+
+    doc.setFont(
+        "helvetica",
+        "normal"
+    );
+
+
+    const anchoValor =
+        Math.max(
+            15,
+            anchoDisponible -
+            anchoEtiqueta -
+            1
+        );
+
+
+    const lineas =
+        doc.splitTextToSize(
+            String(valor),
+            anchoValor
+        );
+
+
+    doc.text(
+        lineas[0],
+        x +
+        anchoEtiqueta +
+        1,
+        y
+    );
+
+
+    let cursorY =
+        y +
+        interlineado;
+
+
+    for (
+        let i = 1;
+        i < lineas.length;
+        i++
+    ) {
+
+        doc.text(
+            lineas[i],
+            x,
+            cursorY
+        );
+
+
+        cursorY +=
+            interlineado;
+    }
+
+
+    return cursorY;
+}
+
+
+// =========================================================
+// DIBUJAR UN RECUADRO DE RESERVA
+// =========================================================
+
+function dibujarRecuadroReservaPDF(
     doc,
     reserva,
     x,
     y,
-    anchoDisponible
+    ancho,
+    alto
 ) {
 
     const datos =
@@ -3824,151 +3958,162 @@ function dibujarReservaEnCeldaPDF(
         );
 
 
+    const padding =
+        3;
+
+
     const interlineado =
-        4.7;
+        4.2;
+
+
+    const anchoTexto =
+        ancho -
+        padding * 2;
+
+
+    // =====================================================
+    // RECUADRO
+    // =====================================================
+
+    doc.setDrawColor(
+        180
+    );
+
+
+    doc.setLineWidth(
+        0.25
+    );
+
+
+    doc.roundedRect(
+        x,
+        y,
+        ancho,
+        alto,
+        2,
+        2
+    );
 
 
     let cursorY =
-        y;
+        y +
+        5;
 
 
-    const escribirLinea =
-        (
-            etiqueta,
-            valor
-        ) => {
-
-            doc.setFont(
-                "helvetica",
-                "bold"
-            );
+    const textoX =
+        x +
+        padding;
 
 
-            doc.text(
+    // =====================================================
+    // DÍA
+    // =====================================================
 
-                etiqueta,
-
-                x,
-
-                cursorY
-
-            );
-
-
-            const anchoEtiqueta =
-                doc.getTextWidth(
-                    etiqueta
-                );
+    doc.setFont(
+        "helvetica",
+        "bold"
+    );
 
 
-            doc.setFont(
-                "helvetica",
-                "normal"
-            );
+    doc.setFontSize(
+        10
+    );
 
 
-            const lineas =
-                doc.splitTextToSize(
+    doc.text(
 
-                    String(
-                        valor
-                    ),
+        `${obtenerNombreDiaPDF(
+            reserva.fecha
+        )}  ${formatearFechaAdmin(
+            new Date(
+                `${reserva.fecha}T12:00:00`
+            )
+        )}`,
 
-                    Math.max(
-                        10,
-                        anchoDisponible -
-                        anchoEtiqueta -
-                        1
-                    )
+        textoX,
 
-                );
+        cursorY
 
-
-            if (
-                lineas.length ===
-                1
-            ) {
-
-                doc.text(
-
-                    lineas[0],
-
-                    x +
-                    anchoEtiqueta +
-                    1,
-
-                    cursorY
-
-                );
+    );
 
 
-                cursorY +=
-                    interlineado;
-
-            } else {
-
-                doc.text(
-
-                    lineas[0],
-
-                    x +
-                    anchoEtiqueta +
-                    1,
-
-                    cursorY
-
-                );
+    cursorY +=
+        interlineado;
 
 
-                cursorY +=
-                    interlineado;
+    // =====================================================
+    // HORARIO
+    // =====================================================
+
+    doc.setFontSize(
+        9
+    );
 
 
-                for (
-                    let i = 1;
-                    i < lineas.length;
-                    i++
-                ) {
+    doc.text(
 
-                    doc.text(
+        `Horario: ${horarioVisiblePDF(
+            reserva.horario
+        )}`,
 
-                        lineas[i],
+        textoX,
 
-                        x,
+        cursorY
 
-                        cursorY
-
-                    );
+    );
 
 
-                    cursorY +=
-                        interlineado;
-
-                }
-
-            }
-
-        };
+    cursorY +=
+        interlineado +
+        1;
 
 
     // =====================================================
     // DOCENTE
     // =====================================================
 
-    escribirLinea(
-        "Docente: ",
-        datos.docente
-    );
+    cursorY =
+        dibujarCampoPDF(
+
+            doc,
+
+            "Docente: ",
+
+            datos.docente,
+
+            textoX,
+
+            cursorY,
+
+            anchoTexto,
+
+            interlineado
+
+        );
 
 
     // =====================================================
     // GRUPO
     // =====================================================
 
-    escribirLinea(
-        "Grupo: ",
-        datos.grupo
-    );
+    cursorY =
+        dibujarCampoPDF(
+
+            doc,
+
+            "Grupo: ",
+
+            datos.grupo,
+
+            textoX,
+
+            cursorY,
+
+            anchoTexto,
+
+            interlineado
+
+        );
 
 
     // =====================================================
@@ -3981,19 +4126,15 @@ function dibujarReservaEnCeldaPDF(
     );
 
 
-    const tituloMaqueta =
+    doc.text(
+
         datos.nombresMaquetas.length > 1
 
             ? "Maquetas:"
 
-            : "Maqueta:";
+            : "Maqueta:",
 
-
-    doc.text(
-
-        tituloMaqueta,
-
-        x,
+        textoX,
 
         cursorY
 
@@ -4011,44 +4152,35 @@ function dibujarReservaEnCeldaPDF(
 
 
     if (
-        datos.nombresMaquetas.length >
-        0
+        datos.nombresMaquetas.length
     ) {
 
         datos.nombresMaquetas
             .forEach(
-                nombreMaqueta => {
+                nombre => {
 
-                    const lineasMaqueta =
+                    const lineas =
                         doc.splitTextToSize(
-
-                            nombreMaqueta,
-
-                            anchoDisponible
-
+                            nombre,
+                            anchoTexto
                         );
 
 
-                    lineasMaqueta
-                        .forEach(
-                            linea => {
+                    lineas.forEach(
+                        linea => {
 
-                                doc.text(
-
-                                    linea,
-
-                                    x,
-
-                                    cursorY
-
-                                );
+                            doc.text(
+                                linea,
+                                textoX,
+                                cursorY
+                            );
 
 
-                                cursorY +=
-                                    interlineado;
+                            cursorY +=
+                                interlineado;
 
-                            }
-                        );
+                        }
+                    );
 
                 }
             );
@@ -4056,19 +4188,14 @@ function dibujarReservaEnCeldaPDF(
     } else {
 
         doc.text(
-
             "-",
-
-            x,
-
+            textoX,
             cursorY
-
         );
 
 
         cursorY +=
             interlineado;
-
     }
 
 
@@ -4076,23 +4203,47 @@ function dibujarReservaEnCeldaPDF(
     // ÁREA
     // =====================================================
 
-    escribirLinea(
-        "Área: ",
-        datos.area
-    );
+    cursorY =
+        dibujarCampoPDF(
+
+            doc,
+
+            "Área: ",
+
+            datos.area,
+
+            textoX,
+
+            cursorY,
+
+            anchoTexto,
+
+            interlineado
+
+        );
 
 
     // =====================================================
     // TEMA
     // =====================================================
 
-    escribirLinea(
+    dibujarCampoPDF(
+
+        doc,
+
         "Tema: ",
-        datos.tema
+
+        datos.tema,
+
+        textoX,
+
+        cursorY,
+
+        anchoTexto,
+
+        interlineado
+
     );
-
-
-    return cursorY;
 }
 
 
@@ -4103,7 +4254,7 @@ function dibujarReservaEnCeldaPDF(
 async function descargarTablaPDF() {
 
     // =====================================================
-    // VERIFICAR LIBRERÍA
+    // VERIFICAR JSPDF
     // =====================================================
 
     if (
@@ -4145,7 +4296,7 @@ async function descargarTablaPDF() {
 
 
     // =====================================================
-    // FECHAS
+    // FECHAS DE LA SEMANA
     // =====================================================
 
     const lunes =
@@ -4160,7 +4311,7 @@ async function descargarTablaPDF() {
 
 
     // =====================================================
-    // CARGAR LOGO CETA
+    // CARGAR LOGO
     // =====================================================
 
     let logoCeta =
@@ -4193,10 +4344,71 @@ async function descargarTablaPDF() {
 
 
     // =====================================================
-    // FUNCIÓN PARA DIBUJAR ENCABEZADO EN CADA PÁGINA
+    // MEDIDAS DE PÁGINA
     // =====================================================
 
-    function dibujarEncabezadoPDF() {
+    const anchoPagina =
+        doc.internal.pageSize.getWidth();
+
+
+    const altoPagina =
+        doc.internal.pageSize.getHeight();
+
+
+    const margenIzquierdo =
+        8;
+
+
+    const margenDerecho =
+        8;
+
+
+    const inicioContenido =
+        50;
+
+
+    // La línea del footer estará en 198.
+    // Dejamos el contenido hasta 193.
+
+    const limiteInferior =
+        193;
+
+
+    const separacionColumnas =
+        4;
+
+
+    const separacionVertical =
+        4;
+
+
+    // =====================================================
+    // 3 COLUMNAS
+    // =====================================================
+
+    const columnas =
+        3;
+
+
+    const anchoDisponible =
+
+        anchoPagina -
+        margenIzquierdo -
+        margenDerecho -
+        separacionColumnas *
+        (columnas - 1);
+
+
+    const anchoRecuadro =
+        anchoDisponible /
+        columnas;
+
+
+    // =====================================================
+    // ENCABEZADO
+    // =====================================================
+
+    function dibujarEncabezado() {
 
         if (logoCeta) {
 
@@ -4336,7 +4548,11 @@ async function descargarTablaPDF() {
 
         doc.text(
 
-            `Semana: ${formatearFechaAdmin(lunes)} al ${formatearFechaAdmin(viernes)}`,
+            `Semana: ${formatearFechaAdmin(
+                lunes
+            )} al ${formatearFechaAdmin(
+                viernes
+            )}`,
 
             164,
 
@@ -4369,609 +4585,13 @@ async function descargarTablaPDF() {
 
 
     // =====================================================
-    // DIBUJAR ENCABEZADO PRIMERA PÁGINA
-    // =====================================================
-
-    dibujarEncabezadoPDF();
-
-
-    // =====================================================
-    // ENCABEZADO DE TABLA
-    // =====================================================
-
-    const head = [[
-
-        "HORARIO",
-
-        `LUNES\n${formatearFechaAdmin(
-            lunes
-        )}`,
-
-        `MARTES\n${formatearFechaAdmin(
-            sumarDiasAdmin(
-                lunes,
-                1
-            )
-        )}`,
-
-        `MIÉRCOLES\n${formatearFechaAdmin(
-            sumarDiasAdmin(
-                lunes,
-                2
-            )
-        )}`,
-
-        `JUEVES\n${formatearFechaAdmin(
-            sumarDiasAdmin(
-                lunes,
-                3
-            )
-        )}`,
-
-        `VIERNES\n${formatearFechaAdmin(
-            sumarDiasAdmin(
-                lunes,
-                4
-            )
-        )}`
-
-    ]];
-
-
-    // =====================================================
-    // HORARIOS
-    // =====================================================
-
-    const horarios = [
-
-        "09:00-12:00",
-
-        "14:00-17:00",
-
-        "19:00-21:30"
-
-    ];
-
-
-    // =====================================================
-    // MAPA DE RESERVAS POR CELDA
-    // =====================================================
-
-    const mapaReservasCeldas =
-        new Map();
-
-
-    // =====================================================
-    // CUERPO DE TABLA
-    // =====================================================
-
-    const body =
-        horarios.map(
-            (
-                horario,
-                filaIndice
-            ) => {
-
-                const fila = [
-
-                    horario
-
-                ];
-
-
-                for (
-                    let i = 0;
-                    i < 5;
-                    i++
-                ) {
-
-                    const fecha =
-                        fechaLocalISOAdmin(
-                            sumarDiasAdmin(
-                                lunes,
-                                i
-                            )
-                        );
-
-
-                    const reservasCelda =
-                        (
-                            reservasSemanaPDF ||
-                            []
-                        )
-                            .filter(
-                                reserva =>
-
-                                    reserva.fecha ===
-                                        fecha &&
-
-                                    reserva.horario ===
-                                        horario
-                            );
-
-
-                    const clave =
-                        `${filaIndice}-${i + 1}`;
-
-
-                    mapaReservasCeldas.set(
-                        clave,
-                        reservasCelda
-                    );
-
-
-                    if (
-                        reservasCelda.length ===
-                        0
-                    ) {
-
-                        fila.push(
-                            "LIBRE"
-                        );
-
-                    } else {
-
-                        // Espacio vacío porque el contenido
-                        // se dibuja manualmente después.
-
-                        fila.push(
-                            " "
-                        );
-
-                    }
-
-                }
-
-
-                return fila;
-
-            }
-        );
-
-
-    // =====================================================
-    // GENERAR TABLA
-    // =====================================================
-
-    doc.autoTable({
-
-        head:
-            head,
-
-        body:
-            body,
-
-        startY:
-            48,
-
-        theme:
-            "grid",
-
-
-        // =================================================
-        // CONTROL DE SALTOS DE PÁGINA
-        // =================================================
-
-        pageBreak:
-            "auto",
-
-        rowPageBreak:
-            "avoid",
-
-
-        styles: {
-
-            fontSize:
-                10.5,
-
-            cellPadding:
-                2,
-
-            valign:
-                "top",
-
-            overflow:
-                "linebreak",
-
-            textColor:
-                20,
-
-            minCellHeight:
-                28
-
-        },
-
-
-        headStyles: {
-
-            halign:
-                "center",
-
-            valign:
-                "middle",
-
-            fontStyle:
-                "bold",
-
-            fontSize:
-                10
-
-        },
-
-
-        columnStyles: {
-
-            0: {
-
-                cellWidth:
-                    25,
-
-                halign:
-                    "center",
-
-                valign:
-                    "middle",
-
-                fontStyle:
-                    "bold"
-
-            }
-
-        },
-
-
-        // =================================================
-        // MÁRGENES
-        // =================================================
-        //
-        // El footer empieza aproximadamente en Y = 198.
-        //
-        // Dejamos 18 mm inferiores para impedir que la tabla
-        // llegue hasta el pie de página.
-        // =================================================
-
-        margin: {
-
-            left:
-                8,
-
-            right:
-                8,
-
-            top:
-                48,
-
-            bottom:
-                18
-
-        },
-
-
-        // =================================================
-        // CALCULAR ALTURA REAL DE CELDAS
-        // =================================================
-
-        didParseCell:
-            function(data) {
-
-                if (
-                    data.section !==
-                    "body"
-                ) {
-
-                    return;
-                }
-
-
-                // =========================================
-                // COLUMNA HORARIO
-                // =========================================
-
-                if (
-                    data.column.index ===
-                    0
-                ) {
-
-                    data.cell.styles.minCellHeight =
-                        28;
-
-                    return;
-                }
-
-
-                const clave =
-                    `${data.row.index}-${data.column.index}`;
-
-
-                const reservas =
-                    mapaReservasCeldas.get(
-                        clave
-                    ) || [];
-
-
-                // =========================================
-                // CELDA LIBRE
-                // =========================================
-
-                if (
-                    reservas.length ===
-                    0
-                ) {
-
-                    data.cell.styles.minCellHeight =
-                        28;
-
-                    return;
-                }
-
-
-                // =========================================
-                // ANCHO REAL DISPONIBLE
-                // =========================================
-
-                doc.setFontSize(
-                    9.5
-                );
-
-
-                const anchoDisponible =
-                    Math.max(
-                        10,
-                        data.cell.width -
-                        4
-                    );
-
-
-                // =========================================
-                // ALTURA REAL DEL CONTENIDO
-                // =========================================
-
-                let alturaContenido =
-                    0;
-
-
-                reservas.forEach(
-                    (
-                        reserva,
-                        indice
-                    ) => {
-
-                        alturaContenido +=
-                            calcularAlturaReservaPDF(
-
-                                doc,
-
-                                reserva,
-
-                                anchoDisponible
-
-                            );
-
-
-                        // =================================
-                        // SEPARACIÓN ENTRE RESERVAS
-                        // =================================
-
-                        if (
-                            indice <
-                            reservas.length - 1
-                        ) {
-
-                            // 2 mm antes de la línea
-                            // + aproximadamente 4 mm después
-
-                            alturaContenido +=
-                                6;
-
-                        }
-
-                    }
-                );
-
-
-                // =========================================
-                // ESPACIO SUPERIOR E INFERIOR
-                // =========================================
-
-                const alturaNecesaria =
-                    alturaContenido +
-                    9;
-
-
-                data.cell.styles.minCellHeight =
-                    Math.max(
-                        28,
-                        alturaNecesaria
-                    );
-
-            },
-
-
-        // =================================================
-        // DIBUJAR CONTENIDO PERSONALIZADO
-        // =================================================
-
-        didDrawCell:
-            function(data) {
-
-                if (
-                    data.section !==
-                    "body"
-                ) {
-
-                    return;
-                }
-
-
-                if (
-                    data.column.index ===
-                    0
-                ) {
-
-                    return;
-                }
-
-
-                const clave =
-                    `${data.row.index}-${data.column.index}`;
-
-
-                const reservas =
-                    mapaReservasCeldas.get(
-                        clave
-                    ) || [];
-
-
-                if (
-                    reservas.length ===
-                    0
-                ) {
-
-                    return;
-                }
-
-
-                // =========================================
-                // POSICIÓN INICIAL
-                // =========================================
-
-                const x =
-                    data.cell.x +
-                    2;
-
-
-                let y =
-                    data.cell.y +
-                    5;
-
-
-                const ancho =
-                    data.cell.width -
-                    4;
-
-
-                doc.setFontSize(
-                    9.5
-                );
-
-
-                // =========================================
-                // DIBUJAR RESERVAS
-                // =========================================
-
-                reservas.forEach(
-                    (
-                        reserva,
-                        indice
-                    ) => {
-
-                        y =
-                            dibujarReservaEnCeldaPDF(
-
-                                doc,
-
-                                reserva,
-
-                                x,
-
-                                y,
-
-                                ancho
-
-                            );
-
-
-                        // =================================
-                        // LÍNEA ENTRE RESERVAS
-                        // =================================
-
-                        if (
-                            indice <
-                            reservas.length - 1
-                        ) {
-
-                            y +=
-                                2;
-
-
-                            doc.setLineWidth(
-                                0.15
-                            );
-
-
-                            doc.line(
-
-                                x,
-
-                                y,
-
-                                x +
-                                ancho,
-
-                                y
-
-                            );
-
-
-                            y +=
-                                4;
-
-                        }
-
-                    }
-                );
-
-            },
-
-
-        // =================================================
-        // DIBUJAR ENCABEZADO INSTITUCIONAL
-        // EN PÁGINAS ADICIONALES
-        // =================================================
-
-        didDrawPage:
-            function(data) {
-
-                // La primera página ya tiene encabezado.
-                // Las páginas siguientes necesitan repetirlo.
-
-                if (
-                    data.pageNumber >
-                    1
-                ) {
-
-                    dibujarEncabezadoPDF();
-
-                }
-
-            }
-
-    });
-
-
-    // =====================================================
     // PIE DE PÁGINA
     // =====================================================
 
-    const numeroPaginas =
-        doc.internal
-            .getNumberOfPages();
-
-
-    for (
-        let pagina = 1;
-        pagina <= numeroPaginas;
-        pagina++
+    function dibujarPiePagina(
+        pagina,
+        total
     ) {
-
-        doc.setPage(
-            pagina
-        );
-
-
-        // =================================================
-        // LÍNEA SUPERIOR DEL FOOTER
-        // =================================================
 
         doc.setLineWidth(
             0.2
@@ -4981,17 +4601,18 @@ async function descargarTablaPDF() {
         doc.line(
 
             8,
-            198,
 
-            289,
-            198
+            altoPagina -
+            12,
+
+            anchoPagina -
+            8,
+
+            altoPagina -
+            12
 
         );
 
-
-        // =================================================
-        // TEXTO FOOTER
-        // =================================================
 
         doc.setFontSize(
             8
@@ -5010,24 +4631,362 @@ async function descargarTablaPDF() {
 
             8,
 
-            203
+            altoPagina -
+            7
 
         );
 
 
         doc.text(
 
-            `Página ${pagina} de ${numeroPaginas}`,
+            `Página ${pagina} de ${total}`,
 
-            289,
+            anchoPagina -
+            8,
 
-            203,
+            altoPagina -
+            7,
 
             {
                 align:
                     "right"
             }
 
+        );
+
+    }
+
+
+    // =====================================================
+    // NUEVA PÁGINA
+    // =====================================================
+
+    function crearNuevaPagina() {
+
+        doc.addPage(
+            "a4",
+            "landscape"
+        );
+
+
+        dibujarEncabezado();
+
+    }
+
+
+    // =====================================================
+    // PRIMERA PÁGINA
+    // =====================================================
+
+    dibujarEncabezado();
+
+
+    // =====================================================
+    // ORDENAR RESERVAS
+    // =====================================================
+
+    const ordenHorarios = {
+
+        "09:00-12:00":
+            1,
+
+        "14:00-17:00":
+            2,
+
+        "19:00-21:30":
+            3
+
+    };
+
+
+    const reservasOrdenadas =
+        [
+            ...(
+                reservasSemanaPDF ||
+                []
+            )
+        ]
+            .filter(
+                reserva =>
+
+                    reserva.estado !==
+                    "cancelada"
+            )
+
+            .sort(
+                (
+                    a,
+                    b
+                ) => {
+
+                    if (
+                        a.fecha !==
+                        b.fecha
+                    ) {
+
+                        return a.fecha
+                            .localeCompare(
+                                b.fecha
+                            );
+                    }
+
+
+                    return (
+
+                        (
+                            ordenHorarios[
+                                a.horario
+                            ] || 99
+                        ) -
+
+                        (
+                            ordenHorarios[
+                                b.horario
+                            ] || 99
+                        )
+
+                    );
+
+                }
+            );
+
+
+    // =====================================================
+    // SIN RESERVAS
+    // =====================================================
+
+    if (
+        reservasOrdenadas.length ===
+        0
+    ) {
+
+        doc.setFont(
+            "helvetica",
+            "normal"
+        );
+
+
+        doc.setFontSize(
+            12
+        );
+
+
+        doc.text(
+
+            "No existen reservas registradas para esta semana.",
+
+            anchoPagina / 2,
+
+            80,
+
+            {
+                align:
+                    "center"
+            }
+
+        );
+
+    } else {
+
+        // =================================================
+        // POSICIONES
+        // =================================================
+
+        let columna =
+            0;
+
+
+        let y =
+            inicioContenido;
+
+
+        let altoFila =
+            0;
+
+
+        doc.setFontSize(
+            9
+        );
+
+
+        // =================================================
+        // DIBUJAR RESERVAS
+        // =================================================
+
+        for (
+            const reserva
+            of reservasOrdenadas
+        ) {
+
+            const altoRecuadro =
+                calcularAlturaRecuadroPDF(
+
+                    doc,
+
+                    reserva,
+
+                    anchoRecuadro
+
+                );
+
+
+            // =============================================
+            // SI ESTAMOS EN LA PRIMERA COLUMNA,
+            // COMPROBAR SI LA FILA CABE
+            // =============================================
+
+            if (
+                columna === 0 &&
+                y +
+                altoRecuadro >
+                limiteInferior
+            ) {
+
+                crearNuevaPagina();
+
+
+                y =
+                    inicioContenido;
+
+
+                altoFila =
+                    0;
+
+            }
+
+
+            // =============================================
+            // SI LA RESERVA ACTUAL ES MÁS ALTA QUE LA FILA
+            // Y YA NO CABE, PASAR A NUEVA PÁGINA
+            // =============================================
+
+            if (
+                y +
+                Math.max(
+                    altoFila,
+                    altoRecuadro
+                ) >
+                limiteInferior
+            ) {
+
+                crearNuevaPagina();
+
+
+                columna =
+                    0;
+
+
+                y =
+                    inicioContenido;
+
+
+                altoFila =
+                    0;
+
+            }
+
+
+            // =============================================
+            // POSICIÓN X
+            // =============================================
+
+            const x =
+
+                margenIzquierdo +
+
+                columna *
+                (
+                    anchoRecuadro +
+                    separacionColumnas
+                );
+
+
+            // =============================================
+            // DIBUJAR RESERVA
+            // =============================================
+
+            dibujarRecuadroReservaPDF(
+
+                doc,
+
+                reserva,
+
+                x,
+
+                y,
+
+                anchoRecuadro,
+
+                altoRecuadro
+
+            );
+
+
+            // =============================================
+            // ACTUALIZAR ALTURA DE FILA
+            // =============================================
+
+            altoFila =
+                Math.max(
+                    altoFila,
+                    altoRecuadro
+                );
+
+
+            columna++;
+
+
+            // =============================================
+            // COMPLETAMOS LAS 3 COLUMNAS
+            // =============================================
+
+            if (
+                columna >=
+                columnas
+            ) {
+
+                columna =
+                    0;
+
+
+                y +=
+                    altoFila +
+                    separacionVertical;
+
+
+                altoFila =
+                    0;
+
+            }
+
+        }
+
+    }
+
+
+    // =====================================================
+    // PIE DE TODAS LAS PÁGINAS
+    // =====================================================
+
+    const numeroPaginas =
+        doc.internal
+            .getNumberOfPages();
+
+
+    for (
+        let pagina = 1;
+        pagina <= numeroPaginas;
+        pagina++
+    ) {
+
+        doc.setPage(
+            pagina
+        );
+
+
+        dibujarPiePagina(
+            pagina,
+            numeroPaginas
         );
 
     }
@@ -5047,7 +5006,7 @@ async function descargarTablaPDF() {
 
 
     // =====================================================
-    // GUARDAR PDF
+    // GUARDAR
     // =====================================================
 
     doc.save(
@@ -5072,7 +5031,6 @@ document
 
         }
     );
-
 // =========================================================
 // GESTIÓN ACADÉMICA
 // =========================================================
