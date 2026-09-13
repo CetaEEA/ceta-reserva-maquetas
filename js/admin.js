@@ -3635,6 +3635,178 @@ function crearContenidoReservaPDF(
 
 
 // =========================================================
+// CALCULAR ALTURA REAL DE UNA RESERVA EN PDF
+// =========================================================
+
+function calcularAlturaReservaPDF(
+    doc,
+    reserva,
+    anchoDisponible
+) {
+
+    const datos =
+        crearContenidoReservaPDF(
+            reserva
+        );
+
+
+    const interlineado =
+        4.7;
+
+
+    let lineasTotales =
+        0;
+
+
+    // =====================================================
+    // CONTAR CAMPO ETIQUETA + VALOR
+    // =====================================================
+
+    const contarCampo =
+        (
+            etiqueta,
+            valor
+        ) => {
+
+            doc.setFont(
+                "helvetica",
+                "bold"
+            );
+
+
+            const anchoEtiqueta =
+                doc.getTextWidth(
+                    etiqueta
+                );
+
+
+            doc.setFont(
+                "helvetica",
+                "normal"
+            );
+
+
+            const anchoValor =
+                Math.max(
+                    10,
+                    anchoDisponible -
+                    anchoEtiqueta -
+                    1
+                );
+
+
+            const lineas =
+                doc.splitTextToSize(
+
+                    String(
+                        valor
+                    ),
+
+                    anchoValor
+
+                );
+
+
+            lineasTotales +=
+                Math.max(
+                    1,
+                    lineas.length
+                );
+
+        };
+
+
+    // DOCENTE
+
+    contarCampo(
+        "Docente: ",
+        datos.docente
+    );
+
+
+    // GRUPO
+
+    contarCampo(
+        "Grupo: ",
+        datos.grupo
+    );
+
+
+    // =====================================================
+    // MAQUETAS
+    // =====================================================
+
+    // Línea donde aparece:
+    // Maqueta:
+    // o
+    // Maquetas:
+
+    lineasTotales +=
+        1;
+
+
+    if (
+        datos.nombresMaquetas.length >
+        0
+    ) {
+
+        datos.nombresMaquetas
+            .forEach(
+                nombreMaqueta => {
+
+                    const lineas =
+                        doc.splitTextToSize(
+
+                            String(
+                                nombreMaqueta
+                            ),
+
+                            anchoDisponible
+
+                        );
+
+
+                    lineasTotales +=
+                        Math.max(
+                            1,
+                            lineas.length
+                        );
+
+                }
+            );
+
+    } else {
+
+        lineasTotales +=
+            1;
+
+    }
+
+
+    // ÁREA
+
+    contarCampo(
+        "Área: ",
+        datos.area
+    );
+
+
+    // TEMA
+
+    contarCampo(
+        "Tema: ",
+        datos.tema
+    );
+
+
+    return (
+        lineasTotales *
+        interlineado
+    );
+}
+
+
+// =========================================================
 // DIBUJAR TEXTO DE UNA RESERVA DENTRO DE CELDA PDF
 // =========================================================
 
@@ -3779,11 +3951,19 @@ function dibujarReservaEnCeldaPDF(
         };
 
 
+    // =====================================================
+    // DOCENTE
+    // =====================================================
+
     escribirLinea(
         "Docente: ",
         datos.docente
     );
 
+
+    // =====================================================
+    // GRUPO
+    // =====================================================
 
     escribirLinea(
         "Grupo: ",
@@ -3892,11 +4072,19 @@ function dibujarReservaEnCeldaPDF(
     }
 
 
+    // =====================================================
+    // ÁREA
+    // =====================================================
+
     escribirLinea(
         "Área: ",
         datos.area
     );
 
+
+    // =====================================================
+    // TEMA
+    // =====================================================
 
     escribirLinea(
         "Tema: ",
@@ -4005,22 +4193,175 @@ async function descargarTablaPDF() {
 
 
     // =====================================================
-    // LOGO SUPERIOR IZQUIERDO
+    // FUNCIÓN PARA DIBUJAR ENCABEZADO EN CADA PÁGINA
     // =====================================================
 
-    if (logoCeta) {
+    function dibujarEncabezadoPDF() {
 
-        doc.addImage(
+        if (logoCeta) {
 
-            logoCeta,
+            doc.addImage(
 
-            "PNG",
+                logoCeta,
 
-            8,
-            5,
+                "PNG",
+
+                8,
+                5,
+
+                34,
+                34
+
+            );
+
+        }
+
+
+        doc.setFont(
+            "helvetica",
+            "bold"
+        );
+
+
+        doc.setFontSize(
+            15
+        );
+
+
+        doc.text(
+
+            "INSTITUTO DE ENSEÑANZA TÉCNICO AUTOMOTRIZ CETA",
+
+            164,
+
+            10,
+
+            {
+                align:
+                    "center"
+            }
+
+        );
+
+
+        doc.setFontSize(
+            11
+        );
+
+
+        doc.text(
+
+            "CARRERA DE ELECTRICIDAD Y ELECTRÓNICA AUTOMOTRIZ",
+
+            164,
+
+            17,
+
+            {
+                align:
+                    "center"
+            }
+
+        );
+
+
+        doc.setLineWidth(
+            0.4
+        );
+
+
+        doc.line(
+
+            47,
+            21,
+
+            289,
+            21
+
+        );
+
+
+        doc.setFontSize(
+            14
+        );
+
+
+        doc.text(
+
+            "SISTEMA DE RESERVA DE MAQUETAS",
+
+            164,
+
+            28,
+
+            {
+                align:
+                    "center"
+            }
+
+        );
+
+
+        doc.setFontSize(
+            11
+        );
+
+
+        doc.text(
+
+            "REGISTRO SEMANAL DE RESERVAS",
+
+            164,
 
             34,
-            34
+
+            {
+                align:
+                    "center"
+            }
+
+        );
+
+
+        doc.setFont(
+            "helvetica",
+            "normal"
+        );
+
+
+        doc.setFontSize(
+            10
+        );
+
+
+        doc.text(
+
+            `Semana: ${formatearFechaAdmin(lunes)} al ${formatearFechaAdmin(viernes)}`,
+
+            164,
+
+            40,
+
+            {
+                align:
+                    "center"
+            }
+
+        );
+
+
+        doc.setLineWidth(
+            0.25
+        );
+
+
+        doc.line(
+
+            8,
+            44,
+
+            289,
+            44
 
         );
 
@@ -4028,156 +4369,10 @@ async function descargarTablaPDF() {
 
 
     // =====================================================
-    // ENCABEZADO INSTITUCIONAL
+    // DIBUJAR ENCABEZADO PRIMERA PÁGINA
     // =====================================================
 
-    doc.setFont(
-        "helvetica",
-        "bold"
-    );
-
-
-    doc.setFontSize(
-        15
-    );
-
-
-    doc.text(
-
-        "INSTITUTO DE ENSEÑANZA TÉCNICO AUTOMOTRIZ CETA",
-
-        164,
-
-        10,
-
-        {
-            align:
-                "center"
-        }
-
-    );
-
-
-    doc.setFontSize(
-        11
-    );
-
-
-    doc.text(
-
-        "CARRERA DE ELECTRICIDAD Y ELECTRÓNICA AUTOMOTRIZ",
-
-        164,
-
-        17,
-
-        {
-            align:
-                "center"
-        }
-
-    );
-
-
-    doc.setLineWidth(
-        0.4
-    );
-
-
-    doc.line(
-
-        47,
-        21,
-
-        289,
-        21
-
-    );
-
-
-    doc.setFontSize(
-        14
-    );
-
-
-    doc.text(
-
-        "SISTEMA DE RESERVA DE MAQUETAS",
-
-        164,
-
-        28,
-
-        {
-            align:
-                "center"
-        }
-
-    );
-
-
-    doc.setFontSize(
-        11
-    );
-
-
-    doc.text(
-
-        "REGISTRO SEMANAL DE RESERVAS",
-
-        164,
-
-        34,
-
-        {
-            align:
-                "center"
-        }
-
-    );
-
-
-    doc.setFont(
-        "helvetica",
-        "normal"
-    );
-
-
-    doc.setFontSize(
-        10
-    );
-
-
-    doc.text(
-
-        `Semana: ${formatearFechaAdmin(lunes)} al ${formatearFechaAdmin(viernes)}`,
-
-        164,
-
-        40,
-
-        {
-            align:
-                "center"
-        }
-
-    );
-
-
-    doc.setLineWidth(
-        0.25
-    );
-
-
-    doc.line(
-
-        8,
-        44,
-
-        289,
-        44
-
-    );
+    dibujarEncabezadoPDF();
 
 
     // =====================================================
@@ -4239,13 +4434,16 @@ async function descargarTablaPDF() {
 
 
     // =====================================================
-    // CUERPO DE TABLA
-    // Cada celda guarda temporalmente IDs/reservas
+    // MAPA DE RESERVAS POR CELDA
     // =====================================================
 
     const mapaReservasCeldas =
         new Map();
 
+
+    // =====================================================
+    // CUERPO DE TABLA
+    // =====================================================
 
     const body =
         horarios.map(
@@ -4313,6 +4511,9 @@ async function descargarTablaPDF() {
 
                     } else {
 
+                        // Espacio vacío porque el contenido
+                        // se dibuja manualmente después.
+
                         fila.push(
                             " "
                         );
@@ -4347,6 +4548,17 @@ async function descargarTablaPDF() {
             "grid",
 
 
+        // =================================================
+        // CONTROL DE SALTOS DE PÁGINA
+        // =================================================
+
+        pageBreak:
+            "auto",
+
+        rowPageBreak:
+            "avoid",
+
+
         styles: {
 
             fontSize:
@@ -4365,7 +4577,7 @@ async function descargarTablaPDF() {
                 20,
 
             minCellHeight:
-                22
+                28
 
         },
 
@@ -4408,6 +4620,16 @@ async function descargarTablaPDF() {
         },
 
 
+        // =================================================
+        // MÁRGENES
+        // =================================================
+        //
+        // El footer empieza aproximadamente en Y = 198.
+        //
+        // Dejamos 18 mm inferiores para impedir que la tabla
+        // llegue hasta el pie de página.
+        // =================================================
+
         margin: {
 
             left:
@@ -4420,13 +4642,13 @@ async function descargarTablaPDF() {
                 48,
 
             bottom:
-                14
+                18
 
         },
 
 
         // =================================================
-        // CALCULAR ALTURA DE CELDAS CON RESERVAS
+        // CALCULAR ALTURA REAL DE CELDAS
         // =================================================
 
         didParseCell:
@@ -4441,10 +4663,17 @@ async function descargarTablaPDF() {
                 }
 
 
+                // =========================================
+                // COLUMNA HORARIO
+                // =========================================
+
                 if (
                     data.column.index ===
                     0
                 ) {
+
+                    data.cell.styles.minCellHeight =
+                        28;
 
                     return;
                 }
@@ -4460,65 +4689,99 @@ async function descargarTablaPDF() {
                     ) || [];
 
 
+                // =========================================
+                // CELDA LIBRE
+                // =========================================
+
                 if (
                     reservas.length ===
                     0
                 ) {
 
+                    data.cell.styles.minCellHeight =
+                        28;
+
                     return;
                 }
 
 
-                let lineasEstimadas =
+                // =========================================
+                // ANCHO REAL DISPONIBLE
+                // =========================================
+
+                doc.setFontSize(
+                    9.5
+                );
+
+
+                const anchoDisponible =
+                    Math.max(
+                        10,
+                        data.cell.width -
+                        4
+                    );
+
+
+                // =========================================
+                // ALTURA REAL DEL CONTENIDO
+                // =========================================
+
+                let alturaContenido =
                     0;
 
 
                 reservas.forEach(
-                    reserva => {
+                    (
+                        reserva,
+                        indice
+                    ) => {
 
-                        const datos =
-                            crearContenidoReservaPDF(
-                                reserva
+                        alturaContenido +=
+                            calcularAlturaReservaPDF(
+
+                                doc,
+
+                                reserva,
+
+                                anchoDisponible
+
                             );
 
 
-                        lineasEstimadas +=
-                            4;
-
-
-                        lineasEstimadas +=
-                            Math.max(
-                                1,
-                                datos.nombresMaquetas.length
-                            );
-
+                        // =================================
+                        // SEPARACIÓN ENTRE RESERVAS
+                        // =================================
 
                         if (
-                            String(
-                                datos.tema
-                            ).length >
-                            30
+                            indice <
+                            reservas.length - 1
                         ) {
 
-                            lineasEstimadas +=
-                                1;
+                            // 2 mm antes de la línea
+                            // + aproximadamente 4 mm después
+
+                            alturaContenido +=
+                                6;
 
                         }
-
-
-                        lineasEstimadas +=
-                            2;
 
                     }
                 );
 
 
+                // =========================================
+                // ESPACIO SUPERIOR E INFERIOR
+                // =========================================
+
+                const alturaNecesaria =
+                    alturaContenido +
+                    9;
+
+
                 data.cell.styles.minCellHeight =
                     Math.max(
                         28,
-                        lineasEstimadas *
-                        4.7 +
-                        5
+                        alturaNecesaria
                     );
 
             },
@@ -4568,6 +4831,10 @@ async function descargarTablaPDF() {
                 }
 
 
+                // =========================================
+                // POSICIÓN INICIAL
+                // =========================================
+
                 const x =
                     data.cell.x +
                     2;
@@ -4587,6 +4854,10 @@ async function descargarTablaPDF() {
                     9.5
                 );
 
+
+                // =========================================
+                // DIBUJAR RESERVAS
+                // =========================================
 
                 reservas.forEach(
                     (
@@ -4609,6 +4880,10 @@ async function descargarTablaPDF() {
 
                             );
 
+
+                        // =================================
+                        // LÍNEA ENTRE RESERVAS
+                        // =================================
 
                         if (
                             indice <
@@ -4646,6 +4921,29 @@ async function descargarTablaPDF() {
                     }
                 );
 
+            },
+
+
+        // =================================================
+        // DIBUJAR ENCABEZADO INSTITUCIONAL
+        // EN PÁGINAS ADICIONALES
+        // =================================================
+
+        didDrawPage:
+            function(data) {
+
+                // La primera página ya tiene encabezado.
+                // Las páginas siguientes necesitan repetirlo.
+
+                if (
+                    data.pageNumber >
+                    1
+                ) {
+
+                    dibujarEncabezadoPDF();
+
+                }
+
             }
 
     });
@@ -4671,6 +4969,10 @@ async function descargarTablaPDF() {
         );
 
 
+        // =================================================
+        // LÍNEA SUPERIOR DEL FOOTER
+        // =================================================
+
         doc.setLineWidth(
             0.2
         );
@@ -4686,6 +4988,10 @@ async function descargarTablaPDF() {
 
         );
 
+
+        // =================================================
+        // TEXTO FOOTER
+        // =================================================
 
         doc.setFontSize(
             8
@@ -4766,6 +5072,7 @@ document
 
         }
     );
+
 // =========================================================
 // GESTIÓN ACADÉMICA
 // =========================================================
